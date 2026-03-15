@@ -5,17 +5,14 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  /* Define the finacial colors*/
   --color-finance-income: #10b981;
   --color-finance-expense: #f43f5e;
   --color-finance-savings: #3b82f6;
 
-  /* Base colors for shadcn compatibility */
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-border: hsl(var(--border));
 
-  /* Configure the Geist fonts */
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
 }

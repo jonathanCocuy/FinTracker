@@ -20,8 +20,7 @@ const config: Config = {
         },
       },
       fontFamily: {
-        // Accedemos a fontFamily a través del objeto defaultTheme
-        sans: ["var(--font-geist-sans)", ...defaultTheme.fontFamily.sans],
+        sans: ["var(--font-sans)", ...defaultTheme.fontFamily.sans],
         mono: ["var(--font-geist-mono)", ...defaultTheme.fontFamily.mono],
       },
     },
