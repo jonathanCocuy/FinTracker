@@ -29,35 +29,35 @@ export default function RegisterPage() {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
-      <Card className="w-full max-w-md">
+      <Card className="w-[90%] max-w-md">
         <CardHeader>
           <CardTitle className="text-xl font-bold">Register to your account</CardTitle>
           <CardDescription className="text-sm text-muted-foreground">Enter your full name, email and password to register to your account</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-2">
             <div className="flex flex-col">
               <Label htmlFor="full_name" className="text-sm pb-1 cursor-pointer">Full Name</Label>
-              <Input id="full_name" type="text" placeholder="John Doe" {...form.register("full_name")} className={cn("text-lg", form.formState.errors.full_name?.message && "border-red-500")} />
+              <Input id="full_name" type="text" placeholder="John Doe" {...form.register("full_name")} className={cn(form.formState.errors.full_name?.message && "border-red-500")} />
               {form.formState.errors.full_name?.message && <p className="text-sm text-red-500 pl-2 pt-1">{form.formState.errors.full_name?.message}</p>}
             </div>
             <div className="flex flex-col">
               <Label htmlFor="email" className="text-sm pb-1 cursor-pointer">Email</Label>
-              <Input id="email" type="email" placeholder="username@example.com" {...form.register("email")} className={cn("text-lg", form.formState.errors.email?.message && "border-red-500")} />
+              <Input id="email" type="email" placeholder="username@example.com" {...form.register("email")} className={cn(form.formState.errors.email?.message && "border-red-500")} />
               {form.formState.errors.email?.message && <p className="text-sm text-red-500 pl-2 pt-1">{form.formState.errors.email?.message}</p>}
             </div>
             <div className="flex flex-col">
               <div className="flex justify-between pb-1">
                 <Label htmlFor="password" className="text-md cursor-pointer">Password</Label>
               </div>
-              <Input id="password" type="password" placeholder="********" {...form.register("password")} className={cn("text-lg", form.formState.errors.password?.message && "border-red-500")} />
+              <Input id="password" type="password" placeholder="********" {...form.register("password")} className={cn(form.formState.errors.password?.message && "border-red-500")} />
               {form.formState.errors.password?.message && <p className="text-sm text-red-500 pl-2 pt-1">{form.formState.errors.password?.message?.toString()}</p>}
             </div>
             <div className="flex flex-col">
               <div className="flex justify-between pb-1">
                 <Label htmlFor="confirm_password" className="text-md cursor-pointer"> Confirm password</Label>
               </div>
-              <Input id="confirm_password" type="password" placeholder="********" {...form.register("confirm_password")} className={cn("text-lg", form.formState.errors.confirm_password?.message && "border-red-500")} />
+              <Input id="confirm_password" type="password" placeholder="********" {...form.register("confirm_password")} className={cn(form.formState.errors.confirm_password?.message && "border-red-500")} />
               {form.formState.errors.confirm_password?.message && <p className="text-sm text-red-500 pl-2 pt-1">{form.formState.errors.confirm_password?.message}</p>}
             </div>
               <Button type="submit" variant="default" size="lg" className="cursor-pointer">Register</Button>

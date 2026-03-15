@@ -27,16 +27,16 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
-      <Card className="w-full max-w-md">
+      <Card className="w-[90%] max-w-md">
         <CardHeader>
           <CardTitle className="text-xl font-bold">Login to your account</CardTitle>
           <CardDescription className="text-sm text-muted-foreground">Enter your email and password to login to your account</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-2">
             <div className="flex flex-col">
               <Label htmlFor="email" className="text-sm pb-1 cursor-pointer">Email</Label>
-              <Input id="email" type="email" placeholder="username@example.com" {...form.register("email")} className={cn("text-lg", form.formState.errors.email?.message && "border-red-500")} />
+              <Input id="email" type="email" placeholder="username@example.com" {...form.register("email")} className={cn(form.formState.errors.email?.message && "border-red-500")} />
               {form.formState.errors.email?.message && <p className="text-sm text-red-500 pl-2 pt-1">{form.formState.errors.email?.message}</p>}
             </div>
             <div className="flex flex-col">
@@ -44,7 +44,7 @@ export default function LoginPage() {
                 <Label htmlFor="password" className="text-md cursor-pointer">Password</Label>
                 <Button type="button" variant="link" size="lg" onClick={() => router.push("/forgot-password")} className="text-sm p-0 m-0 cursor-pointer">Forgot password?</Button>
               </div>
-              <Input id="password" type="password" placeholder="********" {...form.register("password")} className={cn("text-lg", form.formState.errors.password?.message && "border-red-500")} />
+              <Input id="password" type="password" placeholder="********" {...form.register("password")} className={cn(form.formState.errors.password?.message && "border-red-500")} />
               {form.formState.errors.password?.message && <p className="text-sm text-red-500 pl-2 pt-1">{form.formState.errors.password?.message?.toString()}</p>}
             </div>
               <Button type="submit" variant="default" size="lg" className="cursor-pointer">Login</Button>
