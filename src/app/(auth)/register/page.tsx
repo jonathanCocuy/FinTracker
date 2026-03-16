@@ -29,7 +29,7 @@ export default function RegisterPage() {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
-      <Card className="w-[90%] max-w-md">
+      <Card className="w-full min-w-sm max-w-sm">
         <CardHeader>
           <CardTitle className="text-xl font-bold">Register to your account</CardTitle>
           <CardDescription className="text-sm text-muted-foreground">Enter your full name, email and password to register to your account</CardDescription>
