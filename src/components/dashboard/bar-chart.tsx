@@ -1,6 +1,6 @@
 "use client"
 
-import { Bar, BarChart as ReChartsBar, ResponsiveContainer, XAxis, YAxis, Tooltip, Cell, LabelList } from "recharts"
+import { Bar, BarChart as ReChartsBar, ResponsiveContainer, XAxis, YAxis, Tooltip, Cell } from "recharts"
 
 interface ChartData {
   label: string
@@ -78,7 +78,7 @@ export function BarChartComponent({ data, color = "var(--color-finance-income)" 
           {data.map((entry, index) => (
             <Cell
               key={`cell-${index}`}
-              fill={colorMap[color as keyof typeof colorMap]} 
+              fill={colorMap[color as keyof typeof colorMap]}
             />
           ))}
           </Bar>

@@ -85,14 +85,3 @@ export function KpiGrid({ data, className }: { data: KpiItem[]; className?: stri
     </div>
   )
 }
-
-// ─── Uso ──────────────────────────────────────────────────────────────────────
-//
-// const data = [
-//   { label: "Ingresos",    value: 3500000, previousValue: 3125000, subtitle: "vs febrero", color: "income"  },
-//   { label: "Gastos",      value: 2260000, previousValue: 2092592, subtitle: "vs febrero", color: "expense" },
-//   { label: "Ahorro",      value: 620000,  previousValue: 620000,  subtitle: "vs febrero", color: "savings" },
-//   { label: "Transporte",  value: 150000,                                                   color: "default" },
-// ]
-//
-// <KpiGrid data={data} className="grid-cols-2 md:grid-cols-4" />
