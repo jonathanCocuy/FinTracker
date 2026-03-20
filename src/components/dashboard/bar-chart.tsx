@@ -17,6 +17,27 @@ const colorMap = {
   "var(--color-finance-expense)": "var(--color-finance-expense)",
   "var(--color-finance-savings)": "var(--color-finance-savings)",
 }
+
+// Función para formatear valores
+const formatYAxis = (value: number) => {
+  if (value >= 1_000_000) {
+    return `${(value / 1_000_000).toFixed(1)}M`;
+  } else if (value >= 1_000) {
+    return `${(value / 1_000).toFixed(0)}K`;
+  }
+  return value.toString();
+};
+
+const formatTooltip = (value: number) => {
+  const formatter = new Intl.NumberFormat('es-ES', {
+    style: 'decimal', // Cambiado de 'currency' a 'decimal'
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  });
+
+  return formatter.format(value);
+};
+
 export function BarChartComponent({ data, color = "var(--color-finance-income)" }: BarChartProps) {
   return (
     <div className="h-[250px] w-[90%] md:w-[500px] lg:w-[600px] p-2 pt-4 rounded-lg bg-background border-border border-2">
@@ -24,7 +45,7 @@ export function BarChartComponent({ data, color = "var(--color-finance-income)" 
         <ReChartsBar data={data} margin={{ top: 30, right: 10, left: 20, bottom: 20 }}>
           <XAxis
             dataKey="label"
-            hide={true}
+            tickFormatter={(value) => value.charAt(0).toUpperCase()}
             stroke="#888888"
             fontSize={9}
             tickLine={false}
@@ -36,11 +57,11 @@ export function BarChartComponent({ data, color = "var(--color-finance-income)" 
             fontSize={12}
             tickLine={false}
             axisLine={false}
-            tickFormatter={(value) => `$${value}`}
+            tickFormatter={formatYAxis}
           />
           <Tooltip
             cursor={{ fill: 'var(--color-border)', opacity: 0.1 }}
-            formatter={(value) => [value, "$"]}
+            formatter={(value) => [formatTooltip(value as number), "$"]}
             separator=""
             contentStyle={{
               backgroundColor: 'var(--color-background)',

@@ -18,7 +18,9 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
     <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
       <body className={`${GeistSans.className} antialiased`}>
         {/* ThemeProvider is used to provide the theme to the children */}
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

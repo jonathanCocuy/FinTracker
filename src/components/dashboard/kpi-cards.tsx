@@ -59,7 +59,7 @@ export function KpiCard({ item }: { item: KpiItem }) {
   return (
     <div className="bg-muted/50 rounded-lg px-4 py-3.5 flex flex-col gap-1.5">
       <p className="text-[11px] text-muted-foreground">{label}</p>
-      <p className={`text-[22px] font-medium leading-tight ${colorMap[color]}`}>
+      <p className={`text-xl font-medium leading-tight ${colorMap[color]}`}>
         {color === "income" ? "+" : color === "expense" ? "-" : ""}{prefix}{formatNumber(value)}{suffix}
       </p>
       <div className="flex items-center justify-between gap-2 min-h-[18px]">
