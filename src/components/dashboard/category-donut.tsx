@@ -1,5 +1,6 @@
 "use client"
 
+import { useI18n } from "@/src/lib/i18n"
 import {
   PieChart,
   Pie,
@@ -20,7 +21,7 @@ interface CategoryDonutProps {
 }
 
 export function CategoryDonut({ data }: CategoryDonutProps) {
-  // Calculamos el total para mostrarlo si quisiéramos en el centro
+  const { t } = useI18n()
   const total = data.reduce((acc, curr) => acc + curr.value, 0)
 
   const formattedTotal = (value: number) => {
@@ -38,7 +39,7 @@ export function CategoryDonut({ data }: CategoryDonutProps) {
       <div className="h-[250px] w-full relative">
         {/* Truco Pro: Texto en el centro del Donut */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <span className="text-xs text-muted-foreground uppercase font-semibold">Total</span>
+          <span className="text-xs text-muted-foreground uppercase font-semibold">{t("common.total")}</span>
           <span className="text-xl font-bold tracking-tight">
             ${Intl.NumberFormat('es-CO', { notation: 'compact' }).format(total)}
           </span>

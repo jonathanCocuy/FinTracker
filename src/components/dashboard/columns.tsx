@@ -6,27 +6,28 @@ import { ArrowUpRight, ShoppingBag, Utensils, Car, Tv } from "lucide-react"
 export type Transaction = {
   id: string
   date: string
-  category: "Comida" | "Transporte" | "Vivienda" | "Suscripciones" | "Ingreso"
+  category: string
   description: string
   amount: number
   type: "income" | "expense"
 }
 
-export const columns: ColumnDef<Transaction>[] = [
+export function createColumns(t: (key: string) => string): ColumnDef<Transaction>[] {
+  return [
   {
     accessorKey: "description",
-    header: "Descripción",
+    header: t("table.description"),
     cell: ({ row }) => {
       const category = row.original.category
       return (
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-full bg-muted/50">
              {/* Iconos dinámicos por categoría */}
-            {category === "Comida" && <Utensils size={14} />}
-            {category === "Transporte" && <Car size={14} />}
-            {category === "Suscripciones" && <Tv size={14} />}
-            {category === "Vivienda" && <ShoppingBag size={14} />}
-            {category === "Ingreso" && <ArrowUpRight size={14} className="text-emerald-500" />}
+            {category === "food" && <Utensils size={14} />}
+            {category === "transport" && <Car size={14} />}
+            {category === "subscriptions" && <Tv size={14} />}
+            {category === "housing" && <ShoppingBag size={14} />}
+            {category === "income" && <ArrowUpRight size={14} className="text-emerald-500" />}
           </div>
           <span className="font-medium">{row.getValue("description")}</span>
         </div>
@@ -35,11 +36,11 @@ export const columns: ColumnDef<Transaction>[] = [
   },
   {
     accessorKey: "date",
-    header: "Fecha",
+    header: t("table.date"),
   },
   {
     accessorKey: "amount",
-    header: () => <div className="text-right">Monto</div>,
+    header: () => <div className="text-right">{t("table.amount")}</div>,
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue("amount"))
       const type = row.original.type
@@ -57,3 +58,4 @@ export const columns: ColumnDef<Transaction>[] = [
     },
   },
 ]
+}

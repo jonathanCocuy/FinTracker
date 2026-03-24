@@ -40,9 +40,9 @@ const formatTooltip = (value: number) => {
 
 export function BarChartComponent({ data, color = "var(--color-finance-income)" }: BarChartProps) {
   return (
-    <div className="h-[250px] w-[90%] md:w-[500px] lg:w-[600px] p-2 pt-4 rounded-lg bg-background border-border border-2">
+    <div className="h-[250px] p-2 pt-4 rounded-lg bg-background border-border border-2">
       <ResponsiveContainer width="100%" height="100%">
-        <ReChartsBar data={data} margin={{ top: 30, right: 10, left: 20, bottom: 20 }}>
+        <ReChartsBar data={data}>
           <XAxis
             dataKey="label"
             tickFormatter={(value) => value.charAt(0).toUpperCase()}

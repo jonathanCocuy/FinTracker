@@ -1,0 +1,118 @@
+{
+  "common": {
+    "appName": "Fin Tracker",
+    "appDescription": "Track your finances",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "fullName": "Full Name",
+    "login": "Login",
+    "register": "Register",
+    "save": "Save",
+    "cancel": "Cancel",
+    "total": "Total",
+    "amount": "Amount",
+    "date": "Date",
+    "description": "Description",
+    "category": "Category",
+    "account": "Account",
+    "pickDate": "Pick a date"
+  },
+  "home": {
+    "hello": "Hello World"
+  },
+  "auth": {
+    "login": {
+      "title": "Login to your account",
+      "subtitle": "Enter your email and password to login to your account",
+      "emailPlaceholder": "username@example.com",
+      "passwordPlaceholder": "********",
+      "forgotPassword": "Forgot password?",
+      "submit": "Login",
+      "noAccount": "Don't have an account?",
+      "goToRegister": "Register"
+    },
+    "register": {
+      "title": "Register to your account",
+      "subtitle": "Enter your full name, email and password to register to your account",
+      "fullNamePlaceholder": "John Doe",
+      "emailPlaceholder": "username@example.com",
+      "passwordPlaceholder": "********",
+      "submit": "Register",
+      "hasAccount": "Don't have an account?",
+      "goToLogin": "Login"
+    }
+  },
+  "validation": {
+    "invalidEmail": "Invalid email address",
+    "passwordMinLength": "Password must be at least 8 characters long",
+    "fullNameMinLength": "Full name must be at least 2 characters long",
+    "confirmPasswordMinLength": "Confirm password must be at least 8 characters long",
+    "passwordsDontMatch": "Passwords don't match",
+    "selectIcon": "Select an icon",
+    "descriptionRequired": "Description is required",
+    "enterAmount": "Enter an amount",
+    "selectCategory": "Select a category",
+    "selectAccount": "Select an account"
+  },
+  "dashboard": {
+    "kpisTitle": "KPIs",
+    "kpisSubtitle": "This is a summary of your categories.",
+    "dayChart": "Day",
+    "categoryChart": "Category",
+    "transactionsTitle": "Transactions",
+    "noTransactions": "No recent transactions.",
+    "vsPreviousMonth": "vs previous month"
+  },
+  "kpis": {
+    "balanceTotal": "Total Balance",
+    "incomeMonth": "Monthly Income",
+    "expensesMonth": "Monthly Expenses",
+    "savingsGoal": "Savings Goal"
+  },
+  "transactionModal": {
+    "title": "Register Transaction",
+    "newMovement": "New Movement",
+    "descriptionPlaceholder": "e.g. Lunch, Subscription...",
+    "amountLabel": "Amount",
+    "categoryLabel": "Category",
+    "dateLabel": "Date",
+    "accountLabel": "Account",
+    "saveTransaction": "Save Transaction",
+    "searchIcon": "Search icon...",
+    "categoryPlaceholder": "Food",
+    "accountPlaceholder": "Bancolombia"
+  },
+  "categories": {
+    "home": "Home",
+    "food": "Food",
+    "transport": "Transport",
+    "housing": "Housing",
+    "subscriptions": "Subscriptions",
+    "income": "Income",
+    "other": "Other",
+    "leisure": "Leisure"
+  },
+  "accounts": {
+    "bancolombia": "Bancolombia",
+    "nubank": "Nubank",
+    "daviplata": "Daviplata",
+    "bancodebogota": "Banco de Bogota",
+    "nequi": "Nequi",
+    "mercadopago": "Mercado Pago"
+  },
+  "table": {
+    "description": "Description",
+    "date": "Date",
+    "amount": "Amount"
+  },
+  "weekdays": {
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday"
+  }
+}

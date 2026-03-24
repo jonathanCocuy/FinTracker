@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
+import { useI18n } from "@/src/lib/i18n"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -57,6 +58,7 @@ function IconPicker({
   value: string
   onChange: (val: string) => void
 }) {
+  const { t } = useI18n()
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState("")
 
@@ -85,7 +87,7 @@ function IconPicker({
 
       <PopoverContent className="w-72 p-3" align="start">
         <Input
-          placeholder="Buscar icono..."
+          placeholder={t("transactionModal.searchIcon")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="mb-3 h-8 text-sm"
@@ -118,17 +120,77 @@ function IconPicker({
   )
 }
 
-// ─── Zod schema ───────────────────────────────────────────────────────────────
-const formSchema = z.object({
-  icon: z.string().min(1, "Selecciona un icono"),
-  description: z.string().min(2, "La descripción es requerida"),
-  amount: z.string().min(1, "Ingresa un monto"),
-  category: z.string().min(1, "Selecciona una categoría"),
-  type: z.enum(["income", "expense"]),
+// ─── Formatted number input (es-CO: 1.000.000) ────────────────────────────────
+const amountFormatter = new Intl.NumberFormat("es-CO", {
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 2,
 })
+
+function AmountInput({
+  value,
+  onChange,
+  ...props
+}: {
+  value: string
+  onChange: (v: string) => void
+} & Omit<React.ComponentProps<"input">, "value" | "onChange" | "type">) {
+  const [raw, setRaw] = useState(value)
+  const [isFocused, setIsFocused] = useState(false)
+
+  React.useEffect(() => {
+    if (!isFocused) setRaw(value)
+  }, [value, isFocused])
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value.replace(/[^\d.,]/g, "")
+    setRaw(v)
+    // es-CO: 1.234.567,89 -> strip dots (thousands), keep comma as decimal
+    const numStr = v.replace(/\./g, "").replace(",", ".")
+    onChange(numStr || "")
+  }
+
+  const handleBlur = () => {
+    setIsFocused(false)
+    if (raw) {
+      const num = parseFloat(raw.replace(/\./g, "").replace(",", ".")) || 0
+      onChange(String(num))
+    }
+  }
+
+  const displayValue = isFocused
+    ? raw
+    : value
+      ? amountFormatter.format(parseFloat(value) || 0)
+      : ""
+
+  return (
+    <Input
+      type="text"
+      inputMode="decimal"
+      value={displayValue}
+      onChange={handleChange}
+      onFocus={() => setIsFocused(true)}
+      onBlur={handleBlur}
+      {...props}
+    />
+  )
+}
+
 
 // ─── Modal ────────────────────────────────────────────────────────────────────
 export function TransactionModal() {
+  const { t } = useI18n()
+
+  const formSchema = z.object({
+    icon: z.string().min(1, t("validation.selectIcon")),
+    description: z.string().min(2, t("validation.descriptionRequired")),
+    amount: z.string().min(1, t("validation.enterAmount")),
+    category: z.string().min(1, t("validation.selectCategory")),
+    type: z.enum(["income", "expense"]),
+    date: z.date(),
+    account: z.string().min(1, t("validation.selectAccount")),
+  })
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -137,6 +199,7 @@ export function TransactionModal() {
       amount: "",
       category: "",
       type: "expense",
+      date: new Date(),
     },
   })
 
@@ -145,21 +208,21 @@ export function TransactionModal() {
     form.reset()
   }
 
-  const [date, setDate] = useState<Date | undefined>(undefined)
+  const [date, setDate] = useState<Date | undefined>(form.getValues("date"))
 
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button className="rounded-xl shadow-md gap-2 font-semibold">
           <Plus size={18} />
-          Nuevo Movimiento
+          {t("transactionModal.newMovement")}
         </Button>
       </DialogTrigger>
 
       <DialogContent className="w-[90%] mx-auto sm:max-w-[425px] bg-card border-border">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold tracking-tight">
-            Registrar Transacción
+            {t("transactionModal.title")}
           </DialogTitle>
         </DialogHeader>
 
@@ -176,7 +239,7 @@ export function TransactionModal() {
                 render={({ field }) => (
                   <FormItem className="space-y-1.5">
                     <FormControl>
-                          <IconPicker value={field.value} onChange={field.onChange} />
+                      <IconPicker value={field.value} onChange={field.onChange} />
                     </FormControl>
                     <FormMessage className="text-[11px]" />
                   </FormItem>
@@ -191,8 +254,8 @@ export function TransactionModal() {
                   <FormItem className="flex-1 space-y-1.5">
                     <FormControl>
                       <Input
-                        placeholder="Ej. Almuerzo, Suscripción..."
-                        className="h-10 bg-background/50"
+                        placeholder={t("transactionModal.descriptionPlaceholder")}
+                        className="h-[42px] bg-background/50"
                         {...field}
                       />
                     </FormControl>
@@ -200,40 +263,25 @@ export function TransactionModal() {
                   </FormItem>
                 )}
               />
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    data-empty={!date}
-                    className="w-[37px] h-10 justify-start text-left font-normal data-[empty=true]:text-muted-foreground"
-                  >
-                    <CalendarIcon />
-                    {date ? new Date(date).toLocaleDateString() : <span></span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar mode="single" selected={date} onSelect={setDate} />
-                </PopoverContent>
-              </Popover>
             </div>
 
             {/* Amount + Category */}
-            <div className="flex wrap gap-2 items-end">
+            <div className="grid grid-cols-2 gap-2 items-end justify-center">
 
               <FormField
                 control={form.control}
                 name="amount"
                 render={({ field }) => (
-                  <FormItem className="space-y-1.5">
+                  <FormItem className="space-y-1.5 w-full min-w-0 overflow-hidden">
                     <FormLabel className="text-xs font-semibold uppercase tracking-wider opacity-70">
-                      Monto
+                      {t("transactionModal.amountLabel")}
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="0.00"
-                        className="h-10 rounded-md border-border"
-                        {...field}
+                      <AmountInput
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="0"
+                        className="h-[42px] rounded-md border-border"
                       />
                     </FormControl>
                     <FormMessage className="text-[10px]" />
@@ -247,18 +295,78 @@ export function TransactionModal() {
                 render={({ field }) => (
                   <FormItem className="w-full min-w-0 overflow-hidden">
                     <FormLabel className="text-xs font-semibold uppercase tracking-wider opacity-70">
-                      Categoría
+                      {t("transactionModal.categoryLabel")}
+                    </FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="h-[42px] rounded-md border-border">
+                          <SelectValue placeholder={t("transactionModal.categoryPlaceholder")} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="home">{t("categories.home")}</SelectItem>
+                        <SelectItem value="food">{t("categories.food")}</SelectItem>
+                        <SelectItem value="transport">{t("categories.transport")}</SelectItem>
+                        <SelectItem value="housing">{t("categories.housing")}</SelectItem>
+                        <SelectItem value="subscriptions">{t("categories.subscriptions")}</SelectItem>
+                        <SelectItem value="income">{t("categories.income")}</SelectItem>
+                        <SelectItem value="other">{t("categories.other")}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage className="text-[10px]" />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="date"
+                render={() => (
+                  <FormItem className="space-y-1.5">
+                    <FormLabel className="text-xs font-semibold uppercase tracking-wider opacity-70">
+                      {t("transactionModal.dateLabel")}
+                    </FormLabel>
+                    <FormControl>
+                        <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            data-empty={!date}
+                            className="h-[42px] justify-start text-left font-normal data-[empty=true]:w-[37px] data-[empty=true]:text-muted-foreground text-muted-foreground w-full"
+                          >
+                            <CalendarIcon />
+                            {date ? new Date(date).toLocaleDateString() : t("common.pickDate")}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar mode="single" selected={date} onSelect={setDate} initialFocus />
+                        </PopoverContent>
+                      </Popover>
+                    </FormControl>
+                    <FormMessage className="text-[10px]" />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="account"
+                render={({ field }) => (
+                  <FormItem className="w-full min-w-0 overflow-hidden">
+                    <FormLabel className="text-xs font-semibold uppercase tracking-wider opacity-70">
+                      {t("transactionModal.accountLabel")}
                     </FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger className="h-10 rounded-md border-border">
-                          <SelectValue placeholder="Alimentación" />
+                          <SelectValue placeholder={t("transactionModal.accountPlaceholder")} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="food">Alimentación</SelectItem>
-                        <SelectItem value="transport">Transporte</SelectItem>
-                        <SelectItem value="housing">Vivienda</SelectItem>
+                        <SelectItem value="bancolombia">Bancolombia</SelectItem>
+                        <SelectItem value="nubank">Nubank</SelectItem>
+                        <SelectItem value="daviplata">Daviplata</SelectItem>
+                        <SelectItem value="bancodebogota">Banco de Bogota</SelectItem>
+                        <SelectItem value="Nequi">Nequi</SelectItem>
+                        <SelectItem value="MercadoPago">Mercado Pago</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage className="text-[10px]" />
@@ -268,7 +376,7 @@ export function TransactionModal() {
             </div>
 
             <Button type="submit" className="w-full h-11 text-base font-semibold mt-2">
-              Guardar Transacción
+              {t("transactionModal.saveTransaction")}
             </Button>
           </form>
         </Form>

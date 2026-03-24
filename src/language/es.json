@@ -1,0 +1,118 @@
+{
+  "common": {
+    "appName": "Fin Tracker",
+    "appDescription": "Rastrea tus finanzas",
+    "email": "Correo",
+    "password": "Contraseña",
+    "confirmPassword": "Confirmar contraseña",
+    "fullName": "Nombre completo",
+    "login": "Iniciar sesión",
+    "register": "Registrarse",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "total": "Total",
+    "amount": "Monto",
+    "date": "Fecha",
+    "description": "Descripción",
+    "category": "Categoría",
+    "account": "Cuenta",
+    "pickDate": "Elegir fecha"
+  },
+  "home": {
+    "hello": "Hola Mundo"
+  },
+  "auth": {
+    "login": {
+      "title": "Inicia sesión en tu cuenta",
+      "subtitle": "Ingresa tu correo y contraseña para iniciar sesión",
+      "emailPlaceholder": "usuario@ejemplo.com",
+      "passwordPlaceholder": "********",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "submit": "Iniciar sesión",
+      "noAccount": "¿No tienes cuenta?",
+      "goToRegister": "Registrarse"
+    },
+    "register": {
+      "title": "Regístrate en tu cuenta",
+      "subtitle": "Ingresa tu nombre completo, correo y contraseña para registrarte",
+      "fullNamePlaceholder": "Juan Pérez",
+      "emailPlaceholder": "usuario@ejemplo.com",
+      "passwordPlaceholder": "********",
+      "submit": "Registrarse",
+      "hasAccount": "¿Ya tienes cuenta?",
+      "goToLogin": "Iniciar sesión"
+    }
+  },
+  "validation": {
+    "invalidEmail": "Correo electrónico no válido",
+    "passwordMinLength": "La contraseña debe tener al menos 8 caracteres",
+    "fullNameMinLength": "El nombre debe tener al menos 2 caracteres",
+    "confirmPasswordMinLength": "La confirmación debe tener al menos 8 caracteres",
+    "passwordsDontMatch": "Las contraseñas no coinciden",
+    "selectIcon": "Selecciona un icono",
+    "descriptionRequired": "La descripción es requerida",
+    "enterAmount": "Ingresa un monto",
+    "selectCategory": "Selecciona una categoría",
+    "selectAccount": "Selecciona una cuenta"
+  },
+  "dashboard": {
+    "kpisTitle": "KPIs",
+    "kpisSubtitle": "Resumen de tus categorías.",
+    "dayChart": "Día",
+    "categoryChart": "Categoría",
+    "transactionsTitle": "Transacciones",
+    "noTransactions": "No hay transacciones recientes.",
+    "vsPreviousMonth": "vs mes anterior"
+  },
+  "kpis": {
+    "balanceTotal": "Balance Total",
+    "incomeMonth": "Ingresos del Mes",
+    "expensesMonth": "Gastos del Mes",
+    "savingsGoal": "Meta de Ahorro"
+  },
+  "transactionModal": {
+    "title": "Registrar Transacción",
+    "newMovement": "Nuevo Movimiento",
+    "descriptionPlaceholder": "Ej. Almuerzo, Suscripción...",
+    "amountLabel": "Monto",
+    "categoryLabel": "Categoría",
+    "dateLabel": "Fecha",
+    "accountLabel": "Cuenta",
+    "saveTransaction": "Guardar Transacción",
+    "searchIcon": "Buscar icono...",
+    "categoryPlaceholder": "Alimentación",
+    "accountPlaceholder": "Bancolombia"
+  },
+  "categories": {
+    "home": "Hogar",
+    "food": "Alimentación",
+    "transport": "Transporte",
+    "housing": "Vivienda",
+    "subscriptions": "Suscripciones",
+    "income": "Ingreso",
+    "other": "Otro",
+    "leisure": "Ocio"
+  },
+  "accounts": {
+    "bancolombia": "Bancolombia",
+    "nubank": "Nubank",
+    "daviplata": "Daviplata",
+    "bancodebogota": "Banco de Bogota",
+    "nequi": "Nequi",
+    "mercadopago": "Mercado Pago"
+  },
+  "table": {
+    "description": "Descripción",
+    "date": "Fecha",
+    "amount": "Monto"
+  },
+  "weekdays": {
+    "monday": "Lunes",
+    "tuesday": "Martes",
+    "wednesday": "Miércoles",
+    "thursday": "Jueves",
+    "friday": "Viernes",
+    "saturday": "Sábado",
+    "sunday": "Domingo"
+  }
+}

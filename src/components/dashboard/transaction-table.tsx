@@ -2,6 +2,7 @@
 
 import { type ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table"
 
+import { useI18n } from "@/src/lib/i18n"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/src/components/ui/table"
 
 interface DataTableProps<TData, TValue> {
@@ -13,6 +14,7 @@ export function TransactionTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
+  const { t } = useI18n()
   const table = useReactTable({
     data,
     columns,
@@ -52,7 +54,7 @@ export function TransactionTable<TData, TValue>({
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                No hay transacciones recientes.
+                {t("dashboard.noTransactions")}
               </TableCell>
             </TableRow>
           )}
