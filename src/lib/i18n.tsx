@@ -1,19 +1,43 @@
 "use client"
 
-import { createContext, useContext, useCallback, useState, useEffect } from "react"
+import { createContext, useContext, useCallback, useSyncExternalStore } from "react"
 
 import en from "@/src/language/en.json"
 import es from "@/src/language/es.json"
 
 const translations = { en, es } as const
 export type Locale = keyof typeof translations
-
+ 
 const STORAGE_KEY = "fin-tracker-locale"
 
 function getStoredLocale(): Locale {
   if (typeof window === "undefined") return "es"
   const stored = localStorage.getItem(STORAGE_KEY) as Locale | null
   return stored && (stored === "en" || stored === "es") ? stored : "es"
+}
+
+const localeStore = {
+  listeners: new Set<() => void>(),
+  subscribe(cb: () => void) {
+    this.listeners.add(cb)
+    if (typeof window !== "undefined") {
+      const onStorage = () => cb()
+      window.addEventListener("storage", onStorage)
+      return () => {
+        this.listeners.delete(cb)
+        window.removeEventListener("storage", onStorage)
+      }
+    }
+    return () => this.listeners.delete(cb)
+  },
+  getSnapshot: () => getStoredLocale(),
+  getServerSnapshot: () => "es" as Locale,
+  setLocale(locale: Locale) {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEY, locale)
+    }
+    this.listeners.forEach((cb) => cb())
+  },
 }
 
 function getNested(obj: Record<string, unknown>, path: string): string | undefined {
@@ -35,17 +59,14 @@ interface I18nContextValue {
 const I18nContext = createContext<I18nContextValue | null>(null)
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>("es")
-
-  useEffect(() => {
-    setLocaleState(getStoredLocale())
-  }, [])
+  const locale = useSyncExternalStore(
+    (cb) => localeStore.subscribe(cb),
+    localeStore.getSnapshot,
+    localeStore.getServerSnapshot
+  )
 
   const setLocale = useCallback((newLocale: Locale) => {
-    setLocaleState(newLocale)
-    if (typeof window !== "undefined") {
-      localStorage.setItem(STORAGE_KEY, newLocale)
-    }
+    localeStore.setLocale(newLocale)
   }, [])
 
   const t = useCallback(

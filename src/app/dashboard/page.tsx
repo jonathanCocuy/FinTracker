@@ -32,7 +32,7 @@ export default function Dashboard() {
   const transactions: Transaction[] = [
     { id: "1", date: "Hoy, 10:30 AM", category: "food", description: "Almuerzo Ejecutivo", amount: 25000, type: "expense" },
     { id: "2", date: "Ayer, 04:15 PM", category: "transport", description: "Uber al Centro", amount: 15000, type: "expense" },
-    { id: "3", date: "15 Mar", category: "income", description: "Pago Freelance React", amount: 1200000, type: "income" },
+    { id: "3", date: "15 Mar", category: "income", description: "Pago Freelance React en pago a cuotas diferidas", amount: 1200000, type: "income" },
     { id: "4", date: "14 Mar", category: "subscriptions", description: "Netflix Premium", amount: 45000, type: "expense" },
     { id: "5", date: "12 Mar", category: "housing", description: "Compra Decoración", amount: 85000, type: "expense" },
   ]
@@ -75,9 +75,11 @@ export default function Dashboard() {
 
       {/* Transactions Section */}
       <div className="flex flex-col gap-4 items-center w-full">
-        <h1 className="text-2xl font-bold">{t("dashboard.transactionsTitle")}</h1>
-        <TransactionModal />
-        <div className="w-full overflow-x-auto border rounded-lg">
+        <div className="flex flex-row gap-2 items-center justify-between w-full">
+          <h1 className="text-2xl font-bold">{t("dashboard.transactionsTitle")}</h1>
+          <TransactionModal />
+        </div>
+        <div className="w-full sm:w-full md:w-full lg:w-1/2 xl:w-1/2 2xl:w-1/2 overflow-x-auto border rounded-lg">
           <TransactionTable columns={createColumns(t)} data={transactions} />
         </div>
       </div>

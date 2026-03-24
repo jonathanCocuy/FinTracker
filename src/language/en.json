@@ -104,7 +104,8 @@
   "table": {
     "description": "Description",
     "date": "Date",
-    "amount": "Amount"
+    "amount": "Amount",
+    "category": "Category"
   },
   "weekdays": {
     "monday": "Monday",
