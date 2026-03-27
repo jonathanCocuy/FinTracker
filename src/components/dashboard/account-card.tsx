@@ -1,5 +1,6 @@
-// components/dashboard/AccountGrid.tsx
-import { Wallet, Landmark, Banknote, Plus } from "lucide-react"
+"use client"
+
+import { Wallet, Plus } from "lucide-react"
 import { useI18n } from "@/src/lib/i18n"
 
 interface Account {
@@ -11,40 +12,61 @@ interface Account {
 
 interface AccountGridProps {
   accounts: Account[]
+  // Nuevas props para la interacción
+  onHoverAccount: (id: string | null) => void
+  hoveredAccountId: string | null
 }
 
-export function AccountGrid({ accounts }: AccountGridProps) {
+export function AccountGrid({ accounts, onHoverAccount, hoveredAccountId }: AccountGridProps) {
   const { t } = useI18n()
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-8">
-      {accounts.map((account) => (
-        <div 
-          key={account.id} 
-          className="bg-card border border-border/50 p-4 rounded-xl flex items-center gap-4 hover:bg-accent/5 transition-all cursor-pointer group"
-        >
-          {/* Icono con el color dinámico */}
-          <div className={`p-2 rounded-lg shrink-0 ${account.color} shadow-lg shadow-black/20`}>
-            <Wallet size={15} className="text-white" />
-          </div>
+      {accounts.map((account) => {
+        // Determinamos si esta tarjeta debe estar opaca o resaltada
+        const isDimmed = hoveredAccountId !== null && hoveredAccountId !== account.id
 
-          <div className="flex flex-col min-w-0">
-            <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
-              {account.name}
-            </span>
-            <span className="text-md font-bold tabular-nums tracking-tight text-foreground">
-              {new Intl.NumberFormat("es-CO", {
-                style: "currency",
-                currency: "COP",
-                maximumFractionDigits: 0,
-              }).format(account.balance)}
-            </span>
+        return (
+          <div
+            key={account.id}
+            onMouseEnter={() => onHoverAccount(account.id)}
+            onMouseLeave={() => onHoverAccount(null)}
+            className={`
+              bg-card border border-border/50 p-4 rounded-xl flex items-center gap-4 
+              transition-all duration-300 cursor-pointer group
+              ${isDimmed ? "opacity-40 grayscale-[20%]" : "opacity-100 shadow-md border-primary/20 bg-accent/5"}
+              hover:ring-2 hover:ring-primary/20 hover:scale-[1.02]
+            `}
+          >
+            {/* Icono con el color dinámico */}
+            <div className={`p-2 rounded-lg shrink-0 ${account.color} shadow-lg shadow-black/20 group-hover:scale-110 transition-transform`}>
+              <Wallet size={15} className="text-white" />
+            </div>
+
+            <div className="flex flex-col min-w-0">
+              <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
+                {account.name}
+              </span>
+              <span className="text-md font-bold tabular-nums tracking-tight text-foreground">
+                {new Intl.NumberFormat("es-CO", {
+                  style: "currency",
+                  currency: "COP",
+                  maximumFractionDigits: 0,
+                }).format(account.balance)}
+              </span>
+            </div>
           </div>
-        </div>
-      ))}
+        )
+      })}
 
       {/* Botón de acción rápida para añadir cuenta */}
-      <button className="border-2 border-dashed border-border/30 rounded-xl p-4 flex items-center justify-center gap-2 text-muted-foreground hover:border-primary/50 hover:text-primary transition-all group">
+      <button 
+        className={`
+          border-2 border-dashed border-border/30 rounded-xl p-4 flex items-center justify-center gap-2 
+          text-muted-foreground hover:border-primary/50 hover:text-primary transition-all group
+          ${hoveredAccountId !== null ? "opacity-40" : "opacity-100"}
+        `}
+      >
         <Plus size={15} className="group-hover:scale-110 transition-transform" />
         <span className="text-xs font-medium">{t("accountsCard.addAccount")}</span>
       </button>

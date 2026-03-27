@@ -9,19 +9,22 @@ import { createColumns, Transaction } from "@/src/components/dashboard/columns"
 import { TransactionTable } from "@/src/components/dashboard/transaction-table"
 import { TransactionModal } from "@/src/components/dashboard/transaction-modal"
 import { AccountGrid } from "@/src/components/dashboard/account-card"
+/* Loaders */
 import { EmptyState } from "@/src/components/ui/empty-state"
 import { KpiGridSkeleton } from "@/src/components/dashboard/kpi-loading"
 import { AccountGridSkeleton } from "@/src/components/dashboard/account-loading"
 import { BarChartSkeleton } from "@/src/components/dashboard/bar-chart-loading"
 import { CategoryDonutSkeleton } from "@/src/components/dashboard/category-donut-loading"
 import { TransactionTableSkeleton } from "@/src/components/dashboard/transaction-table-loading"
-
+/* Icons */
 import { ArrowUpRight, Plus } from "lucide-react"
 
 export default function Dashboard() {
   const { t } = useI18n()
   const [isLoading] = useState(false)
+  const [hoveredAccountId, setHoveredAccountId] = useState<string | null>(null);
 
+  /* Data */
   const dataIncome = [
     { name: t("categories.housing"), value: 1200000, color: "#f43f5e" },
     { name: t("categories.food"), value: 850000, color: "#fbbf24" },
@@ -41,11 +44,11 @@ export default function Dashboard() {
   ]
 
   const transactions: Transaction[] = [
-    { id: "1", date: "Hoy, 10:30", category: "food", description: "Almuerzo Ejecutivo", amount: 25000, type: "expense" },
-    { id: "2", date: "Ayer, 16:15", category: "transport", description: "Uber al Centro", amount: 15000, type: "expense" },
-    { id: "3", date: "15 Mar", category: "income", description: "Pago Freelance React en pago", amount: 1200000, type: "income" },
-    { id: "4", date: "14 Mar", category: "subscriptions", description: "Netflix Premium", amount: 45000, type: "expense" },
-    { id: "5", date: "12 Mar", category: "housing", description: "Compra Decoración", amount: 85000, type: "expense" },
+    { id: "1", date: "Hoy, 10:30", category: "food", description: "Almuerzo Ejecutivo", amount: 25000, type: "expense", accountId: "1" },
+    { id: "2", date: "Ayer, 16:15", category: "transport", description: "Uber al Centro", amount: 15000, type: "expense", accountId: "1" },
+    { id: "3", date: "15 Mar", category: "income", description: "Pago Freelance React en pago", amount: 1200000, type: "income", accountId: "3" },
+    { id: "4", date: "14 Mar", category: "subscriptions", description: "Netflix Premium", amount: 45000, type: "expense", accountId: "3" },
+    { id: "5", date: "12 Mar", category: "housing", description: "Compra Decoración", amount: 85000, type: "expense", accountId: "2" },
   ]
 
   const kpis: KpiItem[] = [
@@ -81,7 +84,11 @@ export default function Dashboard() {
       {isLoading ? (
         <AccountGridSkeleton count={myAccounts.length || 4} />
       ) : myAccounts.length > 0 ? (
-        <AccountGrid accounts={myAccounts} />
+        <AccountGrid 
+          accounts={myAccounts} 
+          onHoverAccount={setHoveredAccountId} 
+          hoveredAccountId={hoveredAccountId} 
+        />
       ) : (
         <div className="mt-8">
           <EmptyState icon={Plus} title={t("accounts.empty")} />
@@ -93,37 +100,32 @@ export default function Dashboard() {
         <div className="flex flex-col gap-4 items-center justify-center w-full min-w-0">
           <h1 className="text-2xl font-bold text-center">{t("dashboard.dayChart")}</h1>
           {isLoading ? (
-            // 1. ESTADO DE CARGA: El usuario ve la silueta del gráfico de inmediato
             <div className="w-full h-[300px]">
               <BarChartSkeleton />
             </div>
           ) : expensesData.length > 0 ? (
-            // 2. ESTADO CON DATOS: Se renderiza tu componente de Recharts
             <div className="w-full h-[300px]">
               <BarChartComponent data={expensesData} color="var(--color-finance-expense)"/>
             </div>
           ) : (
-            // 3. ESTADO VACÍO: Solo si no hay nada que mostrar después de cargar
             <div className="w-full h-[300px] flex items-center justify-center border-2 border-dashed rounded-lg">
               <EmptyState icon={ArrowUpRight} title={t("dashboard.noExpenses")} />
             </div>
           )}
         </div>
 
+        {/* Donut Section */}
         <div className="flex flex-col gap-4 items-center justify-center w-full min-w-0">
           <h1 className="text-2xl font-bold text-center">{t("dashboard.categoryChart")}</h1>
           {isLoading ? (
-            // 1. ESTADO DE CARGA: El usuario ve el anillo fantasma
             <div className="w-full h-[300px]">
               <CategoryDonutSkeleton />
             </div>
           ) : dataIncome.length > 0 ? (
-            // 2. ESTADO CON DATOS: Se renderiza tu gráfico de Recharts
             <div className="w-full h-[300px]">
               <CategoryDonut data={dataIncome} />
             </div>
           ) : (
-            // 3. ESTADO VACÍO: Solo si no hay ingresos registrados
             <div className="w-full h-[300px] flex items-center justify-center border-2 border-dashed rounded-lg">
               <EmptyState icon={ArrowUpRight} title={t("dashboard.noIncome")} />
             </div>
@@ -139,18 +141,16 @@ export default function Dashboard() {
             <TransactionModal />
           </div>
           {isLoading ? (
-            // 1. ESTADO DE CARGA: Filas fantasma con iconos redondos
             <TransactionTableSkeleton rows={5} />
           ) : transactions.length > 0 ? (
-            // 2. ESTADO CON DATOS: Tu TanStack Table con las columnas traducidas
-            <TransactionTable columns={createColumns(t)} data={transactions} />
+            <TransactionTable 
+              columns={createColumns(t)} 
+              data={transactions} 
+              hoveredAccountId={hoveredAccountId} 
+            />
           ) : (
-            // 3. ESTADO VACÍO: Solo si terminó de cargar y no hay movimientos
             <div className="rounded-md border bg-card p-12 flex flex-col items-center justify-center text-center">
-              <EmptyState
-                icon={ArrowUpRight}
-                title={t("dashboard.noTransactions")}
-              />
+              <EmptyState icon={ArrowUpRight}title={t("dashboard.noTransactions")} />
             </div>
           )}
         </div>

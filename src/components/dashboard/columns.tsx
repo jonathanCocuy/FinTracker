@@ -9,7 +9,8 @@ export type Transaction = {
   category: string
   description: string
   amount: number
-  type: "income" | "expense"
+  type: "income" | "expense",
+  accountId?: string
 }
 
 const CategoryIcon = ({ category }: { category: string }) => {
