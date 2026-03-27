@@ -68,7 +68,8 @@
     "balanceTotal": "Total Balance",
     "incomeMonth": "Monthly Income",
     "expensesMonth": "Monthly Expenses",
-    "savingsGoal": "Savings Goal"
+    "savingsGoal": "Savings Goal",
+    "noKpis": "No KPIs."
   },
   "accountsCard": {
     "addAccount": "Add Account",

@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { useI18n } from "@/src/lib/i18n"
 import { BarChartComponent } from "../../components/dashboard/bar-chart"
 import { KpiGrid, type KpiItem } from "../../components/dashboard/kpi-cards"
@@ -8,9 +9,18 @@ import { createColumns, Transaction } from "@/src/components/dashboard/columns"
 import { TransactionTable } from "@/src/components/dashboard/transaction-table"
 import { TransactionModal } from "@/src/components/dashboard/transaction-modal"
 import { AccountGrid } from "@/src/components/dashboard/account-card"
+import { EmptyState } from "@/src/components/ui/empty-state"
+import { KpiGridSkeleton } from "@/src/components/dashboard/kpi-loading"
+import { AccountGridSkeleton } from "@/src/components/dashboard/account-loading"
+import { BarChartSkeleton } from "@/src/components/dashboard/bar-chart-loading"
+import { CategoryDonutSkeleton } from "@/src/components/dashboard/category-donut-loading"
+import { TransactionTableSkeleton } from "@/src/components/dashboard/transaction-table-loading"
+
+import { ArrowUpRight, Plus } from "lucide-react"
 
 export default function Dashboard() {
   const { t } = useI18n()
+  const [isLoading] = useState(false)
 
   const dataIncome = [
     { name: t("categories.housing"), value: 1200000, color: "#f43f5e" },
@@ -60,28 +70,64 @@ export default function Dashboard() {
         <p className="text-sm text-muted-foreground">{t("dashboard.kpisSubtitle")}</p>
       </div>
 
-      {/* KPI Grid */}
-      <KpiGrid data={kpis} className="grid grid-cols-2 md:grid-cols-4 w-full gap-4" />
+      {isLoading ? (
+        <KpiGridSkeleton count={4} className="grid grid-cols-2 md:grid-cols-4 w-full gap-4" />
+      ) : kpis.length > 0 ? (
+        <KpiGrid data={kpis} className="grid grid-cols-2 md:grid-cols-4 w-full gap-4" />
+      ) : (
+        <EmptyState icon={ArrowUpRight} title={t("dashboard.noKpis")} />
+      )}
 
-      {/* Accounts Section */}
-      <div className="flex flex-col gap-4 items-center w-full">
+      {isLoading ? (
+        <AccountGridSkeleton count={myAccounts.length || 4} />
+      ) : myAccounts.length > 0 ? (
         <AccountGrid accounts={myAccounts} />
-      </div>
+      ) : (
+        <div className="mt-8">
+          <EmptyState icon={Plus} title={t("accounts.empty")} />
+        </div>
+      )}
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 w-full">
         <div className="flex flex-col gap-4 items-center justify-center w-full min-w-0">
           <h1 className="text-2xl font-bold text-center">{t("dashboard.dayChart")}</h1>
-          <div className="w-full h-[300px]">
-            <BarChartComponent data={expensesData} color="var(--color-finance-expense)"/>
-          </div>
+          {isLoading ? (
+            // 1. ESTADO DE CARGA: El usuario ve la silueta del gráfico de inmediato
+            <div className="w-full h-[300px]">
+              <BarChartSkeleton />
+            </div>
+          ) : expensesData.length > 0 ? (
+            // 2. ESTADO CON DATOS: Se renderiza tu componente de Recharts
+            <div className="w-full h-[300px]">
+              <BarChartComponent data={expensesData} color="var(--color-finance-expense)"/>
+            </div>
+          ) : (
+            // 3. ESTADO VACÍO: Solo si no hay nada que mostrar después de cargar
+            <div className="w-full h-[300px] flex items-center justify-center border-2 border-dashed rounded-lg">
+              <EmptyState icon={ArrowUpRight} title={t("dashboard.noExpenses")} />
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col gap-4 items-center justify-center w-full min-w-0">
           <h1 className="text-2xl font-bold text-center">{t("dashboard.categoryChart")}</h1>
-          <div className="w-full h-[300px]">
-            <CategoryDonut data={dataIncome} />
-          </div>
+          {isLoading ? (
+            // 1. ESTADO DE CARGA: El usuario ve el anillo fantasma
+            <div className="w-full h-[300px]">
+              <CategoryDonutSkeleton />
+            </div>
+          ) : dataIncome.length > 0 ? (
+            // 2. ESTADO CON DATOS: Se renderiza tu gráfico de Recharts
+            <div className="w-full h-[300px]">
+              <CategoryDonut data={dataIncome} />
+            </div>
+          ) : (
+            // 3. ESTADO VACÍO: Solo si no hay ingresos registrados
+            <div className="w-full h-[300px] flex items-center justify-center border-2 border-dashed rounded-lg">
+              <EmptyState icon={ArrowUpRight} title={t("dashboard.noIncome")} />
+            </div>
+          )}
         </div>
       </div>
 
@@ -92,7 +138,21 @@ export default function Dashboard() {
             <h1 className="text-xl font-bold">{t("dashboard.transactionsTitle")}</h1>
             <TransactionModal />
           </div>
-          <TransactionTable columns={createColumns(t)} data={transactions} />
+          {isLoading ? (
+            // 1. ESTADO DE CARGA: Filas fantasma con iconos redondos
+            <TransactionTableSkeleton rows={5} />
+          ) : transactions.length > 0 ? (
+            // 2. ESTADO CON DATOS: Tu TanStack Table con las columnas traducidas
+            <TransactionTable columns={createColumns(t)} data={transactions} />
+          ) : (
+            // 3. ESTADO VACÍO: Solo si terminó de cargar y no hay movimientos
+            <div className="rounded-md border bg-card p-12 flex flex-col items-center justify-center text-center">
+              <EmptyState
+                icon={ArrowUpRight}
+                title={t("dashboard.noTransactions")}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>
