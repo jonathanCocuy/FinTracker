@@ -70,6 +70,10 @@
     "expensesMonth": "Monthly Expenses",
     "savingsGoal": "Savings Goal"
   },
+  "accountsCard": {
+    "addAccount": "Add Account",
+    "myAccounts": "My Accounts"
+  },
   "transactionModal": {
     "title": "Register Transaction",
     "newMovement": "New Movement",

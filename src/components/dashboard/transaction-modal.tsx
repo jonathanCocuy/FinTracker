@@ -215,7 +215,7 @@ export function TransactionModal() {
       <DialogTrigger asChild>
         <Button className="rounded-xl shadow-md gap-2 font-semibold">
           <Plus size={18} />
-          {t("transactionModal.newMovement")}
+          <p className="text-xs">{t("transactionModal.newMovement")}</p>
         </Button>
       </DialogTrigger>
 

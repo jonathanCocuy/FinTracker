@@ -70,6 +70,10 @@
     "expensesMonth": "Gastos del Mes",
     "savingsGoal": "Meta de Ahorro"
   },
+  "accountsCard": {
+    "addAccount": "Añadir cuenta",
+    "myAccounts": "Mis cuentas"
+  },
   "transactionModal": {
     "title": "Registrar Transacción",
     "newMovement": "Nuevo Movimiento",

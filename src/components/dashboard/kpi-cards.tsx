@@ -64,7 +64,7 @@ export function KpiCard({ item }: { item: KpiItem }) {
       </p>
       <div className="flex items-center justify-between gap-2 min-h-[18px]">
         {subtitle && (
-          <p className="text-[11px] text-muted-foreground/60">{subtitle}</p>
+          <p className="text-[9px] text-muted-foreground/60">{subtitle}</p>
         )}
         {previousValue !== undefined && (
           <TrendBadge value={value} prev={previousValue} />

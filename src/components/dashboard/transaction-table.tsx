@@ -15,6 +15,7 @@ export function TransactionTable<TData, TValue>({
   data,
 }: DataTableProps<TData, TValue>) {
   const { t } = useI18n()
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,
@@ -22,7 +23,7 @@ export function TransactionTable<TData, TValue>({
   })
 
   return (
-    <div className="rounded-md border bg-card">
+    <div className="rounded-md border bg-card w-full">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
