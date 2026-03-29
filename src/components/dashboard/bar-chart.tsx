@@ -95,7 +95,7 @@ export function BarChartComponent({ data, color = "var(--color-finance-income)" 
               width: '100%'
             }}
           />
-          <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={30}>
+          <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={50}>
           {data.map((entry, index) => (
             <Cell
               key={`cell-${index}`}

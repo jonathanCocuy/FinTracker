@@ -3,7 +3,7 @@
 import { type ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table"
 import { useI18n } from "@/src/lib/i18n"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/src/components/ui/table"
-
+import { Transaction } from "@/src/types/transaction.types"
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
@@ -48,11 +48,11 @@ export function TransactionTable<TData, TValue>({
             table.getRowModel().rows.map((row) => {
               // 1. Extraemos la transacción para verificar el accountId
               // Usamos 'as any' para acceder a la propiedad accountId del objeto genérico TData
-              const transaction = row.original as any;
+              const transaction = row.original as Transaction;
               
               // 2. Lógica de resaltado: 
               // Si hay un hover activo Y esta fila NO pertenece a esa cuenta -> la opacamos
-              const isDimmed = hoveredAccountId !== null && transaction.accountId !== hoveredAccountId;
+              const isDimmed = hoveredAccountId !== null && transaction.account !== hoveredAccountId;
 
               return (
                 <TableRow 
@@ -64,7 +64,7 @@ export function TransactionTable<TData, TValue>({
                       ? "opacity-15 grayscale-80 scale-[0.99] blur-[0.5px]" 
                       : "opacity-100 scale-100 bg-transparent"
                     }
-                    ${hoveredAccountId === transaction.accountId && hoveredAccountId !== null 
+                    ${hoveredAccountId === transaction.account && hoveredAccountId !== null 
                       ? "bg-primary/2 shadow-[inset_2px_0_0_0_var(--color-primary)]" 
                       : ""
                     }

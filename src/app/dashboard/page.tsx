@@ -87,7 +87,7 @@ export default function Dashboard() {
         <AccountGrid 
           accounts={myAccounts} 
           onHoverAccount={setHoveredAccountId} 
-          hoveredAccountId={hoveredAccountId} 
+          hoveredAccountId={hoveredAccountId}
         />
       ) : (
         <div className="mt-8">
@@ -96,7 +96,7 @@ export default function Dashboard() {
       )}
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 w-full">
+      <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-4 w-full">
         <div className="flex flex-col gap-4 items-center justify-center w-full min-w-0">
           <h1 className="text-2xl font-bold text-center">{t("dashboard.dayChart")}</h1>
           {isLoading ? (
@@ -135,8 +135,8 @@ export default function Dashboard() {
 
       {/* Transactions Section */}
       <div className="flex flex-col gap-4 items-left w-full">
-        <div className="w-full flex flex-col gap-4 sm:w-full md:w-full xl:w-[60%] 2xl:w-1/2 overflow-x-auto">
-          <div className="flex flex-row justify-between items-center w-full">
+        <div className="w-full flex flex-col gap-4 w-full overflow-x-auto">
+          <div className="flex flex-row justify-between items-center w-full px-2">
             <h1 className="text-xl font-bold">{t("dashboard.transactionsTitle")}</h1>
             <TransactionModal />
           </div>
