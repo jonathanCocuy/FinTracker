@@ -35,7 +35,7 @@ const formatTooltip = (value: number) => {
 
 export function BarChartComponent({ data, color = "var(--color-finance-income)" }: BarChartProps) {
   return (
-    <div className="h-[250px] min-h-[250px] min-w-0 w-full p-2 pt-4 rounded-lg bg-background border-border border-2">
+    <div className="h-[250px] min-h-[250px] min-w-0 w-full p-2 pt-4 rounded-lg bg-background ">
       <ResponsiveContainer
         width="100%"
         height="100%"

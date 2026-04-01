@@ -77,6 +77,7 @@ export function createColumns(t: (key: string) => string): ColumnDef<Transaction
       cell: ({ row }) => {
         const amount = parseFloat(row.getValue("amount"))
         const type = row.original.type
+        
         const formatted = new Intl.NumberFormat("es-CO", {
           style: "currency",
           currency: "COP",
@@ -84,10 +85,17 @@ export function createColumns(t: (key: string) => string): ColumnDef<Transaction
         }).format(amount)
 
         return (
-          <div className={`text-sm md:text-lg text-right font-bold tabular-nums ${
-            type === 'income' ? 'text-emerald-500' : 'text-red-500' 
-          }`}> {/* Rojo para gastos, Verde para ingresos */}
-            {type === 'income' ? '+' : '-'} {formatted}
+          <div className="text-right">
+            <span className={`
+              inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs md:text-sm font-black tabular-nums border
+              ${type === 'income' 
+                ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' 
+                : 'text-rose-400 bg-rose-500/10 border-rose-500/20'
+              }
+            `}>
+              {type === 'income' ? '+ ' : '- '}
+              {formatted}
+            </span>
           </div>
         )
       },

@@ -18,6 +18,7 @@ import { CategoryDonutSkeleton } from "@/src/components/dashboard/category-donut
 import { TransactionTableSkeleton } from "@/src/components/dashboard/transaction-table-loading"
 /* Icons */
 import { ArrowUpRight, Plus } from "lucide-react"
+import { Navbar } from "@/src/components/navbar"
 
 export default function Dashboard() {
   const { t } = useI18n()
@@ -66,12 +67,7 @@ export default function Dashboard() {
 
   return (
     <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">
-
-      {/* Header Section */}
-      <div className="text-center">
-        <h1 className="text-2xl font-bold">{t("dashboard.kpisTitle")}</h1>
-        <p className="text-sm text-muted-foreground">{t("dashboard.kpisSubtitle")}</p>
-      </div>
+      <Navbar />
 
       {isLoading ? (
         <KpiGridSkeleton count={4} className="grid grid-cols-2 md:grid-cols-4 w-full gap-4" />
@@ -98,7 +94,12 @@ export default function Dashboard() {
       {/* Charts Section */}
       <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-4 w-full">
         <div className="flex flex-col gap-4 items-center justify-center w-full min-w-0">
-          <h1 className="text-2xl font-bold text-center">{t("dashboard.dayChart")}</h1>
+        <div className="w-full flex flex-col gap-2 mt-4 px-2">
+          <p className="text-[14px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
+            {t("dashboard.dayChart")}
+          </p>
+          <div className="h-[1px] w-full bg-gradient-to-r from-border/50 via-border to-transparent" />
+        </div>
           {isLoading ? (
             <div className="w-full h-[300px]">
               <BarChartSkeleton />
@@ -115,8 +116,13 @@ export default function Dashboard() {
         </div>
 
         {/* Donut Section */}
-        <div className="flex flex-col gap-4 items-center justify-center w-full min-w-0">
-          <h1 className="text-2xl font-bold text-center">{t("dashboard.categoryChart")}</h1>
+          <div className="flex flex-col gap-4 items-center justify-center w-full min-w-0">
+            <div className="w-full flex flex-col gap-2 mt-4 px-2">
+              <p className="text-[14px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
+                {t("dashboard.categoryChart") || "Category Chart"}
+              </p>
+              <div className="h-[1px] w-full bg-gradient-to-r from-border/50 via-border to-transparent" />
+            </div>
           {isLoading ? (
             <div className="w-full h-[300px]">
               <CategoryDonutSkeleton />
@@ -136,8 +142,13 @@ export default function Dashboard() {
       {/* Transactions Section */}
       <div className="flex flex-col gap-4 items-left w-full">
         <div className="w-full flex flex-col gap-4 w-full overflow-x-auto">
-          <div className="flex flex-row justify-between items-center w-full px-2">
-            <h1 className="text-xl font-bold">{t("dashboard.transactionsTitle")}</h1>
+          <div className="flex flex-row justify-between items-center w-full pr-2">
+            <div className="w-full flex flex-col gap-2 mt-4 px-2">
+              <p className="text-[14px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
+                {t("dashboard.transactionsTitle")}
+              </p>
+              <div className="h-[1px] w-full bg-gradient-to-r from-border/50 via-border to-transparent" />
+            </div>
             <TransactionModal />
           </div>
           {isLoading ? (

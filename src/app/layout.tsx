@@ -5,12 +5,11 @@ import ThemeProvider from '@/src/components/theme-provider';
 import { Geist } from "next/font/google";
 import { cn } from "@/src/lib/utils";
 import { I18nProvider } from "@/src/lib/i18n";
-import { LanguageSwitcher } from "@/src/components/language-switcher";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
-  title: 'Fin Tracker',
+  title: 'FinTracker',
   description: 'Track your finances',
 };
 
@@ -22,9 +21,6 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
         {/* ThemeProvider is used to provide the theme to the children */}
         <ThemeProvider>
           <I18nProvider>
-            <div className="fixed top-4 right-4 z-50">
-              <LanguageSwitcher />
-            </div>
             {children}
           </I18nProvider>
         </ThemeProvider>
