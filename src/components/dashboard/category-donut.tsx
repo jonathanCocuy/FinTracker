@@ -36,7 +36,7 @@ export function CategoryDonut({ data }: CategoryDonutProps) {
 
   return (
     <div className="flex flex-col w-full h-full">
-      <div className="h-[250px] w-full relative">
+      <div className="h-[250px] min-h-[250px] min-w-0 w-full relative">
         {/* Truco Pro: Texto en el centro del Donut */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
           <span className="text-xs text-muted-foreground uppercase font-semibold">{t("common.total")}</span>
@@ -45,7 +45,12 @@ export function CategoryDonut({ data }: CategoryDonutProps) {
           </span>
         </div>
 
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+          minWidth={0}
+          initialDimension={{ width: 400, height: 210 }}
+        >
           <PieChart>
             <Pie
               data={data}

@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { Bar, BarChart as ReChartsBar, ResponsiveContainer, XAxis, YAxis, Tooltip, Cell } from "recharts"
 
 interface ChartData {
@@ -12,49 +13,48 @@ interface BarChartProps {
   color?: string
 }
 
-const colorMap = {
+const colorMap: Record<string, string> = {
   "var(--color-finance-income)": "var(--color-finance-income)",
   "var(--color-finance-expense)": "var(--color-finance-expense)",
   "var(--color-finance-savings)": "var(--color-finance-savings)",
 }
 
-// Función para formatear valores
 const formatYAxis = (value: number) => {
-  if (value >= 1_000_000) {
-    return `${(value / 1_000_000).toFixed(1)}M`;
-  } else if (value >= 1_000) {
-    return `${(value / 1_000).toFixed(0)}K`;
-  }
-  return value.toString();
-};
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`
+  if (value >= 1_000) return `${(value / 1_000).toFixed(0)}K`
+  return value.toString()
+}
 
 const formatTooltip = (value: number) => {
-  const formatter = new Intl.NumberFormat('es-ES', {
-    style: 'decimal', // Cambiado de 'currency' a 'decimal'
+  return new Intl.NumberFormat('es-CO', {
+    style: 'decimal',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  });
-
-  return formatter.format(value);
-};
+  }).format(value)
+}
 
 export function BarChartComponent({ data, color = "var(--color-finance-income)" }: BarChartProps) {
   return (
-    <div className="h-[250px] p-2 pt-4 rounded-lg bg-background border-border border-2">
-      <ResponsiveContainer width="100%" height="100%">
-        <ReChartsBar data={data}>
+    <div className="h-[250px] min-h-[250px] min-w-0 w-full p-2 pt-4 rounded-lg bg-background border-border border-2">
+      <ResponsiveContainer
+        width="100%"
+        height="100%"
+        minWidth={0}
+        initialDimension={{ width: 400, height: 210 }}
+      >
+        <ReChartsBar data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
           <XAxis
             dataKey="label"
             tickFormatter={(value) => value.charAt(0).toUpperCase()}
             stroke="#888888"
-            fontSize={9}
+            fontSize={10}
             tickLine={false}
             axisLine={true}
-            dy={15}
+            dy={10}
           />
           <YAxis
             stroke="#888888"
-            fontSize={12}
+            fontSize={11}
             tickLine={false}
             axisLine={false}
             tickFormatter={formatYAxis}
@@ -73,8 +73,6 @@ export function BarChartComponent({ data, color = "var(--color-finance-income)" 
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              justifyContent: 'center',
-              textAlign: 'center',
             }}
             itemStyle={{
               color: 'var(--color-foreground)',
@@ -82,26 +80,23 @@ export function BarChartComponent({ data, color = "var(--color-finance-income)" 
               fontSize: '16px',
               padding: '0',
               textAlign: 'center',
-              display: 'block',
-              width: '100%'
             }}
             labelStyle={{
               color: 'var(--color-foreground)',
               marginBottom: '2px',
-              fontSize: '12px',
+              fontSize: '11px',
               opacity: 0.5,
               fontWeight: '500',
               textAlign: 'center',
-              width: '100%'
             }}
           />
-          <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={50}>
-          {data.map((entry, index) => (
-            <Cell
-              key={`cell-${index}`}
-              fill={colorMap[color as keyof typeof colorMap]}
-            />
-          ))}
+          <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={40}>
+            {data.map((entry, index) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={colorMap[color] || color}
+              />
+            ))}
           </Bar>
         </ReChartsBar>
       </ResponsiveContainer>
