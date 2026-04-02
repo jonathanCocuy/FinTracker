@@ -1,9 +1,9 @@
 'use client';
 
 import { useI18n } from "@/src/lib/i18n";
-import { createLoginSchema, type LoginSchema } from "@/src/lib/validations";
+import { createLoginSchema, LoginSchema } from "@/src/lib/validations";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";  
 import { Input } from "@/src/components/ui/input";
 import { Button } from "@/src/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/src/components/ui/card";

@@ -11,9 +11,7 @@ import { Separator } from "@/src/components/ui/separator"
 import { Button } from "@/src/components/ui/button"
 import { 
   User, 
-  Mail, 
   ShieldCheck, 
-  Bell, 
   Palette, 
   CreditCard,
   Crown
@@ -37,7 +35,7 @@ export default function ProfilePage() {
           <div className="flex flex-col md:flex-row items-center gap-8">
             <Avatar className="h-28 w-28 border-4 border-background shadow-2xl">
               <AvatarImage src="" /> 
-              <AvatarFallback className="bg-gradient-to-br from-primary to-purple-600 text-3xl font-black text-black">
+              <AvatarFallback className="bg-linear-to-br from-primary to-purple-600 text-3xl font-black text-black">
                 JC
               </AvatarFallback>
             </Avatar>
