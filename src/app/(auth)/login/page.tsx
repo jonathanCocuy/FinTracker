@@ -10,6 +10,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter }
 import { useRouter } from "next/navigation";
 import { cn } from "@/src/lib/utils";
 import { Label } from "@/src/components/ui/label";
+import { PiggyBank } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -29,7 +30,13 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
+    <div className="flex flex-col items-center justify-center gap-8 h-screen">
+      <div className="flex items-center gap-2 font-bold text-2xl md:text-3xl tracking-tighter">
+        <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center shrink-0">
+          <PiggyBank className="h-6 w-6 text-black" fill="black" />
+        </div>
+        <span>FinTracker</span>
+      </div>
       <Card className="w-full min-w-sm max-w-sm">
         <CardHeader>
           <CardTitle className="text-xl font-bold">{t("auth.login.title")}</CardTitle>

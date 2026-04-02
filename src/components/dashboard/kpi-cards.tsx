@@ -1,28 +1,71 @@
-// components/KpiCard.tsx
+"use client"
+
+import * as React from "react"
+import { useEffect, useRef } from "react"
+import { useInView, useMotionValue, useSpring } from "framer-motion"
+import { cn } from "@/src/lib/utils"
 
 export type KpiColor = "income" | "expense" | "savings" | "default"
 
 export type KpiItem = {
   label: string
   value: number
-  previousValue?: number  // si lo pasas, calcula el trend automáticamente
-  subtitle?: string       // e.g. "vs febrero"
+  previousValue?: number
+  subtitle?: string
   prefix?: string
   suffix?: string
   color?: KpiColor
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// ─── Componente de Animación Interno ─────────────────────────────────────────
+
+function AnimatedValue({ 
+  value, 
+  prefix, 
+  color 
+}: { 
+  value: number; 
+  prefix: string; 
+  color: KpiColor 
+}) {
+  const ref = useRef<HTMLSpanElement>(null)
+  const motionValue = useMotionValue(0)
+  const springValue = useSpring(motionValue, {
+    damping: 30,
+    stiffness: 100,
+  })
+
+  const isInView = useInView(ref, { once: true })
+
+  useEffect(() => {
+    if (isInView) {
+      motionValue.set(value)
+    }
+  }, [isInView, value, motionValue])
+
+  useEffect(() => {
+    return springValue.on("change", (latest) => {
+      if (ref.current) {
+        const sign = color === "income" ? "+" : color === "expense" ? "-" : ""
+        const formatted = new Intl.NumberFormat("es-CO", { 
+          maximumFractionDigits: 0 
+        }).format(Number(latest.toFixed(0)))
+        
+        ref.current.textContent = `${sign}${prefix}${formatted}`
+      }
+    })
+  }, [springValue, prefix, color])
+
+  return <span ref={ref} className="tabular-nums" />
+}
+
+// ─── Helpers Originales ──────────────────────────────────────────────────────
 
 const colorMap: Record<KpiColor, string> = {
-  income:  "text-finance-income",
+  income: "text-finance-income",
   expense: "text-finance-expense",
   savings: "text-finance-savings",
   default: "text-foreground",
-}
-
-function formatNumber(value: number) {
-  return new Intl.NumberFormat("es-CO", { maximumFractionDigits: 0 }).format(value)
 }
 
 function getTrend(value: number, prev: number) {
@@ -33,10 +76,8 @@ function getTrend(value: number, prev: number) {
   return { direction: direction as "up" | "down" | "flat", percent }
 }
 
-// ─── Trend badge ──────────────────────────────────────────────────────────────
-
 const trendStyles = {
-  up:   { cls: "bg-finance-income/10 text-finance-income", arrow: "↑" },
+  up: { cls: "bg-finance-income/10 text-finance-income", arrow: "↑" },
   down: { cls: "bg-finance-expense/10 text-finance-expense", arrow: "↓" },
   flat: { cls: "bg-muted text-muted-foreground border border-border", arrow: "→" },
 }
@@ -51,7 +92,7 @@ function TrendBadge({ value, prev }: { value: number; prev: number }) {
   )
 }
 
-// ─── KpiCard ─────────────────────────────────────────────────────────────────
+// ─── KpiCard (Mismo tamaño y diseño) ─────────────────────────────────────────
 
 export function KpiCard({ item }: { item: KpiItem }) {
   const { label, value, previousValue, subtitle, prefix = "$", suffix = "", color = "default" } = item
@@ -60,7 +101,9 @@ export function KpiCard({ item }: { item: KpiItem }) {
     <div className="bg-muted/50 rounded-lg px-4 py-3.5 flex flex-col gap-1.5">
       <p className="text-[11px] text-muted-foreground">{label}</p>
       <p className={`text-xl font-medium leading-tight ${colorMap[color]}`}>
-        {color === "income" ? "+" : color === "expense" ? "-" : ""}{prefix}{formatNumber(value)}{suffix}
+        {/* Aquí integramos la animación manteniendo tu estilo de texto */}
+        <AnimatedValue value={value} prefix={prefix} color={color} />
+        {suffix}
       </p>
       <div className="flex items-center justify-between gap-2 min-h-[18px]">
         {subtitle && (
@@ -74,11 +117,11 @@ export function KpiCard({ item }: { item: KpiItem }) {
   )
 }
 
-// ─── KpiGrid ─────────────────────────────────────────────────────────────────
+// ─── KpiGrid (Sin cambios en estructura) ─────────────────────────────────────
 
 export function KpiGrid({ data, className }: { data: KpiItem[]; className?: string }) {
   return (
-    <div className={`grid gap-2.5 ${className ?? ""}`}>
+    <div className={cn("grid gap-2.5", className)}>
       {data.map((item) => (
         <KpiCard key={item.label} item={item} />
       ))}

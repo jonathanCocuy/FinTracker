@@ -35,7 +35,7 @@ const formatTooltip = (value: number) => {
 
 export function BarChartComponent({ data, color = "var(--color-finance-income)" }: BarChartProps) {
   return (
-    <div className="h-[250px] min-h-[250px] min-w-0 w-full p-2 pt-4 rounded-lg bg-background ">
+    <div className="h-[250px] min-h-[250px] min-w-0 w-full p-2 pt-4 rounded-lg bg-background">
       <ResponsiveContainer
         width="100%"
         height="100%"
@@ -49,7 +49,7 @@ export function BarChartComponent({ data, color = "var(--color-finance-income)" 
             stroke="#888888"
             fontSize={10}
             tickLine={false}
-            axisLine={true}
+            axisLine={false}
             dy={10}
           />
           <YAxis
@@ -90,11 +90,21 @@ export function BarChartComponent({ data, color = "var(--color-finance-income)" 
               textAlign: 'center',
             }}
           />
-          <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={40}>
+          <Bar 
+            dataKey="value" 
+            radius={[6, 6, 0, 0]} 
+            barSize={50}
+            // --- CONFIGURACIÓN DE ANIMACIÓN ---
+            isAnimationActive={true} 
+            animationBegin={200}
+            animationDuration={1200}
+            animationEasing="ease-out"
+          >
             {data.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
                 fill={colorMap[color] || color}
+                className="transition-all duration-300 hover:opacity-80"
               />
             ))}
           </Bar>
