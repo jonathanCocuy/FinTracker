@@ -13,6 +13,7 @@ export function LanguageSwitcher() {
         variant={locale === "es" ? "default" : "ghost"}
         size="sm"
         onClick={() => setLocale("es")}
+        className="cursor-pointer"
       >
         ES
       </Button>
@@ -21,6 +22,7 @@ export function LanguageSwitcher() {
         variant={locale === "en" ? "default" : "ghost"}
         size="sm"
         onClick={() => setLocale("en")}
+        className="cursor-pointer"
       >
         EN
       </Button>

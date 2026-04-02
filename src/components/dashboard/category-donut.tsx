@@ -56,9 +56,9 @@ export function CategoryDonut({ data }: CategoryDonutProps) {
               data={data}
               cx="50%"
               cy="50%"
-              innerRadius={70} // Grosor del anillo
+              innerRadius={70}
               outerRadius={90}
-              paddingAngle={4} // Espacio elegante entre segmentos
+              paddingAngle={4}
               dataKey="value"
               stroke="none"
             >

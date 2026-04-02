@@ -141,7 +141,7 @@ export default function Dashboard() {
 
       {/* Transactions Section */}
       <div className="flex flex-col gap-4 items-left w-full">
-        <div className="w-full flex flex-col gap-4 w-full overflow-x-auto">
+        <div className="w-full flex flex-col gap-4 overflow-x-auto">
           <div className="flex flex-row justify-between items-center w-full pr-2">
             <div className="w-full flex flex-col gap-2 mt-4 px-2">
               <p className="text-[14px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">

@@ -40,6 +40,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/src/components/ui/popover"
+import { title } from "node:process"
 
 // ─── Icon list ────────────────────────────────────────────────────────────────
 const ICON_LIST = [
@@ -75,7 +76,7 @@ function IconPicker({
           variant="outline"
           size="icon"
           type="button"
-          className="h-10 w-10 shrink-0 bg-background/50 border-border"
+          className="h-10 w-10 shrink-0 bg-background/50 border-border cursor-pointer"
         >
           {SelectedIcon ? (
             <SelectedIcon className="h-4 w-4" />
@@ -103,7 +104,7 @@ function IconPicker({
                 size="icon"
                 type="button"
                 title={name}
-                className="h-9 w-9"
+                className="h-9 w-9 cursor-pointer"
                 onClick={() => {
                   onChange(name)
                   setOpen(false)
@@ -290,7 +291,7 @@ export function TransactionModal() {
                     </FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger className="h-10 bg-background/40">
+                        <SelectTrigger className="h-10 bg-background/40 cursor-pointer">
                           <SelectValue placeholder={t("transactionModal.categoryPlaceholder")} />
                         </SelectTrigger>
                       </FormControl>
@@ -316,7 +317,7 @@ export function TransactionModal() {
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
-                          <Button variant="outline" className="w-full h-[42px] px-3 justify-start font-normal bg-background/40">
+                          <Button variant="outline" className="w-full h-[42px] px-3 justify-start font-normal bg-background/40 cursor-pointer">
                             <CalendarIcon className="mr-2 h-4 w-4 opacity-50" />
                             {field.value ? field.value.toLocaleDateString() : <span>{t("common.pickDate")}</span>}
                           </Button>
@@ -346,7 +347,7 @@ export function TransactionModal() {
                   </FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger className="h-10 bg-background/40">
+                      <SelectTrigger className="h-10 bg-background/40 cursor-pointer">
                         <SelectValue placeholder={t("transactionModal.accountPlaceholder")} />
                       </SelectTrigger>
                     </FormControl>
@@ -360,7 +361,7 @@ export function TransactionModal() {
               )}
             />
 
-            <Button type="submit" className="w-full h-12 text-base font-bold shadow-lg shadow-primary/20 mt-2">
+            <Button type="submit" className="w-full h-12 text-base font-bold shadow-lg shadow-primary/20 mt-2 cursor-pointer">
               {t("transactionModal.saveTransaction")}
             </Button>
           </form>

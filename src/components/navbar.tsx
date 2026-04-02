@@ -7,13 +7,22 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "@/src/components/ui/navigation-menu"
-import { PiggyBank, UserIcon, Menu } from "lucide-react"
+import { PiggyBank, UserIcon, Menu, LayoutDashboard, History } from "lucide-react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"
 import { LanguageSwitcher } from "./language-switcher"
 import { TransactionModal } from "./dashboard/transaction-modal"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/src/components/ui/sheet"
 import { Button } from "@/src/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/src/components/ui/dropdown-menu"
+import { LogOut, User } from "lucide-react"
 
 export function Navbar() {
   return (
@@ -31,7 +40,7 @@ export function Navbar() {
             <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center shrink-0">
               <PiggyBank className="h-4 w-4 text-black" fill="black" />
             </div>
-            <span className="hidden sm:block">FinTracker</span>
+            <span>FinTracker</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -62,13 +71,42 @@ export function Navbar() {
           <div className="hidden sm:block">
             <LanguageSwitcher />
           </div>
-
-          <Avatar className="h-8 w-8 md:h-10 md:w-10">
-            <AvatarImage />
-            <AvatarFallback>
-              <UserIcon className="h-4 w-4 cursor-pointer" />
-            </AvatarFallback>
-          </Avatar>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Avatar className="h-8 w-8 md:h-10 md:w-10 cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all">
+                <AvatarImage src="" /> 
+                <AvatarFallback className="bg-secondary">
+                  <UserIcon className="h-4 w-4" />
+                </AvatarFallback>
+              </Avatar>
+            </DropdownMenuTrigger>
+            
+            <DropdownMenuContent align="end" className="w-56 mt-2 bg-background/95 backdrop-blur-xl border-border/40 rounded-xl shadow-xl">
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-bold leading-none">Jonathan Cocuy</p>
+                  <p className="text-xs leading-none text-muted-foreground">jonathan@dev.com</p>
+                </div>
+              </DropdownMenuLabel>
+              
+              <DropdownMenuSeparator className="bg-border/40" />
+              
+              <DropdownMenuItem asChild className="cursor-pointer focus:bg-primary/10 focus:text-primary rounded-lg m-1">
+                <Link href="/profile" className="flex w-full items-center">
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Perfil</span>
+                </Link>
+              </DropdownMenuItem>
+              
+              <DropdownMenuSeparator className="bg-border/40" />
+              
+              <DropdownMenuItem className="cursor-pointer text-rose-500 focus:bg-rose-500/10 focus:text-rose-500 rounded-lg m-1">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Cerrar sesión</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>
@@ -79,23 +117,60 @@ function MobileNav() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="md:hidden">
+        <Button variant="ghost" size="icon" className="md:hidden hover:bg-accent/50 transition-colors">
           <Menu className="h-5 w-5" />
-          <span className="sr-only">Toggle menu</span>
+          <span className="sr-only">Abrir menú</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="bg-background/95 backdrop-blur-lg border-r border-border/40 w-[250px]">
-        <SheetTitle className="text-left">Navegación</SheetTitle>
-        <div className="flex flex-col gap-4 mt-8">
-          <Link href="/dashboard" className="text-lg font-semibold hover:text-primary transition-colors">
-            Resumen
-          </Link>
-          <Link href="/transactions" className="text-lg font-semibold hover:text-primary transition-colors">
-            Historial
-          </Link>
-          <hr className="border-border/40" />
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Idioma</span>
+      
+      <SheetContent 
+        side="left" 
+        className="bg-background/95 backdrop-blur-xl border-r border-border/40 w-[280px] p-0 flex flex-col"
+      >
+        {/* Encabezado del Menú */}
+        <div className="p-6 pb-2">
+          <SheetTitle className="text-left flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white border border-border/50 shadow-sm">
+              <PiggyBank className="h-4 w-4 text-black" fill="currentColor" />
+            </div>
+            <span className="tracking-tighter font-bold text-xl">FinTracker</span>
+          </SheetTitle>
+        </div>
+  
+        {/* Cuerpo de Navegación */}
+        <div className="flex-1 px-4 mt-4">
+          <nav className="flex flex-col gap-1">
+            <Link 
+              href="/dashboard" 
+              className="group flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all duration-200"
+            >
+              <div className="p-1.5 rounded-md bg-muted group-hover:bg-primary/20">
+                <LayoutDashboard size={18} />
+              </div>
+              <span className="font-semibold text-sm">Resumen</span>
+            </Link>
+  
+            <Link 
+              href="/transactions" 
+              className="group flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all duration-200"
+            >
+              <div className="p-1.5 rounded-md bg-muted group-hover:bg-primary/20">
+                <History size={18} />
+              </div>
+              <span className="font-semibold text-sm">Historial</span>
+            </Link>
+          </nav>
+        </div>
+  
+        {/* Pie de Menú (Configuraciones rápidas) */}
+        <div className="p-6 mt-auto border-t border-border/40 bg-accent/5">
+          <div className="flex items-center justify-between bg-background/50 p-3 rounded-2xl border border-border/50">
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/70">
+                Idioma
+              </span>
+            </div>
             <LanguageSwitcher />
           </div>
         </div>
