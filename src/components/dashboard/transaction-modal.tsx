@@ -40,7 +40,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/src/components/ui/popover"
-import { title } from "node:process"
 
 // ─── Icon list ────────────────────────────────────────────────────────────────
 const ICON_LIST = [

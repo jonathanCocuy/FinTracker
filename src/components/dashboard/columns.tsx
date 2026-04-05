@@ -64,7 +64,7 @@ export function createColumns(t: (key: string) => string): ColumnDef<Transaction
         const category = row.getValue("category") as string
         return (
           <div className="hidden md:block">
-            <span className="text-sm text-muted-foreground/80 uppercase tracking-widest font-bold ">
+            <span className="text-xs text-muted-foreground/80 uppercase tracking-widest font-bold ">
               {t(`categories.${category}`)}
             </span>
           </div>

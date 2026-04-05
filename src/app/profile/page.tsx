@@ -2,13 +2,14 @@
 
 import { Navbar } from "@/src/components/navbar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle,	CardFooter } from "@/src/components/ui/card"
 import { Badge } from "@/src/components/ui/badge"
 import { Input } from "@/src/components/ui/input"
 import { Label } from "@/src/components/ui/label"
 import { Switch } from "@/src/components/ui/switch"
 import { Separator } from "@/src/components/ui/separator"
 import { Button } from "@/src/components/ui/button"
+import { ChangePasswordModal } from "@/src/components/dashboard/forgot-password"
 import { 
   User, 
   ShieldCheck, 
@@ -19,7 +20,7 @@ import {
 
 export default function ProfilePage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">
       <Navbar />
       
       <main className="container max-w-5xl mx-auto p-4 md:p-8 space-y-8">
@@ -43,7 +44,6 @@ export default function ProfilePage() {
             <div className="flex flex-col text-center md:text-left space-y-2">
               <h1 className="text-4xl font-black tracking-tight">Jonathan Cocuy</h1>
               <p className="text-muted-foreground font-medium flex items-center justify-center md:justify-start gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 Software Developer & Football Coach
               </p>
             </div>
@@ -75,6 +75,11 @@ export default function ProfilePage() {
                   </div>
                 </div>
               </CardContent>
+              <CardFooter className="flex justify-center items-end gap-2 flex-col">
+                <Button variant="outline" className="w-full sm:w-auto border-border/40 hover:bg-accent/50 font-bold text-xs cursor-pointer">
+                  Guardar Cambios
+                </Button>
+              </CardFooter>
             </Card>
 
             <Card className="border-border/50 bg-card/30">
@@ -93,12 +98,7 @@ export default function ProfilePage() {
                 </div>
                 
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <Button 
-                    variant="outline" 
-                    className="w-full sm:w-auto border-border/40 hover:bg-accent/50 font-bold text-xs cursor-pointer"
-                  >
-                    Cambiar contraseña
-                  </Button>
+                  <ChangePasswordModal />
                   
                   <Button 
                     variant="link" 
