@@ -40,7 +40,7 @@ export function Navbar() {
             <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center shrink-0">
               <PiggyBank className="h-4 w-4 text-black" fill="black" />
             </div>
-            <span>FinTracker</span>
+            <span className="hidden md:block">FinTracker</span>
           </Link>
 
           {/* Desktop Navigation */}
