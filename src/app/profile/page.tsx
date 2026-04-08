@@ -111,7 +111,6 @@ export default function ProfilePage() {
             
             <div className="flex flex-col text-center md:text-left space-y-2">
               <h1 className="text-4xl font-black tracking-tight text-white">{profile?.full_name}</h1>
-              <p className="text-zinc-500 font-medium">{t("profile.role")}</p>
             </div>
           </div>
         </section>
