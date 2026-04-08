@@ -1,173 +1,195 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Navbar } from "@/src/components/navbar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle,	CardFooter } from "@/src/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/src/components/ui/card"
 import { Badge } from "@/src/components/ui/badge"
 import { Input } from "@/src/components/ui/input"
 import { Label } from "@/src/components/ui/label"
 import { Switch } from "@/src/components/ui/switch"
 import { Separator } from "@/src/components/ui/separator"
 import { Button } from "@/src/components/ui/button"
-import { ChangePasswordModal } from "@/src/components/dashboard/forgot-password"
-import { 
-  User, 
-  ShieldCheck, 
-  Palette, 
-  CreditCard,
-  Crown
-} from "lucide-react"
+import { ChangePasswordModal } from "@/src/components/auth/change-password"
+import { User, ShieldCheck, Palette, CreditCard, Crown, Loader2 } from "lucide-react"
+import { useI18n } from "@/src/lib/i18n"
+import { ForgotPasswordModal } from "@/src/components/auth/forgot-password"
+import { supabase } from "@/src/lib/supabase"
+import { useProfile } from "@/src/hooks/useProfile"
+// IMPORTACIÓN CORREGIDA: Cada uno viene de su respectivo archivo
+import { MfaUnenrollModal } from "@/src/components/auth/mfa-enrollment-modal"
+import dynamic from "next/dynamic"
+
+// Importación dinámica para el de activación (enrollment)
+const MfaEnrollComponent = dynamic(
+  () => import('@/src/components/auth/mfa-enrollment-modal').then((mod) => mod.MfaEnrollmentModal),
+  { ssr: false }
+)
 
 export default function ProfilePage() {
+  const { t } = useI18n();
+  const { profile, loading: profileLoading } = useProfile();
+
+  const [hasMounted, setHasMounted] = useState(false);
+  const [isMfaEnrollOpen, setIsMfaEnrollOpen] = useState(false);
+  const [isMfaUnenrollOpen, setIsMfaUnenrollOpen] = useState(false);
+  const [is2FAEnabled, setIs2FAEnabled] = useState(false);
+  const [isStatusLoading, setIsStatusLoading] = useState(true);
+
+  useEffect(() => {
+    setHasMounted(true);
+    const checkMFAStatus = async () => {
+      try {
+        const { data, error } = await supabase.auth.mfa.listFactors();
+        if (!error && data?.all) {
+          const isEnabled = data.all.some(f => f.status === 'verified');
+          setIs2FAEnabled(isEnabled);
+        }
+      } catch (err) {
+        console.error("Error checking MFA status:", err);
+      } finally {
+        setIsStatusLoading(false);
+      }
+    };
+    checkMFAStatus();
+  }, []);
+
+  const handleToggle2FA = (checked: boolean) => {
+    if (checked) {
+      setIsMfaEnrollOpen(true);
+    } else {
+      setIsMfaUnenrollOpen(true);
+    }
+  };
+
+  const getInitials = (name: string) => {
+    return name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "JP";
+  };
+
+  if (!hasMounted || profileLoading || isStatusLoading) {
+    return (
+      <div className="h-screen w-full flex items-center justify-center bg-black">
+        <Loader2 className="animate-spin text-primary" size={40} />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">
       <Navbar />
+
+      {/* Modal de Activación */}
+      <MfaEnrollComponent 
+        isOpen={isMfaEnrollOpen} 
+        onOpenChange={setIsMfaEnrollOpen}
+        onSuccess={() => setIs2FAEnabled(true)}
+      />
+
+      {/* Modal de Desactivación */}
+      <MfaUnenrollModal
+        isOpen={isMfaUnenrollOpen}
+        onOpenChange={setIsMfaUnenrollOpen}
+        userEmail={profile?.email || ""}
+        onSuccess={() => setIs2FAEnabled(false)}
+      />
       
       <main className="container max-w-5xl mx-auto p-4 md:p-8 space-y-8">
-        
-        {/* --- HEADER DE IDENTIDAD --- */}
-        <section className="relative overflow-hidden rounded-3xl border border-border/50 bg-card/50 p-8 md:p-12 backdrop-blur-sm">
+        <section className="relative overflow-hidden rounded-[32px] border border-white/5 bg-zinc-900/50 p-8 md:p-12 backdrop-blur-md">
           <div className="absolute top-0 right-0 p-6">
              <Badge className="bg-primary/20 text-primary border-primary/30 gap-1 px-3 py-1">
-               <Crown size={14} /> Premium
+               <Crown size={14} /> {t("profile.badges.premium")}
              </Badge>
           </div>
           
           <div className="flex flex-col md:flex-row items-center gap-8">
-            <Avatar className="h-28 w-28 border-4 border-background shadow-2xl">
-              <AvatarImage src="" /> 
-              <AvatarFallback className="bg-linear-to-br from-primary to-purple-600 text-3xl font-black text-black">
-                JC
+            <Avatar className="h-28 w-28 border-4 border-zinc-950 shadow-2xl">
+              <AvatarImage src={profile?.avatar_url || ""} /> 
+              <AvatarFallback className="bg-gradient-to-br from-primary to-purple-600 text-3xl font-black text-black">
+                {getInitials(profile?.full_name || "")}
               </AvatarFallback>
             </Avatar>
             
             <div className="flex flex-col text-center md:text-left space-y-2">
-              <h1 className="text-4xl font-black tracking-tight">Jonathan Cocuy</h1>
-              <p className="text-muted-foreground font-medium flex items-center justify-center md:justify-start gap-2">
-                Software Developer & Football Coach
-              </p>
+              <h1 className="text-4xl font-black tracking-tight text-white">{profile?.full_name}</h1>
+              <p className="text-zinc-500 font-medium">{t("profile.role")}</p>
             </div>
           </div>
         </section>
 
-        {/* --- GRID DE CONFIGURACIÓN --- */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          
-          {/* Columna Izquierda: Información Personal */}
           <div className="md:col-span-2 space-y-6">
-            <Card className="border-border/50 bg-card/30">
+            <Card className="border-white/5 bg-zinc-900/30 rounded-[28px]">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
+                <CardTitle className="flex items-center gap-2 text-lg text-white font-black">
                   <User size={18} className="text-primary" />
-                  Información Personal
+                  {t("profile.personalInfo.title")}
                 </CardTitle>
-                <CardDescription>Gestiona tus datos básicos de FinTracker.</CardDescription>
+                <CardDescription>{t("profile.personalInfo.description")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Nombre completo</Label>
-                    <Input id="name" defaultValue="Jonathan Cocuy" className="bg-background/50" />
+                    <Label className="text-zinc-400 px-1">{t("common.fullName")}</Label>
+                    <Input defaultValue={profile?.full_name} className="bg-zinc-950 border-white/5 rounded-2xl h-12" />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" defaultValue="jonathan@dev.com" className="bg-background/50" />
+                    <Label className="text-zinc-400 px-1">{t("common.email")}</Label>
+                    <Input disabled defaultValue={profile?.email} className="bg-zinc-950/50 border-white/5 opacity-50 rounded-2xl h-12" />
                   </div>
                 </div>
               </CardContent>
-              <CardFooter className="flex justify-center items-end gap-2 flex-col">
-                <Button variant="outline" className="w-full sm:w-auto border-border/40 hover:bg-accent/50 font-bold text-xs cursor-pointer">
-                  Guardar Cambios
-                </Button>
-              </CardFooter>
             </Card>
 
-            <Card className="border-border/50 bg-card/30">
+            <Card className="border-white/5 bg-zinc-900/30 rounded-[28px]">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
+                <CardTitle className="flex items-center gap-2 text-lg text-white font-black">
                   <ShieldCheck size={18} className="text-primary" />
-                  Seguridad
+                  {t("profile.security.title")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-              {/* Sección de Cambio de Contraseña */}
-              <div className="space-y-4">
-                <div className="flex flex-col gap-1">
-                  <p className="text-sm font-bold">Contraseña</p>
-                  <p className="text-xs text-muted-foreground">Actualiza tu contraseña para mantener tu cuenta segura.</p>
-                </div>
-                
                 <div className="flex flex-col sm:flex-row gap-3">
                   <ChangePasswordModal />
-                  
-                  <Button 
-                    variant="link" 
-                    className="text-xs text-muted-foreground hover:text-primary p-0 h-auto justify-start cursor-pointer" 
-                  >
-                    ¿Olvidaste tu contraseña?
-                  </Button>
+                  <ForgotPasswordModal /> 
                 </div>
-              </div>
-            </CardContent>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-4 rounded-xl bg-accent/5 border border-border/40">
-                  <div className="space-y-0.5">
-                    <p className="text-sm font-bold">Autenticación de dos pasos</p>
-                    <p className="text-xs text-muted-foreground">Añade una capa extra de seguridad.</p>
+                
+                <Separator className="bg-white/5" />
+                
+                <div className="flex items-center justify-between p-5 rounded-3xl bg-white/5 border border-white/5">
+                  <div className="space-y-1">
+                    <p className="text-sm font-bold text-white">{t("profile.security.twoFactorTitle")}</p>
+                    <p className="text-[11px] text-zinc-500">{t("profile.security.twoFactorDescription")}</p>
                   </div>
-                  <Switch className="cursor-pointer"/>
+                  <Switch 
+                    checked={is2FAEnabled}
+                    onCheckedChange={handleToggle2FA}
+                  />
                 </div>
               </CardContent>
-              
             </Card>
           </div>
 
-          {/* Columna Derecha: Preferencias Rápidas */}
           <div className="space-y-6">
-            <Card className="border-border/50 bg-card/30">
+            <Card className="border-white/5 bg-zinc-900/30 rounded-[28px]">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
+                <CardTitle className="flex items-center gap-2 text-lg text-white font-black">
                   <Palette size={18} className="text-primary" />
-                  Personalización
+                  {t("profile.preferences.title")}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label className="flex flex-col gap-1">
-                    <span>Modo Oscuro</span>
-                    <span className="text-xs font-normal text-muted-foreground">Forzar tema dark</span>
-                  </Label>
-                  <Switch className="cursor-pointer" defaultChecked/>
+                  <Label className="text-white text-sm">{t("profile.preferences.darkModeTitle")}</Label>
+                  <Switch defaultChecked />
                 </div>
-                <Separator className="bg-border/40" />
+                <Separator className="bg-white/5" />
                 <div className="flex items-center justify-between">
-                  <Label className="flex flex-col gap-1">
-                    <span>Notificaciones</span>
-                    <span className="text-xs font-normal text-muted-foreground">Alertas de gastos</span>
-                  </Label>
-                  <Switch className="cursor-pointer" />
+                  <Label className="text-white text-sm">{t("profile.preferences.notificationsTitle")}</Label>
+                  <Switch />
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-primary/20 bg-primary/5">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <CreditCard size={18} className="text-primary" />
-                  Suscripción
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-xs text-muted-foreground mb-4">
-                  Tu próximo pago es el **19 de Abril, 2026**.
-                </p>
-                <Button className="w-full bg-primary text-black font-bold hover:scale-[1.02] transition-transform cursor-pointer">
-                  Gestionar Plan
-                </Button>
               </CardContent>
             </Card>
           </div>
-
         </div>
       </main>
     </div>

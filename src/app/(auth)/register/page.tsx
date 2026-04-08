@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,13 +15,29 @@ import { Input } from "@/src/components/ui/input";
 import { Button } from "@/src/components/ui/button";
 import { Label } from "@/src/components/ui/label";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/src/components/ui/card";
+import { Camera } from "lucide-react";
+import Image from "next/image";
 
 export default function RegisterPage() {
-  const router = useRouter();
   const { t } = useI18n();
-  const [isLoading, setIsLoading] = useState(false);
-
+  const router = useRouter();
   const registerSchema = createRegisterSchema(t)
+  const [isLoading, setIsLoading] = useState(false);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!avatarFile) {
+      setPreviewUrl(null);
+      return;
+    }
+  
+    const objectUrl = URL.createObjectURL(avatarFile);
+    setPreviewUrl(objectUrl);
+  
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [avatarFile]);
+
   const form = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -34,23 +50,43 @@ export default function RegisterPage() {
 
   const onSubmit = async (data: RegisterSchema) => {
     setIsLoading(true);
+    let avatarUrl = "";
 
-    const { error } = await supabase.auth.signUp({
-      email: data.email,
-      password: data.password,
-      options: {
-        data: {
-          full_name: data.full_name,
+    try {
+      if (avatarFile) {
+        const fileExt = avatarFile.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(filePath, avatarFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
+        avatarUrl = urlData.publicUrl;
+      }
+
+      const { error: signUpError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          data: {
+            full_name: data.full_name,
+            avatar_url: avatarUrl, // La función SQL que arreglamos ya sabe leer esto
+          },
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+      });
 
-    if (error) {
-      alert("Error: " + error.message);
-      setIsLoading(false);
-    } else {
+      if (signUpError) throw signUpError;
+
       router.push("/onboarding");
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -71,6 +107,23 @@ export default function RegisterPage() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-2">
             {/* Full Name */}
             <div className="flex flex-col">
+                <Label htmlFor="avatar-upload" className="cursor-pointer group relative flex items-center justify-center gap-2">
+                  <div className="h-15 w-15 rounded-full bg-muted flex items-center justify-center overflow-hidden border-2 border-dashed border-primary/30 group-hover:border-primary transition-colors">
+                    {previewUrl ? (
+                      <Image src={previewUrl} alt={t("auth.register.avatarPreviewAlt")} className="h-full w-full object-cover" width={15} height={15} />
+                    ) : (
+                      <Camera className="h-8 w-8 text-muted-foreground" />
+                    )}
+                  </div>
+                  <Input 
+                    id="avatar-upload" 
+                    type="file" 
+                    accept="image/*" 
+                    className="hidden" 
+                    onChange={(e) => setAvatarFile(e.target.files?.[0] || null)} 
+                  />
+               </Label>
+               <span className="text-[10px] text-muted-foreground mt-2 text-center">{t("auth.register.avatarHint")}</span>
               <Label htmlFor="full_name" className="text-sm pb-1 cursor-pointer">{t("common.fullName")}</Label>
               <Input id="full_name" type="text" placeholder={t("auth.register.fullNamePlaceholder")} {...form.register("full_name")} className={cn(form.formState.errors.full_name?.message && "border-red-500")} />
               {form.formState.errors.full_name?.message && <p className="text-sm text-red-500 pl-2 pt-1">{form.formState.errors.full_name?.message}</p>}

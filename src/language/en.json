@@ -38,6 +38,8 @@
       "fullNamePlaceholder": "John Doe",
       "emailPlaceholder": "username@example.com",
       "passwordPlaceholder": "********",
+      "avatarPreviewAlt": "Avatar preview",
+      "avatarHint": "Upload your profile photo (optional)",
       "submit": "Register",
       "hasAccount": "Don't have an account?",
       "goToLogin": "Login"
@@ -58,10 +60,14 @@
   "dashboard": {
     "kpisTitle": "KPIs",
     "kpisSubtitle": "This is a summary of your categories.",
+    "welcome": "Welcome",
     "dayChart": "Day",
     "categoryChart": "Category",
     "transactionsTitle": "Transactions",
     "noTransactions": "No recent transactions.",
+    "noKpis": "No KPIs.",
+    "noExpenses": "No expenses to display.",
+    "noIncome": "No income to display.",
     "vsPreviousMonth": "vs previous month"
   },
   "kpis": {
@@ -104,7 +110,80 @@
     "daviplata": "Daviplata",
     "bancodebogota": "Banco de Bogota",
     "nequi": "Nequi",
-    "mercadopago": "Mercado Pago"
+    "mercadopago": "Mercado Pago",
+    "empty": "You don't have any accounts yet."
+  },
+  "navbar": {
+    "summary": "Summary",
+    "history": "History",
+    "profile": "Profile",
+    "logout": "Log out",
+    "openMenu": "Open menu",
+    "language": "Language"
+  },
+  "profile": {
+    "badges": {
+      "premium": "Premium"
+    },
+    "role": "Software Developer & Football Coach",
+    "personalInfo": {
+      "title": "Personal Information",
+      "description": "Manage your basic FinTracker data.",
+      "saveChanges": "Save Changes"
+    },
+    "security": {
+      "title": "Security",
+      "passwordTitle": "Password",
+      "passwordDescription": "Update your password to keep your account secure.",
+      "twoFactorTitle": "Two-factor authentication",
+      "twoFactorDescription": "Add an extra layer of security."
+    },
+    "preferences": {
+      "title": "Personalization",
+      "darkModeTitle": "Dark Mode",
+      "darkModeDescription": "Force dark theme",
+      "notificationsTitle": "Notifications",
+      "notificationsDescription": "Expense alerts"
+    },
+    "subscription": {
+      "title": "Subscription",
+      "nextPayment": "Your next payment is on April 19, 2026.",
+      "managePlan": "Manage Plan"
+    }
+  },
+  "changePassword": {
+    "trigger": "Change password",
+    "title": "Security",
+    "description": "Update your password to keep your FinTracker account secure.",
+    "currentPasswordLabel": "Current Password",
+    "newPasswordLabel": "New Password",
+    "confirmNewPasswordLabel": "Confirm New Password",
+    "submit": "Update Password",
+    "validation": {
+      "oldPasswordRequired": "Current password is required",
+      "newPasswordMinLength": "The new password must be at least 8 characters",
+      "passwordsDontMatch": "Passwords don't match"
+    }
+  },
+  "forgotPassword": {
+    "title": "Forgot your password?",
+    "description": "Don't worry. We'll send a recovery link to your email so you can reset it safely.",
+    "sendButton": "Send link to email",
+    "successTitle": "Link sent!",
+    "successDescription": "Check your inbox to continue."
+  },
+  "resetPassword": {
+    "title": "New Password",
+    "description": "Enter your new password to regain access to FinTracker.",
+    "newPasswordLabel": "New password",
+    "confirmPasswordLabel": "Confirm password",
+    "submit": "Update Password",
+    "successTitle": "Password updated!",
+    "successDescription": "Your password has been changed successfully.",
+    "validation": {
+      "passwordMinLength": "Password must be at least 8 characters long",
+      "passwordsDontMatch": "Passwords don't match"
+    }
   },
   "table": {
     "description": "Description",

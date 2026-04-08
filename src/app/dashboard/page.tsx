@@ -21,36 +21,39 @@ import { ArrowUpRight, Plus } from "lucide-react"
 import { Navbar } from "@/src/components/navbar"
 import { supabase } from "@/src/lib/supabase"
 
+interface UserProfile {
+  full_name: string;
+  avatar_url: string | null;
+}
+
 export default function Dashboard() {
   const { t } = useI18n()
-  const [isLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const [hoveredAccountId, setHoveredAccountId] = useState<string | null>(null);
-  const [userName, setUserName] = useState<string>("");
+  const [profile, setProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
-    const getUserProfile = async () => {
-      // 1. Obtenemos el ID del usuario actual
+    const fetchProfile = async () => {
       const { data: { user } } = await supabase.auth.getUser();
 
       if (user) {
-        // 2. Buscamos el nombre en la tabla 'profiles'
-        const { data: profile } = await supabase
+        const { data } = await supabase
           .from('profiles')
-          .select('full_name')
+          .select('full_name, avatar_url')
           .eq('id', user.id)
           .single();
 
-        if (profile) {
-          // Tomamos solo el primer nombre para un saludo más cercano
-          const firstName = profile.full_name.split(" ")[0];
-          setUserName(firstName);
+        if (data) {
+          setProfile(data);
         }
       }
+      setIsLoading(false);
     };
 
-    getUserProfile();
+    fetchProfile();
   }, []);
-  
+
+  const firstName = profile?.full_name?.split(" ")[0] || "...";
 
   /* Data */
   const dataIncome = [
@@ -96,7 +99,7 @@ export default function Dashboard() {
     <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">
       <Navbar />
       <div className="flex flex-col gap-4 justify-center items-left p-4 w-full max-w-7xl mx-auto">
-        <h1 className="text-2xl font-bold">Bienvenido, {userName}</h1>
+        <h1 className="text-2xl font-bold">{t("dashboard.welcome")}, {firstName}</h1>
       </div>
 
       {isLoading ? (

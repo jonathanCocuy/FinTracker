@@ -1,12 +1,6 @@
 "use client"
 
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  navigationMenuTriggerStyle,
-} from "@/src/components/ui/navigation-menu"
+import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, navigationMenuTriggerStyle } from "@/src/components/ui/navigation-menu"
 import { PiggyBank, UserIcon, Menu, LayoutDashboard, History } from "lucide-react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"
@@ -14,20 +8,17 @@ import { LanguageSwitcher } from "./language-switcher"
 import { TransactionModal } from "./dashboard/transaction-modal"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/src/components/ui/sheet"
 import { Button } from "@/src/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/src/components/ui/dropdown-menu"
-import { LogOut, User } from "lucide-react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/src/components/ui/dropdown-menu"
+import { LogOut, User, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/src/lib/supabase"
+import { useProfile } from "@/src/hooks/useProfile"
+import { useI18n } from "@/src/lib/i18n"
 
 export function Navbar() {
   const router = useRouter()
+  const { profile, loading } = useProfile()
+  const { t } = useI18n()
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -64,14 +55,14 @@ export function Navbar() {
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
                   <Link href="/dashboard" className={navigationMenuTriggerStyle()}>
-                    Resumen
+                    {t("navbar.summary")}
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
                   <Link href="/transactions" className={navigationMenuTriggerStyle()}>
-                    Historial
+                    {t("navbar.history")}
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
@@ -89,19 +80,26 @@ export function Navbar() {
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Avatar className="h-8 w-8 md:h-10 md:w-10 cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all">
-                <AvatarImage src="" /> 
-                <AvatarFallback className="bg-secondary">
-                  <UserIcon className="h-4 w-4" />
-                </AvatarFallback>
-              </Avatar>
+            <Avatar className="h-8 w-8 md:h-10 md:w-10 cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all shadow-sm">
+          {/* Si profile tiene avatar_url, se muestra aquí */}
+          <AvatarImage src={profile?.avatar_url || ""} alt={profile?.full_name} />
+          
+          {/* Si no hay imagen o está cargando, muestra el icono */}
+          <AvatarFallback className="bg-secondary">
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+            ) : (
+              <UserIcon className="h-4 w-4 text-muted-foreground" />
+            )}
+          </AvatarFallback>
+        </Avatar>
             </DropdownMenuTrigger>
             
             <DropdownMenuContent align="end" className="w-56 mt-2 bg-background/95 backdrop-blur-xl border-border/40 rounded-xl shadow-xl">
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-bold leading-none">Jonathan Cocuy</p>
-                  <p className="text-xs leading-none text-muted-foreground">jonathan@dev.com</p>
+                  <p className="text-sm font-bold leading-none">{profile?.full_name}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{profile?.email}</p>
                 </div>
               </DropdownMenuLabel>
               
@@ -110,7 +108,7 @@ export function Navbar() {
               <DropdownMenuItem asChild className="cursor-pointer focus:bg-primary/10 focus:text-primary rounded-lg m-1">
                 <Link href="/profile" className="flex w-full items-center">
                   <User className="mr-2 h-4 w-4" />
-                  <span>Perfil</span>
+                  <span>{t("navbar.profile")}</span>
                 </Link>
               </DropdownMenuItem>
               
@@ -118,7 +116,7 @@ export function Navbar() {
               
               <DropdownMenuItem className="cursor-pointer text-rose-500 focus:bg-rose-500/10 focus:text-rose-500 rounded-lg m-1">
                 <LogOut className="mr-2 h-4 w-4" />
-                <button onClick={handleLogout}>Cerrar sesión</button>
+                <button onClick={handleLogout}>{t("navbar.logout")}</button>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -129,12 +127,14 @@ export function Navbar() {
 }
 
 function MobileNav() {
+  const { t } = useI18n()
+
   return (
     <Sheet>
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon" className="md:hidden hover:bg-accent/50 transition-colors">
           <Menu className="h-5 w-5" />
-          <span className="sr-only">Abrir menú</span>
+          <span className="sr-only">{t("navbar.openMenu")}</span>
         </Button>
       </SheetTrigger>
       
@@ -162,7 +162,7 @@ function MobileNav() {
               <div className="p-1.5 rounded-md bg-muted group-hover:bg-primary/20">
                 <LayoutDashboard size={18} />
               </div>
-              <span className="font-semibold text-sm">Resumen</span>
+              <span className="font-semibold text-sm">{t("navbar.summary")}</span>
             </Link>
   
             <Link 
@@ -172,7 +172,7 @@ function MobileNav() {
               <div className="p-1.5 rounded-md bg-muted group-hover:bg-primary/20">
                 <History size={18} />
               </div>
-              <span className="font-semibold text-sm">Historial</span>
+              <span className="font-semibold text-sm">{t("navbar.history")}</span>
             </Link>
           </nav>
         </div>
@@ -183,7 +183,7 @@ function MobileNav() {
             <div className="flex items-center gap-2">
               <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
               <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/70">
-                Idioma
+                {t("navbar.language")}
               </span>
             </div>
             <LanguageSwitcher />
