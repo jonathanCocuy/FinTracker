@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useI18n } from "@/src/lib/i18n"
 import { BarChartComponent } from "../../components/dashboard/bar-chart"
 import { KpiGrid, type KpiItem } from "../../components/dashboard/kpi-cards"
@@ -19,11 +19,38 @@ import { TransactionTableSkeleton } from "@/src/components/dashboard/transaction
 /* Icons */
 import { ArrowUpRight, Plus } from "lucide-react"
 import { Navbar } from "@/src/components/navbar"
+import { supabase } from "@/src/lib/supabase"
 
 export default function Dashboard() {
   const { t } = useI18n()
   const [isLoading] = useState(false)
   const [hoveredAccountId, setHoveredAccountId] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string>("");
+
+  useEffect(() => {
+    const getUserProfile = async () => {
+      // 1. Obtenemos el ID del usuario actual
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (user) {
+        // 2. Buscamos el nombre en la tabla 'profiles'
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .single();
+
+        if (profile) {
+          // Tomamos solo el primer nombre para un saludo más cercano
+          const firstName = profile.full_name.split(" ")[0];
+          setUserName(firstName);
+        }
+      }
+    };
+
+    getUserProfile();
+  }, []);
+  
 
   /* Data */
   const dataIncome = [
@@ -68,6 +95,9 @@ export default function Dashboard() {
   return (
     <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">
       <Navbar />
+      <div className="flex flex-col gap-4 justify-center items-left p-4 w-full max-w-7xl mx-auto">
+        <h1 className="text-2xl font-bold">Bienvenido, {userName}</h1>
+      </div>
 
       {isLoading ? (
         <KpiGridSkeleton count={4} className="grid grid-cols-2 md:grid-cols-4 w-full gap-4" />
