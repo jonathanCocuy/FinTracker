@@ -23,8 +23,11 @@ import {
   DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu"
 import { LogOut, User } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 export function Navbar() {
+  const router = useRouter()
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/60 backdrop-blur-xl">
       <div className="container flex h-16 items-center justify-between px-4">
@@ -103,7 +106,7 @@ export function Navbar() {
               
               <DropdownMenuItem className="cursor-pointer text-rose-500 focus:bg-rose-500/10 focus:text-rose-500 rounded-lg m-1">
                 <LogOut className="mr-2 h-4 w-4" />
-                <span>Cerrar sesión</span>
+                <button onClick={() => router.push("/login")}>Cerrar sesión</button>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

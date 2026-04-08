@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/src/lib/utils";
 import { Label } from "@/src/components/ui/label";
 import { PiggyBank } from "lucide-react";
+import { supabase } from "@/src/lib/supabase";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -25,8 +26,19 @@ export default function LoginPage() {
     },
   });
 
-  const onSubmit = (data: LoginSchema) => {
-    console.log(`User ${data.email} logged in`);
+  const onSubmit = async (values: LoginSchema) => {
+    
+    const { error } = await supabase.auth.signInWithPassword({
+      email: values.email,
+      password: values.password,
+    });
+
+    if (error) {
+      return (<p>{error.message}</p>)
+    } else {
+      router.push("/dashboard");
+      router.refresh();
+    }
   };
 
   return (
@@ -56,6 +68,7 @@ export default function LoginPage() {
               </div>
               <Input id="password" type="password" placeholder={t("auth.login.passwordPlaceholder")} {...form.register("password")} className={cn(form.formState.errors.password?.message && "border-red-500")} />
               {form.formState.errors.password?.message && <p className="text-sm text-red-500 pl-2 pt-1">{form.formState.errors.password?.message?.toString()}</p>}
+              {}
             </div>
               <Button type="submit" variant="default" size="lg" className="cursor-pointer">{t("auth.login.submit")}</Button>
           </form>

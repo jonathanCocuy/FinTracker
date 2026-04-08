@@ -12,7 +12,7 @@ function AnimatedBalance({ value }: { value: number }) {
   const ref = useRef<HTMLSpanElement>(null)
   const motionValue = useMotionValue(0)
   const springValue = useSpring(motionValue, {
-    damping: 30,
+    damping: 10,
     stiffness: 100,
   })
 
