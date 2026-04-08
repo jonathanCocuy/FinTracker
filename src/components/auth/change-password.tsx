@@ -59,7 +59,7 @@ export function ChangePasswordModal() {
       // 1. Obtener el correo del usuario actual para la re-autenticación
       const { data: { user } } = await supabase.auth.getUser();
       
-      if (!user?.email) throw new Error("No se encontró la sesión del usuario");
+      if (!user?.email) throw new Error(t("changePassword.validation.sessionNotFound"));
   
       // 2. Re-autenticar: Intentamos un login con la contraseña antigua
       const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -92,11 +92,11 @@ export function ChangePasswordModal() {
       setOpen(false);
       form.reset();
       // Aquí puedes añadir un toast de éxito si lo tienes configurado
-      console.log("Contraseña actualizada con éxito");
+      console.log(t("changePassword.successLog"));
   
     } catch (error) {
       console.error("Error inesperado:", error);
-      alert("Ocurrió un error inesperado al cambiar la contraseña.");
+      alert(t("changePassword.validation.unexpectedError"));
     } finally {
       setIsLoading(false);
     }

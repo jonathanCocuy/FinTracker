@@ -7,8 +7,10 @@ import { Button } from "@/src/components/ui/button"
 import { Input } from "@/src/components/ui/input"
 import { Label } from "@/src/components/ui/label"
 import { useRouter } from "next/navigation"
+import { useI18n } from "@/src/lib/i18n"
 
 export function MfaVerification() {
+  const { t } = useI18n()
   const [code, setCode] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -25,7 +27,7 @@ export function MfaVerification() {
       if (factorsError) throw factorsError
 
       const totpFactor = factors.all.find(f => f.factor_type === 'totp' && f.status === 'verified')
-      if (!totpFactor) throw new Error("No se encontró un factor de seguridad activo.")
+      if (!totpFactor) throw new Error(t("mfa.verify.errors.noActiveFactor"))
 
       // 2. Desafiamos y verificamos el código de 6 dígitos
       const { error: verifyError } = await supabase.auth.mfa.challengeAndVerify({
@@ -39,7 +41,7 @@ export function MfaVerification() {
       router.push("/dashboard")
       router.refresh()
     } catch (err: any) {
-      setError(err.message || "Código incorrecto")
+      setError(err.message || t("mfa.verify.errors.invalidCode"))
       setIsLoading(false)
     }
   }
@@ -51,14 +53,14 @@ export function MfaVerification() {
           <ShieldCheck className="text-primary" size={24} />
         </div>
         <div className="space-y-1">
-          <h2 className="text-xl font-black text-white tracking-tight">Verificación de Seguridad</h2>
-          <p className="text-zinc-500 text-xs">Ingresa el código de 6 dígitos de tu app de autenticación.</p>
+          <h2 className="text-xl font-black text-white tracking-tight">{t("mfa.verify.title")}</h2>
+          <p className="text-zinc-500 text-xs">{t("mfa.verify.description")}</p>
         </div>
       </div>
 
       <form onSubmit={handleVerify} className="space-y-4">
         <div className="space-y-2">
-          <Label className="text-zinc-400 text-[10px] uppercase font-bold tracking-widest px-1">Código TOTP</Label>
+          <Label className="text-zinc-400 text-[10px] uppercase font-bold tracking-widest px-1">{t("mfa.verify.codeLabel")}</Label>
           <Input
             type="text"
             placeholder="000000"
@@ -82,7 +84,7 @@ export function MfaVerification() {
           disabled={isLoading || code.length < 6}
           className="w-full bg-white text-black hover:bg-zinc-200 rounded-2xl font-bold py-6 transition-all"
         >
-          {isLoading ? <Loader2 className="animate-spin" /> : "Verificar e Iniciar Sesión"}
+          {isLoading ? <Loader2 className="animate-spin" /> : t("mfa.verify.submit")}
         </Button>
       </form>
       
@@ -91,7 +93,7 @@ export function MfaVerification() {
         className="flex items-center justify-center gap-2 w-full text-zinc-500 text-xs hover:text-white transition-colors"
       >
         <ArrowLeft size={14} />
-        Volver al login
+        {t("mfa.verify.backToLogin")}
       </button>
     </div>
   )

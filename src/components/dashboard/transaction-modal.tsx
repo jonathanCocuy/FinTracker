@@ -351,9 +351,9 @@ export function TransactionModal() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="nequi">Nequi</SelectItem>
-                      <SelectItem value="bancolombia">Bancolombia</SelectItem>
-                      <SelectItem value="nubank">Nubank</SelectItem>
+                      <SelectItem value="nequi">{t("accounts.nequi")}</SelectItem>
+                      <SelectItem value="bancolombia">{t("accounts.bancolombia")}</SelectItem>
+                      <SelectItem value="nubank">{t("accounts.nubank")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormItem>

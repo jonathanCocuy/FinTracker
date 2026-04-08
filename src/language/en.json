@@ -159,10 +159,14 @@
     "newPasswordLabel": "New Password",
     "confirmNewPasswordLabel": "Confirm New Password",
     "submit": "Update Password",
+    "successLog": "Password updated successfully",
     "validation": {
       "oldPasswordRequired": "Current password is required",
       "newPasswordMinLength": "The new password must be at least 8 characters",
-      "passwordsDontMatch": "Passwords don't match"
+      "passwordsDontMatch": "Passwords don't match",
+      "sessionNotFound": "User session was not found",
+      "invalidOldPassword": "Current password is incorrect",
+      "unexpectedError": "An unexpected error occurred while changing password."
     }
   },
   "forgotPassword": {
@@ -183,6 +187,62 @@
     "validation": {
       "passwordMinLength": "Password must be at least 8 characters long",
       "passwordsDontMatch": "Passwords don't match"
+    }
+  },
+  "mfa": {
+    "verify": {
+      "title": "Security Verification",
+      "description": "Enter the 6-digit code from your authenticator app.",
+      "codeLabel": "TOTP Code",
+      "submit": "Verify and Sign In",
+      "backToLogin": "Back to login",
+      "errors": {
+        "noActiveFactor": "No active security factor was found.",
+        "invalidCode": "Invalid code"
+      }
+    },
+    "enroll": {
+      "title": "Two-Step Security",
+      "description": "Add an extra protection layer to your FinTracker account using an authenticator app.",
+      "scanTitle": "Scan the Code",
+      "scanDescription": "Use Google Authenticator or Authy to scan this QR code.",
+      "start": "Start Setup",
+      "scanned": "I scanned it",
+      "codeLabel": "6-digit code",
+      "verifyAndEnable": "Verify and Enable",
+      "successTitle": "Configured!",
+      "successDescription": "Your account is now protected."
+    },
+    "unenroll": {
+      "title": "Disable two-step authentication",
+      "descriptionPrefix": "You are about to disable MFA for",
+      "yourAccount": "your account",
+      "disable": "Disable",
+      "errors": {
+        "noVerifiedFactors": "No verified MFA factors found."
+      }
+    }
+  },
+  "onboarding": {
+    "next": "Next",
+    "startNow": "Get started now",
+    "steps": {
+      "welcome": {
+        "title": "Welcome to FinTracker!",
+        "description": "The ultimate tool to take full control of your money in a simple way."
+      },
+      "accounts": {
+        "title": "Manage your accounts",
+        "description": "Connect Nequi, Bancolombia, or your cash savings in one place."
+      },
+      "expenses": {
+        "title": "Analyze your expenses",
+        "description": "See where your money goes with clean and detailed charts."
+      },
+      "security": {
+        "title": "Total security",
+        "description": "Your data is protected with bank-grade technology and Supabase."
+      }
     }
   },
   "table": {

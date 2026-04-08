@@ -159,10 +159,14 @@
     "newPasswordLabel": "Nueva Contraseña",
     "confirmNewPasswordLabel": "Confirmar Nueva Contraseña",
     "submit": "Actualizar Contraseña",
+    "successLog": "Contraseña actualizada con éxito",
     "validation": {
       "oldPasswordRequired": "La contraseña antigua es requerida",
       "newPasswordMinLength": "La nueva contraseña debe tener al menos 8 caracteres",
-      "passwordsDontMatch": "Las contraseñas no coinciden"
+      "passwordsDontMatch": "Las contraseñas no coinciden",
+      "sessionNotFound": "No se encontró la sesión del usuario",
+      "invalidOldPassword": "La contraseña actual es incorrecta",
+      "unexpectedError": "Ocurrió un error inesperado al cambiar la contraseña."
     }
   },
   "forgotPassword": {
@@ -183,6 +187,62 @@
     "validation": {
       "passwordMinLength": "La contraseña debe tener al menos 8 caracteres",
       "passwordsDontMatch": "Las contraseñas no coinciden"
+    }
+  },
+  "mfa": {
+    "verify": {
+      "title": "Verificación de Seguridad",
+      "description": "Ingresa el código de 6 dígitos de tu app de autenticación.",
+      "codeLabel": "Código TOTP",
+      "submit": "Verificar e Iniciar Sesión",
+      "backToLogin": "Volver al login",
+      "errors": {
+        "noActiveFactor": "No se encontró un factor de seguridad activo.",
+        "invalidCode": "Código incorrecto"
+      }
+    },
+    "enroll": {
+      "title": "Seguridad de Dos Pasos",
+      "description": "Añade una capa extra de protección a tu cuenta de FinTracker usando una app de autenticación.",
+      "scanTitle": "Escanea el Código",
+      "scanDescription": "Usa Google Authenticator o Authy para escanear este código QR.",
+      "start": "Comenzar Configuración",
+      "scanned": "Ya lo escaneé",
+      "codeLabel": "Código de 6 dígitos",
+      "verifyAndEnable": "Verificar y Activar",
+      "successTitle": "¡Configurado!",
+      "successDescription": "Tu cuenta ahora está protegida."
+    },
+    "unenroll": {
+      "title": "Desactivar autenticación en dos pasos",
+      "descriptionPrefix": "Vas a desactivar MFA para",
+      "yourAccount": "tu cuenta",
+      "disable": "Desactivar",
+      "errors": {
+        "noVerifiedFactors": "No se encontraron factores MFA verificados."
+      }
+    }
+  },
+  "onboarding": {
+    "next": "Siguiente",
+    "startNow": "Empezar ahora",
+    "steps": {
+      "welcome": {
+        "title": "¡Bienvenido a FinTracker!",
+        "description": "La herramienta definitiva para tomar el control total de tu dinero de forma sencilla."
+      },
+      "accounts": {
+        "title": "Gestiona tus Cuentas",
+        "description": "Conecta Nequi, Bancolombia o tus ahorros en efectivo en un solo lugar."
+      },
+      "expenses": {
+        "title": "Analiza tus Gastos",
+        "description": "Visualiza en qué se va tu dinero con gráficas limpias y detalladas."
+      },
+      "security": {
+        "title": "Seguridad Total",
+        "description": "Tus datos están protegidos con tecnología de grado bancario y Supabase."
+      }
     }
   },
   "table": {

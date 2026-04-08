@@ -34,13 +34,12 @@ const createResetSchema = (t: any) => z
 type ResetFormData = z.infer<ReturnType<typeof createResetSchema>>;
 
 export function ResetPasswordModal({ forcedLang }: ResetPasswordModalProps) {
-  const { t, locale } = useI18n()
+  const { t } = useI18n()
+  void forcedLang
   const router = useRouter()
   const [isLoading, setIsLoading] = React.useState(false)
   const [isSuccess, setIsSuccess] = React.useState(false)
   const [showPassword, setShowPassword] = React.useState(false)
-
-  const currentLang = forcedLang || locale;
 
   // Memorizamos el esquema para que no se recree innecesariamente
   const resetSchema = React.useMemo(() => createResetSchema(t), [t]);
@@ -87,13 +86,9 @@ export function ResetPasswordModal({ forcedLang }: ResetPasswordModalProps) {
               <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center">
                 <Lock className="text-primary" size={24} />
               </div>
-              <DialogTitle className="text-2xl font-black tracking-tight">
-                {currentLang === 'en' ? "New Password" : t("resetPassword.title")}
-              </DialogTitle>
+              <DialogTitle className="text-2xl font-black tracking-tight">{t("resetPassword.title")}</DialogTitle>
               <DialogDescription className="text-zinc-400">
-                {currentLang === 'en' 
-                  ? "Enter your new password to regain access to FinTracker." 
-                  : t("resetPassword.description")}
+                {t("resetPassword.description")}
               </DialogDescription>
             </DialogHeader>
 
