@@ -1,17 +1,17 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { useI18n } from "@/src/lib/i18n"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import * as LucideIcons from "lucide-react"
-import { CalendarIcon, Plus, Smile } from "lucide-react"
+import { CalendarIcon, Plus, Smile, Trash2 } from "lucide-react"
+import { supabase } from "@/src/lib/supabase"
+import { createTransaction, updateTransaction, deleteTransaction } from "@/src/lib/actions"
 
 import { Calendar } from "@/src/components/ui/calendar"
-
 import { Button } from "@/src/components/ui/button"
-
 import {
   Dialog,
   DialogContent,
@@ -40,6 +40,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/src/components/ui/popover"
+import type { DashboardTransaction } from "@/src/lib/data"
 
 // ─── Icon list ────────────────────────────────────────────────────────────────
 const ICON_LIST = [
@@ -144,7 +145,6 @@ function AmountInput({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const v = e.target.value.replace(/[^\d.,]/g, "")
     setRaw(v)
-    // es-CO: 1.234.567,89 -> strip dots (thousands), keep comma as decimal
     const numStr = v.replace(/\./g, "").replace(",", ".")
     onChange(numStr || "")
   }
@@ -176,10 +176,38 @@ function AmountInput({
   )
 }
 
+// ─── Props ────────────────────────────────────────────────────────────────────
+interface TransactionModalProps {
+  // Edit mode: externally controlled
+  transaction?: DashboardTransaction
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+}
 
 // ─── Modal ────────────────────────────────────────────────────────────────────
-export function TransactionModal() {
+export function TransactionModal({ transaction, open: externalOpen, onOpenChange: externalOnOpenChange }: TransactionModalProps = {}) {
   const { t } = useI18n()
+  const [internalOpen, setInternalOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [accounts, setAccounts] = useState<{ id: string; name: string }[]>([])
+
+  const isEditMode = !!transaction
+  const isControlled = externalOpen !== undefined
+  const open = isControlled ? (externalOpen ?? false) : internalOpen
+  const setOpen = (val: boolean) => {
+    if (isControlled) externalOnOpenChange?.(val)
+    else setInternalOpen(val)
+  }
+
+  useEffect(() => {
+    if (!open) return
+    supabase
+      .from('accounts')
+      .select('id, name')
+      .then(({ data }) => { if (data) setAccounts(data) })
+  }, [open])
 
   const formSchema = z.object({
     icon: z.string().min(1, t("validation.selectIcon")),
@@ -191,43 +219,91 @@ export function TransactionModal() {
     account: z.string().min(1, t("validation.selectAccount")),
   })
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      icon: "",
-      description: "",
-      amount: "",
-      category: "",
-      type: "expense",
-      date: new Date(),
-    },
+  const buildDefaults = (tx?: DashboardTransaction) => ({
+    icon: tx?.icon ?? "",
+    description: tx?.description ?? "",
+    amount: tx ? String(tx.amount) : "",
+    category: tx?.category ?? "",
+    type: (tx?.type ?? "expense") as "income" | "expense",
+    date: tx?.rawDate ? new Date(tx.rawDate) : new Date(),
+    account: tx?.account_id ?? "",
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("Datos capturados:", values)
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: buildDefaults(transaction),
+  })
+
+  // Reset when a different transaction is opened
+  useEffect(() => {
+    if (open) {
+      form.reset(buildDefaults(transaction))
+      setSubmitError(null)
+    }
+  }, [open, transaction?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsSubmitting(true)
+    setSubmitError(null)
+
+    const payload = {
+      icon: values.icon,
+      description: values.description,
+      amount: values.amount,
+      category: values.category,
+      type: values.type,
+      date: values.date.toISOString(),
+      account_id: values.account,
+    }
+
+    const result = isEditMode && transaction
+      ? await updateTransaction(transaction.id, payload)
+      : await createTransaction(payload)
+
+    setIsSubmitting(false)
+
+    if (result.error) {
+      setSubmitError(result.error)
+      return
+    }
+
     form.reset()
+    setOpen(false)
   }
 
+  async function onDelete() {
+    if (!transaction) return
+    setIsDeleting(true)
+    const result = await deleteTransaction(transaction.id)
+    setIsDeleting(false)
+    if (result.error) {
+      setSubmitError(result.error)
+      return
+    }
+    setOpen(false)
+  }
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button className="rounded-xl shadow-md gap-2 font-semibold hover:scale-105 transition-transform">
-          <Plus size={18} />
-          <p className="text-xs">{t("transactionModal.newMovement")}</p>
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={setOpen}>
+      {!isEditMode && (
+        <DialogTrigger asChild>
+          <Button className="rounded-xl shadow-md gap-2 font-semibold hover:scale-105 transition-transform">
+            <Plus size={18} />
+            <p className="text-xs">{t("transactionModal.newMovement")}</p>
+          </Button>
+        </DialogTrigger>
+      )}
 
       <DialogContent className="w-[95%] mx-auto sm:max-w-[425px] bg-card/95 backdrop-blur-md border-border shadow-2xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold tracking-tight text-center sm:text-left">
-            {t("transactionModal.title")}
+            {isEditMode ? t("transactionModal.editTitle") : t("transactionModal.title")}
           </DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 pt-2">
-            
+
             <FormField
               control={form.control}
               name="amount"
@@ -245,6 +321,45 @@ export function TransactionModal() {
                     />
                   </FormControl>
                   <FormMessage className="text-[10px]" />
+                </FormItem>
+              )}
+            />
+
+            {/* Type toggle */}
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-[10px] font-bold uppercase opacity-60">
+                    {t("transactionModal.typeLabel")}
+                  </FormLabel>
+                  <FormControl>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => field.onChange("expense")}
+                        className={`h-9 rounded-lg text-xs font-bold border transition-all ${
+                          field.value === "expense"
+                            ? "bg-rose-500/20 border-rose-500/50 text-rose-400"
+                            : "bg-background/40 border-border/60 text-muted-foreground hover:border-border"
+                        }`}
+                      >
+                        {t("transactionModal.expense")}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => field.onChange("income")}
+                        className={`h-9 rounded-lg text-xs font-bold border transition-all ${
+                          field.value === "income"
+                            ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-400"
+                            : "bg-background/40 border-border/60 text-muted-foreground hover:border-border"
+                        }`}
+                      >
+                        {t("transactionModal.income")}
+                      </button>
+                    </div>
+                  </FormControl>
                 </FormItem>
               )}
             />
@@ -274,6 +389,7 @@ export function TransactionModal() {
                         {...field}
                       />
                     </FormControl>
+                    <FormMessage className="text-[10px]" />
                   </FormItem>
                 )}
               />
@@ -288,7 +404,7 @@ export function TransactionModal() {
                     <FormLabel className="text-[10px] font-bold uppercase opacity-60">
                       {t("transactionModal.categoryLabel")}
                     </FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger className="h-10 bg-background/40 cursor-pointer">
                           <SelectValue placeholder={t("transactionModal.categoryPlaceholder")} />
@@ -299,8 +415,12 @@ export function TransactionModal() {
                         <SelectItem value="transport">{t("categories.transport")}</SelectItem>
                         <SelectItem value="housing">{t("categories.housing")}</SelectItem>
                         <SelectItem value="subscriptions">{t("categories.subscriptions")}</SelectItem>
+                        <SelectItem value="leisure">{t("categories.leisure")}</SelectItem>
+                        <SelectItem value="income">{t("categories.income")}</SelectItem>
+                        <SelectItem value="other">{t("categories.other")}</SelectItem>
                       </SelectContent>
                     </Select>
+                    <FormMessage className="text-[10px]" />
                   </FormItem>
                 )}
               />
@@ -323,11 +443,11 @@ export function TransactionModal() {
                         </FormControl>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="end">
-                        <Calendar 
-                          mode="single" 
-                          selected={field.value} 
-                          onSelect={field.onChange} 
-                          initialFocus 
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          initialFocus
                         />
                       </PopoverContent>
                     </Popover>
@@ -344,25 +464,49 @@ export function TransactionModal() {
                   <FormLabel className="text-[10px] font-bold uppercase opacity-60">
                     {t("transactionModal.accountLabel")}
                   </FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="h-10 bg-background/40 cursor-pointer">
                         <SelectValue placeholder={t("transactionModal.accountPlaceholder")} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="nequi">{t("accounts.nequi")}</SelectItem>
-                      <SelectItem value="bancolombia">{t("accounts.bancolombia")}</SelectItem>
-                      <SelectItem value="nubank">{t("accounts.nubank")}</SelectItem>
+                      {accounts.map(acc => (
+                        <SelectItem key={acc.id} value={acc.id}>{acc.name}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
+                  <FormMessage className="text-[10px]" />
                 </FormItem>
               )}
             />
 
-            <Button type="submit" className="w-full h-12 text-base font-bold shadow-lg shadow-primary/20 mt-2 cursor-pointer">
-              {t("transactionModal.saveTransaction")}
+            {submitError && (
+              <p className="text-sm text-red-500 text-center font-bold bg-red-500/10 p-2 rounded-lg border border-red-500/20">
+                {submitError}
+              </p>
+            )}
+
+            <Button type="submit" disabled={isSubmitting || isDeleting} className="w-full h-12 text-base font-bold shadow-lg shadow-primary/20 mt-2 cursor-pointer">
+              {isSubmitting
+                ? t("common.saving")
+                : isEditMode
+                  ? t("transactionModal.saveChanges")
+                  : t("transactionModal.saveTransaction")}
             </Button>
+
+            {isEditMode && (
+              <Button
+                type="button"
+                variant="ghost"
+                disabled={isSubmitting || isDeleting}
+                onClick={onDelete}
+                className="w-full h-10 text-sm font-semibold text-destructive hover:text-destructive hover:bg-destructive/10 cursor-pointer"
+              >
+                <Trash2 size={14} className="mr-2" />
+                {isDeleting ? t("common.deleting") : t("transactionModal.deleteTransaction")}
+              </Button>
+            )}
           </form>
         </Form>
       </DialogContent>

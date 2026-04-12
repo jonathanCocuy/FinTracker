@@ -9,7 +9,10 @@
     "login": "Iniciar sesión",
     "register": "Registrarse",
     "save": "Guardar",
+    "saving": "Guardando...",
     "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "deleting": "Eliminando...",
     "total": "Total",
     "amount": "Monto",
     "date": "Fecha",
@@ -55,7 +58,21 @@
     "descriptionRequired": "La descripción es requerida",
     "enterAmount": "Ingresa un monto",
     "selectCategory": "Selecciona una categoría",
-    "selectAccount": "Selecciona una cuenta"
+    "selectAccount": "Selecciona una cuenta",
+    "accountNameRequired": "El nombre debe tener al menos 2 caracteres",
+    "selectColor": "Selecciona un color"
+  },
+  "accountModal": {
+    "title": "Nueva Cuenta",
+    "editTitle": "Editar Cuenta",
+    "balanceLabel": "Balance inicial",
+    "editBalanceLabel": "Balance",
+    "nameLabel": "Nombre de la cuenta",
+    "namePlaceholder": "Ej. Nequi, Bancolombia, Efectivo...",
+    "colorLabel": "Color de la cuenta",
+    "saveAccount": "Guardar Cuenta",
+    "saveChanges": "Guardar Cambios",
+    "deleteAccount": "Eliminar cuenta"
   },
   "dashboard": {
     "kpisTitle": "KPIs",
@@ -68,7 +85,10 @@
     "noKpis": "No hay KPIs.",
     "noExpenses": "No hay gastos para mostrar.",
     "noIncome": "No hay ingresos para mostrar.",
-    "vsPreviousMonth": "vs mes anterior"
+    "vsPreviousMonth": "vs mes anterior",
+    "noAccountsTitle": "Crea tu primera cuenta",
+    "noAccountsDescription": "Para empezar a registrar tus finanzas, agrega al menos una cuenta (ej. Nequi, Bancolombia, Efectivo).",
+    "noAccountsCta": "Crear cuenta"
   },
   "kpis": {
     "balanceTotal": "Balance Total",
@@ -83,13 +103,19 @@
   },
   "transactionModal": {
     "title": "Registrar Transacción",
+    "editTitle": "Editar Transacción",
     "newMovement": "Nuevo Movimiento",
     "descriptionPlaceholder": "Ej. Almuerzo, Suscripción...",
     "amountLabel": "Monto",
+    "typeLabel": "Tipo",
+    "income": "Ingreso",
+    "expense": "Gasto",
     "categoryLabel": "Categoría",
     "dateLabel": "Fecha",
     "accountLabel": "Cuenta",
     "saveTransaction": "Guardar Transacción",
+    "saveChanges": "Guardar Cambios",
+    "deleteTransaction": "Eliminar transacción",
     "searchIcon": "Buscar icono...",
     "categoryPlaceholder": "Alimentación",
     "accountPlaceholder": "Bancolombia"

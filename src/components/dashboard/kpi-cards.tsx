@@ -37,8 +37,19 @@ function AnimatedValue({
 
   const isInView = useInView(ref, { once: true })
 
+  const formatDisplay = (val: number) => {
+    const sign = color === "income" ? "+" : color === "expense" ? "-" : ""
+    const formatted = new Intl.NumberFormat("es-CO", {
+      maximumFractionDigits: 0,
+    }).format(Number(val.toFixed(0)))
+    return `${sign}${prefix}${formatted}`
+  }
+
   useEffect(() => {
     if (isInView) {
+      if (value === 0 && ref.current) {
+        ref.current.textContent = formatDisplay(0)
+      }
       motionValue.set(value)
     }
   }, [isInView, value, motionValue])
@@ -46,12 +57,7 @@ function AnimatedValue({
   useEffect(() => {
     return springValue.on("change", (latest) => {
       if (ref.current) {
-        const sign = color === "income" ? "+" : color === "expense" ? "-" : ""
-        const formatted = new Intl.NumberFormat("es-CO", { 
-          maximumFractionDigits: 0 
-        }).format(Number(latest.toFixed(0)))
-        
-        ref.current.textContent = `${sign}${prefix}${formatted}`
+        ref.current.textContent = formatDisplay(latest)
       }
     })
   }, [springValue, prefix, color])

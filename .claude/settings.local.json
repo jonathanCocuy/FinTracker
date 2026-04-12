@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//d D:/Repositories/**)",
+      "Bash(npm run:*)"
+    ]
+  }
+}

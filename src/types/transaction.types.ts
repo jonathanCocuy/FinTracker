@@ -1,9 +1,11 @@
 export type Transaction = {
   id: string;
-  date: Date;
+  date: string;
+  rawDate: string;
   description: string;
+  icon: string;
   amount: number;
   category: string;
-  account: string;
+  account_id: string;
   type: "income" | "expense";
 }

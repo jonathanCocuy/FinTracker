@@ -9,7 +9,10 @@
     "login": "Login",
     "register": "Register",
     "save": "Save",
+    "saving": "Saving...",
     "cancel": "Cancel",
+    "delete": "Delete",
+    "deleting": "Deleting...",
     "total": "Total",
     "amount": "Amount",
     "date": "Date",
@@ -55,7 +58,21 @@
     "descriptionRequired": "Description is required",
     "enterAmount": "Enter an amount",
     "selectCategory": "Select a category",
-    "selectAccount": "Select an account"
+    "selectAccount": "Select an account",
+    "accountNameRequired": "Name must be at least 2 characters",
+    "selectColor": "Select a color"
+  },
+  "accountModal": {
+    "title": "New Account",
+    "editTitle": "Edit Account",
+    "balanceLabel": "Initial balance",
+    "editBalanceLabel": "Balance",
+    "nameLabel": "Account name",
+    "namePlaceholder": "e.g. Nequi, Bancolombia, Cash...",
+    "colorLabel": "Account color",
+    "saveAccount": "Save Account",
+    "saveChanges": "Save Changes",
+    "deleteAccount": "Delete account"
   },
   "dashboard": {
     "kpisTitle": "KPIs",
@@ -68,7 +85,10 @@
     "noKpis": "No KPIs.",
     "noExpenses": "No expenses to display.",
     "noIncome": "No income to display.",
-    "vsPreviousMonth": "vs previous month"
+    "vsPreviousMonth": "vs previous month",
+    "noAccountsTitle": "Create your first account",
+    "noAccountsDescription": "To start tracking your finances, add at least one account (e.g. Nequi, Bancolombia, Cash).",
+    "noAccountsCta": "Create account"
   },
   "kpis": {
     "balanceTotal": "Total Balance",
@@ -83,13 +103,19 @@
   },
   "transactionModal": {
     "title": "Register Transaction",
+    "editTitle": "Edit Transaction",
     "newMovement": "New Movement",
     "descriptionPlaceholder": "e.g. Lunch, Subscription...",
     "amountLabel": "Amount",
+    "typeLabel": "Type",
+    "income": "Income",
+    "expense": "Expense",
     "categoryLabel": "Category",
     "dateLabel": "Date",
     "accountLabel": "Account",
     "saveTransaction": "Save Transaction",
+    "saveChanges": "Save Changes",
+    "deleteTransaction": "Delete transaction",
     "searchIcon": "Search icon...",
     "categoryPlaceholder": "Food",
     "accountPlaceholder": "Bancolombia"

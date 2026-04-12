@@ -2,16 +2,9 @@
 
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpRight, ShoppingBag, Utensils, Car, Tv, Wallet } from "lucide-react"
+import { Transaction } from "@/src/types/transaction.types"
 
-export type Transaction = {
-  id: string
-  date: string
-  category: string
-  description: string
-  amount: number
-  type: "income" | "expense",
-  accountId?: string
-}
+export type { Transaction }
 
 const CategoryIcon = ({ category }: { category: string }) => {
   const icons: Record<string, React.ReactNode> = {
@@ -50,12 +43,12 @@ export function createColumns(t: (key: string) => string): ColumnDef<Transaction
     },
     {
       accessorKey: "date",
-      header: t("table.date"),
-      cell: ({ row }) => (
-        <div className="text-xs md:text-sm text-muted-foreground whitespace-nowrap">
-          {row.getValue("date")}
-        </div>
-      ),
+      header: "Fecha",
+      cell: ({ row }) => {
+        const dateStr = row.original.date;
+        if (!dateStr) return <span className="text-muted-foreground">-</span>;
+        return <span className="text-sm font-medium">{dateStr}</span>;
+      },
     },
     {
       accessorKey: "category",

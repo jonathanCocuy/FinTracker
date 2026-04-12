@@ -5,7 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { PiggyBank, ArrowRight, Wallet, BarChart3, ShieldCheck } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
+import { cn } from "@/src/lib/utils";
 import { useI18n } from "@/src/lib/i18n";
+import { supabase } from "@/src/lib/supabase";
 
 export default function OnboardingPage() {
   const { t } = useI18n();
@@ -35,10 +37,11 @@ export default function OnboardingPage() {
     }
   ];
 
-  const nextStep = () => {
+  const nextStep = async () => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
+      await supabase.auth.updateUser({ data: { onboarding_completed: true } });
       router.push("/dashboard");
     }
   };
@@ -102,7 +105,3 @@ export default function OnboardingPage() {
   );
 }
 
-// Función auxiliar simple si no tienes la de utils
-function cn(...classes: any[]) {
-  return classes.filter(Boolean).join(' ');
-}

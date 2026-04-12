@@ -7,14 +7,15 @@ import { Transaction } from "@/src/types/transaction.types"
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
-  // Propiedad para recibir qué cuenta tiene el mouse encima
   hoveredAccountId?: string | null
+  onRowClick?: (row: TData) => void
 }
 
 export function TransactionTable<TData, TValue>({
   columns,
   data,
   hoveredAccountId,
+  onRowClick,
 }: DataTableProps<TData, TValue>) {
   const { t } = useI18n()
 
@@ -52,20 +53,22 @@ export function TransactionTable<TData, TValue>({
               
               // 2. Lógica de resaltado: 
               // Si hay un hover activo Y esta fila NO pertenece a esa cuenta -> la opacamos
-              const isDimmed = hoveredAccountId !== null && transaction.account !== hoveredAccountId;
+              const isDimmed = hoveredAccountId !== null && transaction.account_id !== hoveredAccountId;
 
               return (
-                <TableRow 
-                  key={row.id} 
+                <TableRow
+                  key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  onClick={() => onRowClick?.(row.original)}
                   className={`
                     transition-all duration-300 border-b border-border/40
-                    ${isDimmed 
-                      ? "opacity-15 grayscale-80 scale-[0.99] blur-[0.5px]" 
+                    ${onRowClick ? "cursor-pointer hover:bg-muted/30" : ""}
+                    ${isDimmed
+                      ? "opacity-15 grayscale-80 scale-[0.99] blur-[0.5px]"
                       : "opacity-100 scale-100 bg-transparent"
                     }
-                    ${hoveredAccountId === transaction.account && hoveredAccountId !== null 
-                      ? "bg-primary/2 shadow-[inset_2px_0_0_0_var(--color-primary)]" 
+                    ${hoveredAccountId === transaction.account_id && hoveredAccountId !== null
+                      ? "bg-primary/2 shadow-[inset_2px_0_0_0_var(--color-primary)]"
                       : ""
                     }
                   `}

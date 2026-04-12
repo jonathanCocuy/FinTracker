@@ -1,43 +1,17 @@
 "use client"
 
-import { createContext, useContext, useCallback, useSyncExternalStore } from "react"
+import { createContext, useContext, useCallback, useState, useEffect } from "react"
 
 import en from "@/src/language/en.json"
 import es from "@/src/language/es.json"
 
 const translations = { en, es } as const
 export type Locale = keyof typeof translations
- 
+
 const STORAGE_KEY = "fin-tracker-locale"
 
-function getStoredLocale(): Locale {
-  if (typeof window === "undefined") return "es"
-  const stored = localStorage.getItem(STORAGE_KEY) as Locale | null
-  return stored && (stored === "en" || stored === "es") ? stored : "es"
-}
-
-const localeStore = {
-  listeners: new Set<() => void>(),
-  subscribe(cb: () => void) {
-    this.listeners.add(cb)
-    if (typeof window !== "undefined") {
-      const onStorage = () => cb()
-      window.addEventListener("storage", onStorage)
-      return () => {
-        this.listeners.delete(cb)
-        window.removeEventListener("storage", onStorage)
-      }
-    }
-    return () => this.listeners.delete(cb)
-  },
-  getSnapshot: () => getStoredLocale(),
-  getServerSnapshot: () => "es" as Locale,
-  setLocale(locale: Locale) {
-    if (typeof window !== "undefined") {
-      localStorage.setItem(STORAGE_KEY, locale)
-    }
-    this.listeners.forEach((cb) => cb())
-  },
+function parseLocale(value: string | null): Locale {
+  return value === "en" || value === "es" ? value : "es"
 }
 
 function getNested(obj: Record<string, unknown>, path: string): string | undefined {
@@ -59,14 +33,23 @@ interface I18nContextValue {
 const I18nContext = createContext<I18nContextValue | null>(null)
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
-  const locale = useSyncExternalStore(
-    (cb) => localeStore.subscribe(cb),
-    localeStore.getSnapshot,
-    localeStore.getServerSnapshot
-  )
+  // Start with "es" on both server and client to avoid hydration mismatch.
+  // After mount, read the stored preference from localStorage.
+  const [locale, setLocaleState] = useState<Locale>("es")
+
+  useEffect(() => {
+    setLocaleState(parseLocale(localStorage.getItem(STORAGE_KEY)))
+
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY) setLocaleState(parseLocale(e.newValue))
+    }
+    window.addEventListener("storage", onStorage)
+    return () => window.removeEventListener("storage", onStorage)
+  }, [])
 
   const setLocale = useCallback((newLocale: Locale) => {
-    localeStore.setLocale(newLocale)
+    setLocaleState(newLocale)
+    localStorage.setItem(STORAGE_KEY, newLocale)
   }, [])
 
   const t = useCallback(
@@ -77,9 +60,8 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     [locale]
   )
 
-  const value = { locale, setLocale, t }
   return (
-    <I18nContext.Provider value={value}>
+    <I18nContext.Provider value={{ locale, setLocale, t }}>
       {children}
     </I18nContext.Provider>
   )
