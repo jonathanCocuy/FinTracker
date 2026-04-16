@@ -131,7 +131,7 @@ export function DashboardShell({ data }: { data: DashboardData }) {
                 <p className="text-[14px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
                   {t("dashboard.dayChart")}
                 </p>
-                <div className="h-[1px] w-full bg-gradient-to-r from-border/50 via-border to-transparent" />
+                <div className="h-1 w-full bg-linear-to-r from-border/50 via-border to-transparent" />
               </div>
               <div className="w-full h-[300px]">
                 <BarChartComponent data={barChartData} color="var(--color-finance-expense)" />
@@ -144,7 +144,7 @@ export function DashboardShell({ data }: { data: DashboardData }) {
                 <p className="text-[14px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
                   {t("dashboard.categoryChart") || "Category Chart"}
                 </p>
-                <div className="h-[1px] w-full bg-gradient-to-r from-border/50 via-border to-transparent" />
+                <div className="h-1 w-full bg-linear-to-r from-border/50 via-border to-transparent" />
               </div>
               <div className="w-full h-[300px]">
                 <CategoryDonut data={donutData} />
@@ -160,7 +160,8 @@ export function DashboardShell({ data }: { data: DashboardData }) {
                   <p className="text-[14px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
                     {t("dashboard.transactionsTitle")}
                   </p>
-                  <div className="h-[1px] w-full bg-gradient-to-r from-border/50 via-border to-transparent" />
+                  
+                  <div className="h-1 w-full bg-linar-to-r from-border/50 via-border to-transparent" />
                 </div>
                 <TransactionModal />
               </div>

@@ -3,12 +3,13 @@
 import * as React from "react"
 import { useState } from "react"
 import { supabase } from "@/src/lib/supabase"
-import { Loader2, ShieldCheck, Smartphone, CheckCircle2 } from "lucide-react"
+import { Loader2, ShieldCheck, CheckCircle2 } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/src/components/ui/dialog"
 import { Button } from "@/src/components/ui/button"
 import { Input } from "@/src/components/ui/input"
 import { Label } from "@/src/components/ui/label"
 import { useI18n } from "@/src/lib/i18n"
+import Image from "next/image"
 
 interface MfaEnrollmentModalProps {
   isOpen: boolean
@@ -132,7 +133,7 @@ export function MfaEnrollmentModal({ isOpen, onOpenChange, onSuccess }: MfaEnrol
         {step === 'qr' && (
           <div className="space-y-6 mt-4 flex flex-col items-center">
             <div className="p-4 bg-white rounded-[24px] shadow-inner">
-              <img src={qrCode} alt="MFA QR Code" className="w-48 h-48" />
+              <Image src={qrCode} alt="MFA QR Code" width={48} height={48} />
             </div>
             <Button onClick={() => setStep('verify')} className="w-full bg-primary text-black font-bold rounded-2xl py-6">
               {t("mfa.enroll.scanned")}

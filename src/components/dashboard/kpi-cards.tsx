@@ -52,6 +52,7 @@ function AnimatedValue({
       }
       motionValue.set(value)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isInView, value, motionValue])
 
   useEffect(() => {
@@ -60,6 +61,7 @@ function AnimatedValue({
         ref.current.textContent = formatDisplay(latest)
       }
     })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [springValue, prefix, color])
 
   return <span ref={ref} className="tabular-nums" />

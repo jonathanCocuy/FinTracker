@@ -3,15 +3,14 @@
 import { useState, useEffect } from "react"
 import { Navbar } from "@/src/components/navbar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/src/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
 import { Badge } from "@/src/components/ui/badge"
 import { Input } from "@/src/components/ui/input"
 import { Label } from "@/src/components/ui/label"
 import { Switch } from "@/src/components/ui/switch"
 import { Separator } from "@/src/components/ui/separator"
-import { Button } from "@/src/components/ui/button"
 import { ChangePasswordModal } from "@/src/components/auth/change-password"
-import { User, ShieldCheck, Palette, CreditCard, Crown, Loader2 } from "lucide-react"
+import { User, ShieldCheck, Palette, Crown, Loader2 } from "lucide-react"
 import { useI18n } from "@/src/lib/i18n"
 import { ForgotPasswordModal } from "@/src/components/auth/forgot-password"
 import { supabase } from "@/src/lib/supabase"
@@ -104,7 +103,7 @@ export default function ProfilePage() {
           <div className="flex flex-col md:flex-row items-center gap-8">
             <Avatar className="h-28 w-28 border-4 border-zinc-950 shadow-2xl">
               <AvatarImage src={profile?.avatar_url || ""} /> 
-              <AvatarFallback className="bg-gradient-to-br from-primary to-purple-600 text-3xl font-black text-black">
+              <AvatarFallback className="bg-linear-to-br from-primary to-purple-600 text-3xl font-black text-black">
                 {getInitials(profile?.full_name || "")}
               </AvatarFallback>
             </Avatar>

@@ -73,8 +73,8 @@ export function AccountGrid({ accounts, onHoverAccount, hoveredAccountId, showAd
               className={cn(
                 "relative overflow-hidden p-4 rounded-2xl flex items-center gap-4 border transition-all duration-500 cursor-pointer group",
                 isDimmed
-                  ? "bg-zinc-900/40 border-white/5 opacity-40 grayscale-[40%] scale-95"
-                  : "bg-gradient-to-br from-zinc-800/80 to-zinc-900/80 border-white/20 opacity-100 shadow-[0_0_20px_rgba(0,0,0,0.3)] scale-100",
+                  ? "bg-zinc-900/40 border-white/5 opacity-40 grayscale-40 scale-95"
+                  : "bg-linear-to-br from-zinc-800/80 to-zinc-900/80 border-white/20 opacity-100 shadow-[0_0_20px_rgba(0,0,0,0.3)] scale-100",
                 "hover:border-white/30 hover:shadow-lg hover:shadow-primary/5 hover:scale-[1.01] active:scale-[0.98]"
               )}
             >

@@ -184,13 +184,15 @@ interface TransactionModalProps {
   onOpenChange?: (open: boolean) => void
 }
 
+type SubmitErrorState = { message: string; owner: "create" | string }
+
 // ─── Modal ────────────────────────────────────────────────────────────────────
 export function TransactionModal({ transaction, open: externalOpen, onOpenChange: externalOnOpenChange }: TransactionModalProps = {}) {
   const { t } = useI18n()
   const [internalOpen, setInternalOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [submitError, setSubmitError] = useState<SubmitErrorState | null>(null)
   const [accounts, setAccounts] = useState<{ id: string; name: string }[]>([])
 
   const isEditMode = !!transaction
@@ -199,6 +201,26 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
   const setOpen = (val: boolean) => {
     if (isControlled) externalOnOpenChange?.(val)
     else setInternalOpen(val)
+  }
+
+  const clearSubmitError = () => setSubmitError(null)
+
+  const commitSubmitError = (message: string) => {
+    setSubmitError({
+      message,
+      owner: isEditMode && transaction ? transaction.id : "create",
+    })
+  }
+
+  const currentErrorOwner = isEditMode && transaction ? transaction.id : "create"
+  const displayedSubmitError =
+    submitError != null && submitError.owner === currentErrorOwner
+      ? submitError.message
+      : null
+
+  const handleDialogOpenChange = (next: boolean) => {
+    clearSubmitError()
+    setOpen(next)
   }
 
   useEffect(() => {
@@ -238,13 +260,12 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
   useEffect(() => {
     if (open) {
       form.reset(buildDefaults(transaction))
-      setSubmitError(null)
     }
   }, [open, transaction?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true)
-    setSubmitError(null)
+    clearSubmitError()
 
     const payload = {
       icon: values.icon,
@@ -263,11 +284,12 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
     setIsSubmitting(false)
 
     if (result.error) {
-      setSubmitError(result.error)
+      commitSubmitError(result.error)
       return
     }
 
     form.reset()
+    clearSubmitError()
     setOpen(false)
   }
 
@@ -277,14 +299,15 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
     const result = await deleteTransaction(transaction.id)
     setIsDeleting(false)
     if (result.error) {
-      setSubmitError(result.error)
+      commitSubmitError(result.error)
       return
     }
+    clearSubmitError()
     setOpen(false)
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       {!isEditMode && (
         <DialogTrigger asChild>
           <Button className="rounded-xl shadow-md gap-2 font-semibold hover:scale-105 transition-transform">
@@ -481,9 +504,9 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
               )}
             />
 
-            {submitError && (
+            {displayedSubmitError && (
               <p className="text-sm text-red-500 text-center font-bold bg-red-500/10 p-2 rounded-lg border border-red-500/20">
-                {submitError}
+                {displayedSubmitError}
               </p>
             )}
 

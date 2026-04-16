@@ -112,6 +112,8 @@ interface AccountModalProps {
   onOpenChange?: (open: boolean) => void
 }
 
+type SubmitErrorState = { message: string; owner: "create" | string }
+
 // ─── Modal ────────────────────────────────────────────────────────────────────
 export function AccountModal({
   hoveredAccountId,
@@ -123,7 +125,7 @@ export function AccountModal({
   const [internalOpen, setInternalOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [submitError, setSubmitError] = useState<SubmitErrorState | null>(null)
 
   const isEditMode = !!account
   const isControlled = externalOpen !== undefined
@@ -131,6 +133,26 @@ export function AccountModal({
   const setOpen = (val: boolean) => {
     if (isControlled) externalOnOpenChange?.(val)
     else setInternalOpen(val)
+  }
+
+  const clearSubmitError = () => setSubmitError(null)
+
+  const commitSubmitError = (message: string) => {
+    setSubmitError({
+      message,
+      owner: isEditMode && account ? account.id : "create",
+    })
+  }
+
+  const currentErrorOwner = isEditMode && account ? account.id : "create"
+  const displayedSubmitError =
+    submitError != null && submitError.owner === currentErrorOwner
+      ? submitError.message
+      : null
+
+  const handleDialogOpenChange = (next: boolean) => {
+    clearSubmitError()
+    setOpen(next)
   }
 
   const formSchema = z.object({
@@ -156,13 +178,12 @@ export function AccountModal({
         balance: account ? String(account.balance) : "",
         color: account?.color ?? "",
       })
-      setSubmitError(null)
     }
   }, [open, account?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true)
-    setSubmitError(null)
+    clearSubmitError()
 
     const result = isEditMode && account
       ? await updateAccount(account.id, values)
@@ -171,11 +192,12 @@ export function AccountModal({
     setIsSubmitting(false)
 
     if (result.error) {
-      setSubmitError(result.error)
+      commitSubmitError(result.error)
       return
     }
 
     form.reset()
+    clearSubmitError()
     setOpen(false)
   }
 
@@ -185,14 +207,15 @@ export function AccountModal({
     const result = await deleteAccount(account.id)
     setIsDeleting(false)
     if (result.error) {
-      setSubmitError(result.error)
+      commitSubmitError(result.error)
       return
     }
+    clearSubmitError()
     setOpen(false)
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       {!isEditMode && !isControlled && (
         <DialogTrigger asChild>
           <button
@@ -297,9 +320,9 @@ export function AccountModal({
               )}
             />
 
-            {submitError && (
+            {displayedSubmitError && (
               <p className="text-sm text-red-500 text-center font-bold bg-red-500/10 p-2 rounded-lg border border-red-500/20">
-                {submitError}
+                {displayedSubmitError}
               </p>
             )}
 
