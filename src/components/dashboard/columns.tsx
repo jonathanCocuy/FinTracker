@@ -65,6 +65,20 @@ export function createColumns(t: (key: string) => string): ColumnDef<Transaction
       },
     },
     {
+      accessorKey: "account",
+      header: () => <div className="hidden md:block">{"Account"}</div>,
+      cell: ({ row }) => {
+        const account = row.getValue("account_id") as string | null
+        return (
+          <div className="hidden md:block">
+            <span className="text-xs text-muted-foreground/80 uppercase tracking-widest font-bold ">
+              {account}
+            </span>
+          </div>
+        )
+      },
+    },
+    {
       accessorKey: "amount",
       header: () => <div className="text-right">{t("table.amount")}</div>,
       cell: ({ row }) => {
