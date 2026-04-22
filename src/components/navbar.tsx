@@ -1,7 +1,7 @@
 "use client"
 
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, navigationMenuTriggerStyle } from "@/src/components/ui/navigation-menu"
-import { PiggyBank, UserIcon, Menu, LayoutDashboard, History, Wallet } from "lucide-react"
+import { PiggyBank, UserIcon, Menu, LayoutDashboard, History, Wallet, Target } from "lucide-react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"
 import { LanguageSwitcher } from "./language-switcher"
@@ -65,6 +65,13 @@ export function Navbar() {
                 <NavigationMenuLink asChild data-active={pathname.startsWith("/budgets") || undefined}>
                   <Link href="/budgets" className={navigationMenuTriggerStyle()}>
                     {t("navbar.budgets")}
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild data-active={pathname.startsWith("/goals") || undefined}>
+                  <Link href="/goals" className={navigationMenuTriggerStyle()}>
+                    {t("navbar.goals")}
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
@@ -142,6 +149,7 @@ function MobileNav() {
   const navItems = [
     { href: "/dashboard", label: t("navbar.summary"), Icon: LayoutDashboard },
     { href: "/budgets", label: t("navbar.budgets"), Icon: Wallet },
+    { href: "/goals", label: t("navbar.goals"), Icon: Target },
     { href: "/transactions", label: t("navbar.history"), Icon: History },
   ]
 

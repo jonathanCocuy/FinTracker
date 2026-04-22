@@ -149,6 +149,7 @@
   "navbar": {
     "summary": "Summary",
     "budgets": "Budgets",
+    "goals": "Goals",
     "history": "History",
     "profile": "Profile",
     "logout": "Log out",
@@ -163,7 +164,9 @@
     "personalInfo": {
       "title": "Personal Information",
       "description": "Manage your basic FinTracker data.",
-      "saveChanges": "Save Changes"
+      "saveChanges": "Save Changes",
+      "changePhoto": "Change photo",
+      "uploadingPhoto": "Uploading..."
     },
     "security": {
       "title": "Security",
@@ -342,5 +345,28 @@
     "friday": "Friday",
     "saturday": "Saturday",
     "sunday": "Sunday"
+  },
+  "goals": {
+    "title": "Savings Goals",
+    "subtitle": "Save for your dreams step by step.",
+    "addGoal": "New Goal",
+    "editGoal": "Edit Goal",
+    "saveGoal": "Save Goal",
+    "nameLabel": "Goal Name",
+    "namePlaceholder": "e.g. Trip to Paris",
+    "targetLabel": "Target Amount",
+    "deadlineLabel": "Deadline (Optional)",
+    "achieved": "Goal achieved!",
+    "remaining": "{{amount}} left to reach your goal",
+    "contribute": "Contribute",
+    "contributeTitle": "Contribute to Goal",
+    "contributeDesc": "Add funds to your goal. You can deduct it from an account.",
+    "createTransaction": "Deduct from account (create expense)",
+    "deadlineFormat": "By {{date}}",
+    "empty": "No active goals.",
+    "emptyDescription": "Create a goal and start saving for your next big target.",
+    "iconLabel": "Icon",
+    "noAccounts": "You don't have any accounts to deduct from.",
+    "contributionDescription": "Contribution to goal: {{name}}"
   }
 }

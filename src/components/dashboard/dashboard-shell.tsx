@@ -11,7 +11,8 @@ import { TransactionTable } from "./transaction-table"
 import { TransactionModal } from "./transaction-modal"
 import { AccountGrid } from "./account-card"
 import { EmptyState } from "@/src/components/ui/empty-state"
-import { ArrowUpRight, Wallet, AlertTriangle, CheckCircle2, ChevronRight } from "lucide-react"
+import * as LucideIcons from "lucide-react"
+import { ArrowUpRight, Wallet, AlertTriangle, CheckCircle2, ChevronRight, Target } from "lucide-react"
 import Link from "next/link"
 import { Navbar } from "@/src/components/navbar"
 import { AccountModal } from "@/src/components/dashboard/account-modal"
@@ -185,64 +186,125 @@ export function DashboardShell({ data }: { data: DashboardData }) {
             </div>
           </div>
 
-          {/* Budget Widget */}
-          {data.budgetAlerts.length > 0 && (
-            <div className="flex flex-col gap-4 w-full">
-              <div className="w-full flex flex-col gap-2 mt-4 px-2">
-                <p className="text-[14px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
-                  {t("budgets.widget")}
-                </p>
-                <div className="h-1 w-full bg-linear-to-r from-border/50 via-border to-transparent" />
-              </div>
-              <Link
-                href="/budgets"
-                className="group w-full rounded-2xl border border-border/50 bg-card p-4 hover:border-primary/30 transition-all duration-200 block"
-              >
-                <div className="flex flex-col gap-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {data.budgetAlerts.some(b => b.isOver) ? (
-                        <AlertTriangle size={15} className="text-amber-500" />
-                      ) : (
-                        <CheckCircle2 size={15} className="text-emerald-500" />
-                      )}
-                      <span className="text-sm font-semibold">
-                        {data.budgetAlerts.some(b => b.isOver)
-                          ? t("budgets.overBudget")
-                          : t("budgets.onTrack")}
-                      </span>
-                    </div>
-                    <span className="flex items-center gap-0.5 text-xs font-semibold text-muted-foreground group-hover:text-primary transition-colors">
-                      {t("budgets.widgetLink")}
-                      <ChevronRight size={13} />
-                    </span>
-                  </div>
-                  <div className="flex flex-col gap-2.5">
-                    {data.budgetAlerts.slice(0, 3).map(alert => (
-                      <div key={alert.category} className="flex items-center gap-3">
-                        <span className="text-xs text-muted-foreground w-24 shrink-0 truncate">
-                          {t(`categories.${alert.category}`)}
-                        </span>
-                        <Progress
-                          value={Math.min(alert.percentage, 100)}
-                          className="flex-1 h-1.5"
-                          indicatorClassName={cn(
-                            alert.isOver ? "bg-rose-500" : alert.percentage >= 80 ? "bg-amber-500" : "bg-emerald-500"
-                          )}
-                        />
-                        <span className={cn(
-                          "text-xs font-bold tabular-nums w-10 text-right shrink-0",
-                          alert.isOver ? "text-rose-500" : alert.percentage >= 80 ? "text-amber-500" : "text-muted-foreground/60"
-                        )}>
-                          {Math.round(alert.percentage)}%
+          {/* Budget & Goals Widgets */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+            {/* Budget Widget */}
+            {data.budgetAlerts.length > 0 ? (
+              <div className="flex flex-col gap-4 w-full">
+                <div className="w-full flex flex-col gap-2 mt-4 px-2">
+                  <p className="text-[14px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
+                    {t("budgets.widget")}
+                  </p>
+                  <div className="h-1 w-full bg-linear-to-r from-border/50 via-border to-transparent" />
+                </div>
+                <Link
+                  href="/budgets"
+                  className="group w-full rounded-2xl border border-border/50 bg-card p-4 hover:border-primary/30 transition-all duration-200 block"
+                >
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        {data.budgetAlerts.some(b => b.isOver) ? (
+                          <AlertTriangle size={15} className="text-amber-500" />
+                        ) : (
+                          <CheckCircle2 size={15} className="text-emerald-500" />
+                        )}
+                        <span className="text-sm font-semibold">
+                          {data.budgetAlerts.some(b => b.isOver)
+                            ? t("budgets.overBudget")
+                            : t("budgets.onTrack")}
                         </span>
                       </div>
-                    ))}
+                      <span className="flex items-center gap-0.5 text-xs font-semibold text-muted-foreground group-hover:text-primary transition-colors">
+                        {t("budgets.widgetLink")}
+                        <ChevronRight size={13} />
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-2.5">
+                      {data.budgetAlerts.slice(0, 3).map(alert => (
+                        <div key={alert.category} className="flex items-center gap-3">
+                          <span className="text-xs text-muted-foreground w-24 shrink-0 truncate">
+                            {t(`categories.${alert.category}`)}
+                          </span>
+                          <Progress
+                            value={Math.min(alert.percentage, 100)}
+                            className="flex-1 h-1.5"
+                            indicatorClassName={cn(
+                              alert.isOver ? "bg-rose-500" : alert.percentage >= 80 ? "bg-amber-500" : "bg-emerald-500"
+                            )}
+                          />
+                          <span className={cn(
+                            "text-xs font-bold tabular-nums w-10 text-right shrink-0",
+                            alert.isOver ? "text-rose-500" : alert.percentage >= 80 ? "text-amber-500" : "text-muted-foreground/60"
+                          )}>
+                            {Math.round(alert.percentage)}%
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
+                </Link>
+              </div>
+            ) : <div />}
+
+            {/* Goals Widget */}
+            {data.topGoals.length > 0 ? (
+              <div className="flex flex-col gap-4 w-full">
+                <div className="w-full flex flex-col gap-2 mt-4 px-2">
+                  <p className="text-[14px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
+                    {t("goals.title")}
+                  </p>
+                  <div className="h-1 w-full bg-linear-to-r from-border/50 via-border to-transparent" />
                 </div>
-              </Link>
-            </div>
-          )}
+                <Link
+                  href="/goals"
+                  className="group w-full rounded-2xl border border-border/50 bg-card p-4 hover:border-primary/30 transition-all duration-200 block"
+                >
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-blue-500">
+                        <Target size={15} />
+                        <span className="text-sm font-semibold">
+                          {t("goals.title")}
+                        </span>
+                      </div>
+                      <span className="flex items-center gap-0.5 text-xs font-semibold text-muted-foreground group-hover:text-primary transition-colors">
+                        {t("dashboard.viewAll")}
+                        <ChevronRight size={13} />
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-2.5">
+                      {data.topGoals.map(goal => {
+                        const percentage = Math.min(Math.round((goal.current_amount / goal.target_amount) * 100), 100)
+                        return (
+                          <div key={goal.id} className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 w-24 shrink-0 truncate">
+                              {(() => {
+                                const name = goal.icon
+                                const Icon = name ? (LucideIcons as unknown as Record<string, React.ComponentType<{ size?: number; className?: string }>>)[name] : null
+                                return Icon
+                                  ? <Icon size={12} className="text-muted-foreground shrink-0" />
+                                  : <span className="text-xs shrink-0">{goal.icon || '🎯'}</span>
+                              })()}
+                              <span className="text-xs text-muted-foreground truncate">{goal.name}</span>
+                            </div>
+                            <Progress
+                              value={percentage}
+                              className="flex-1 h-1.5"
+                              indicatorClassName="bg-blue-500"
+                            />
+                            <span className="text-xs font-bold tabular-nums w-10 text-right shrink-0 text-blue-500">
+                              {percentage}%
+                            </span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            ) : <div />}
+          </div>
 
           {/* Transactions Section */}
           <div className="flex flex-col gap-4 items-left w-full">

@@ -20,11 +20,11 @@ export async function createTransaction(
   input: CreateTransactionInput
 ): Promise<{ success?: true; error?: string }> {
   const parsed = createTransactionSchema.safeParse(input)
-  if (!parsed.success) return { error: 'Datos inválidos' }
+  if (!parsed.success) return { error: 'Invalid data' }
 
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { error: 'No autenticado' }
+  if (!user) return { error: 'Not authenticated' }
 
   const { icon, description, amount, category, type, date, account_id } = parsed.data
 
@@ -64,11 +64,11 @@ export async function createAccount(
   input: CreateAccountInput
 ): Promise<{ success?: true; error?: string }> {
   const parsed = createAccountSchema.safeParse(input)
-  if (!parsed.success) return { error: 'Datos inválidos' }
+  if (!parsed.success) return { error: 'Invalid data' }
 
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { error: 'No autenticado' }
+  if (!user) return { error: 'Not authenticated' }
 
   const { name, balance, color } = parsed.data
 
@@ -98,11 +98,11 @@ export async function updateAccount(
   input: z.infer<typeof updateAccountSchema>
 ): Promise<{ success?: true; error?: string }> {
   const parsed = updateAccountSchema.safeParse(input)
-  if (!parsed.success) return { error: 'Datos inválidos' }
+  if (!parsed.success) return { error: 'Invalid data' }
 
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { error: 'No autenticado' }
+  if (!user) return { error: 'Not authenticated' }
 
   const { error } = await supabase
     .from('accounts')
@@ -122,7 +122,7 @@ export async function deleteAccount(
 ): Promise<{ success?: true; error?: string }> {
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { error: 'No autenticado' }
+  if (!user) return { error: 'Not authenticated' }
 
   const { error } = await supabase
     .from('accounts')
@@ -152,11 +152,11 @@ export async function updateTransaction(
   input: z.infer<typeof updateTransactionSchema>
 ): Promise<{ success?: true; error?: string }> {
   const parsed = updateTransactionSchema.safeParse(input)
-  if (!parsed.success) return { error: 'Datos inválidos' }
+  if (!parsed.success) return { error: 'Invalid data' }
 
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { error: 'No autenticado' }
+  if (!user) return { error: 'Not authenticated' }
 
   const { icon, description, amount, category, type, date, account_id } = parsed.data
   const validDate = date && !isNaN(new Date(date).getTime())
@@ -187,15 +187,15 @@ export async function upsertBudget(
   input: UpsertBudgetInput
 ): Promise<{ success?: true; error?: string }> {
   const parsed = upsertBudgetSchema.safeParse(input)
-  if (!parsed.success) return { error: 'Datos inválidos' }
+  if (!parsed.success) return { error: 'Invalid data' }
 
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { error: 'No autenticado' }
+  if (!user) return { error: 'Not authenticated' }
 
   const { category, monthly_limit } = parsed.data
   const limit = parseFloat(monthly_limit)
-  if (isNaN(limit) || limit <= 0) return { error: 'Monto inválido' }
+  if (isNaN(limit) || limit <= 0) return { error: 'Invalid amount' }
 
   const { error } = await supabase
     .from('budgets')
@@ -217,7 +217,7 @@ export async function deleteBudget(
 ): Promise<{ success?: true; error?: string }> {
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { error: 'No autenticado' }
+  if (!user) return { error: 'Not authenticated' }
 
   const { error } = await supabase
     .from('budgets')
@@ -238,7 +238,7 @@ export async function deleteTransaction(
 ): Promise<{ success?: true; error?: string }> {
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { error: 'No autenticado' }
+  if (!user) return { error: 'Not authenticated' }
 
   const { error } = await supabase
     .from('transactions')
@@ -247,6 +247,161 @@ export async function deleteTransaction(
     .eq('user_id', user.id)
 
   if (error) return { error: error.message }
+  revalidatePath('/dashboard')
+  return { success: true }
+}
+
+// ─── createGoal ───────────────────────────────────────────────────────────────
+
+const goalSchema = z.object({
+  name: z.string().min(2),
+  target_amount: z.string().min(1),
+  deadline: z.string().optional().nullable(),
+  icon: z.string().optional().nullable(),
+})
+
+export async function createGoal(
+  input: z.infer<typeof goalSchema>
+): Promise<{ success?: true; error?: string }> {
+  const parsed = goalSchema.safeParse(input)
+  if (!parsed.success) return { error: 'Invalid data' }
+
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { name, target_amount, deadline, icon } = parsed.data
+
+  const { error } = await supabase.from('savings_goals').insert({
+    user_id: user.id,
+    name,
+    target_amount: parseFloat(target_amount),
+    deadline: deadline || null,
+    icon: icon || null,
+  })
+
+  if (error) return { error: error.message }
+  revalidatePath('/goals')
+  revalidatePath('/dashboard')
+  return { success: true }
+}
+
+// ─── updateGoal ───────────────────────────────────────────────────────────────
+
+export async function updateGoal(
+  id: string,
+  input: z.infer<typeof goalSchema>
+): Promise<{ success?: true; error?: string }> {
+  const parsed = goalSchema.safeParse(input)
+  if (!parsed.success) return { error: 'Invalid data' }
+
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { name, target_amount, deadline, icon } = parsed.data
+
+  const { error } = await supabase
+    .from('savings_goals')
+    .update({
+      name,
+      target_amount: parseFloat(target_amount),
+      deadline: deadline || null,
+      icon: icon || null,
+    })
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) return { error: error.message }
+  revalidatePath('/goals')
+  revalidatePath('/dashboard')
+  return { success: true }
+}
+
+// ─── deleteGoal ───────────────────────────────────────────────────────────────
+
+export async function deleteGoal(
+  id: string
+): Promise<{ success?: true; error?: string }> {
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { error } = await supabase
+    .from('savings_goals')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) return { error: error.message }
+  revalidatePath('/goals')
+  revalidatePath('/dashboard')
+  return { success: true }
+}
+
+// ─── contributeToGoal ─────────────────────────────────────────────────────────
+
+const contributeGoalSchema = z.object({
+  amount: z.string().min(1),
+  create_transaction: z.boolean(),
+  account_id: z.string().optional().nullable(),
+})
+
+export async function contributeToGoal(
+  id: string,
+  input: z.infer<typeof contributeGoalSchema>
+): Promise<{ success?: true; error?: string }> {
+  const parsed = contributeGoalSchema.safeParse(input)
+  if (!parsed.success) return { error: 'Invalid data' }
+
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { amount, create_transaction, account_id } = parsed.data
+  const contributionAmount = parseFloat(amount)
+  if (isNaN(contributionAmount) || contributionAmount <= 0) return { error: 'Invalid amount' }
+
+  // 1. Fetch current goal
+  const { data: goal, error: fetchError } = await supabase
+    .from('savings_goals')
+    .select('id, name, current_amount, icon')
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .single()
+
+  if (fetchError || !goal) return { error: 'Goal not found' }
+
+  // 2. Update goal
+  const newAmount = parseFloat((goal.current_amount + contributionAmount).toFixed(2))
+  const { error: updateError } = await supabase
+    .from('savings_goals')
+    .update({ current_amount: newAmount })
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (updateError) return { error: updateError.message }
+
+  // 3. Optionally create a transaction
+  if (create_transaction && account_id) {
+    const { error: txError } = await supabase.from('transactions').insert({
+      user_id: user.id,
+      account_id,
+      description: `Contribution to goal: ${goal.name}`,
+      icon: goal.icon || 'Target',
+      amount: contributionAmount,
+      category: 'other', // We use 'other' as generic
+      type: 'expense',
+      date: new Date().toISOString(),
+    })
+    
+    if (txError) {
+      console.error('Error creating transaction for goal contribution', txError)
+      // we still return success because goal was updated
+    }
+  }
+
+  revalidatePath('/goals')
   revalidatePath('/dashboard')
   return { success: true }
 }

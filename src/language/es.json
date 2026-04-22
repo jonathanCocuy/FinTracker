@@ -149,6 +149,7 @@
   "navbar": {
     "summary": "Resumen",
     "budgets": "Presupuestos",
+    "goals": "Metas",
     "history": "Historial",
     "profile": "Perfil",
     "logout": "Cerrar sesión",
@@ -163,7 +164,9 @@
     "personalInfo": {
       "title": "Información Personal",
       "description": "Gestiona tus datos básicos de FinTracker.",
-      "saveChanges": "Guardar Cambios"
+      "saveChanges": "Guardar Cambios",
+      "changePhoto": "Cambiar foto",
+      "uploadingPhoto": "Subiendo..."
     },
     "security": {
       "title": "Seguridad",
@@ -342,5 +345,28 @@
     "friday": "Viernes",
     "saturday": "Sábado",
     "sunday": "Domingo"
+  },
+  "goals": {
+    "title": "Metas de Ahorro",
+    "subtitle": "Ahorra para tus sueños paso a paso.",
+    "addGoal": "Nueva Meta",
+    "editGoal": "Editar Meta",
+    "saveGoal": "Guardar Meta",
+    "nameLabel": "Nombre de la meta",
+    "namePlaceholder": "ej. Viaje a San Andrés",
+    "targetLabel": "Monto Objetivo",
+    "deadlineLabel": "Fecha límite (Opcional)",
+    "achieved": "¡Meta lograda!",
+    "remaining": "Faltan {{amount}} para alcanzar tu meta",
+    "contribute": "Aportar",
+    "contributeTitle": "Aportar a la Meta",
+    "contributeDesc": "Añade fondos a tu meta. Puedes descontarlo de una cuenta.",
+    "createTransaction": "Descontar de cuenta (crear gasto)",
+    "deadlineFormat": "Para {{date}}",
+    "empty": "No tienes metas activas.",
+    "emptyDescription": "Crea una meta y empieza a ahorrar para tu próximo gran objetivo.",
+    "iconLabel": "Ícono",
+    "noAccounts": "No tienes cuentas para descontar.",
+    "contributionDescription": "Aporte a meta: {{name}}"
   }
 }

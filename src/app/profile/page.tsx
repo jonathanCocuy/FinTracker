@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Navbar } from "@/src/components/navbar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
@@ -10,7 +10,7 @@ import { Label } from "@/src/components/ui/label"
 import { Switch } from "@/src/components/ui/switch"
 import { Separator } from "@/src/components/ui/separator"
 import { ChangePasswordModal } from "@/src/components/auth/change-password"
-import { User, ShieldCheck, Palette, Crown, Loader2 } from "lucide-react"
+import { User, ShieldCheck, Palette, Crown, Loader2, Camera } from "lucide-react"
 import { useI18n } from "@/src/lib/i18n"
 import { ForgotPasswordModal } from "@/src/components/auth/forgot-password"
 import { supabase } from "@/src/lib/supabase"
@@ -34,6 +34,9 @@ export default function ProfilePage() {
   const [isMfaUnenrollOpen, setIsMfaUnenrollOpen] = useState(false);
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
   const [isStatusLoading, setIsStatusLoading] = useState(true);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setHasMounted(true);
@@ -58,6 +61,41 @@ export default function ProfilePage() {
       setIsMfaEnrollOpen(true);
     } else {
       setIsMfaUnenrollOpen(true);
+    }
+  };
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const ext = file.name.split('.').pop();
+      const path = `${user.id}/avatar.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(path, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(path);
+
+      const urlWithBust = `${publicUrl}?t=${Date.now()}`;
+
+      await supabase.from('profiles').update({ avatar_url: urlWithBust }).eq('id', user.id);
+
+      setAvatarUrl(urlWithBust);
+    } catch (err) {
+      console.error('Error uploading avatar:', err);
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -101,13 +139,41 @@ export default function ProfilePage() {
           </div>
           
           <div className="flex flex-col md:flex-row items-center gap-8">
-            <Avatar className="h-28 w-28 border-4 border-zinc-950 shadow-2xl">
-              <AvatarImage src={profile?.avatar_url || ""} /> 
-              <AvatarFallback className="bg-linear-to-br from-primary to-purple-600 text-3xl font-black text-black">
-                {getInitials(profile?.full_name || "")}
-              </AvatarFallback>
-            </Avatar>
-            
+            <div className="relative group shrink-0">
+              <button
+                type="button"
+                onClick={() => !uploading && fileInputRef.current?.click()}
+                className="relative rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                aria-label={t("profile.personalInfo.changePhoto")}
+              >
+                <Avatar className="h-28 w-28 border-4 border-zinc-950 shadow-2xl">
+                  <AvatarImage src={avatarUrl ?? profile?.avatar_url ?? ""} />
+                  <AvatarFallback className="bg-linear-to-br from-primary to-purple-600 text-3xl font-black text-black">
+                    {getInitials(profile?.full_name || "")}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="absolute inset-0 rounded-full bg-black/60 flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {uploading ? (
+                    <Loader2 size={20} className="animate-spin text-white" />
+                  ) : (
+                    <>
+                      <Camera size={18} className="text-white" />
+                      <span className="text-[10px] font-semibold text-white leading-none">
+                        {t("profile.personalInfo.changePhoto")}
+                      </span>
+                    </>
+                  )}
+                </div>
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarChange}
+              />
+            </div>
+
             <div className="flex flex-col text-center md:text-left space-y-2">
               <h1 className="text-4xl font-black tracking-tight text-white">{profile?.full_name}</h1>
             </div>
@@ -115,7 +181,7 @@ export default function ProfilePage() {
         </section>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-2 space-y-6">
+          <div className="md:col-span-3 space-y-6">
             <Card className="border-white/5 bg-zinc-900/30 rounded-[28px]">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg text-white font-black">
@@ -167,7 +233,7 @@ export default function ProfilePage() {
             </Card>
           </div>
 
-          <div className="space-y-6">
+          {/* <div className="space-y-6">
             <Card className="border-white/5 bg-zinc-900/30 rounded-[28px]">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg text-white font-black">
@@ -187,7 +253,7 @@ export default function ProfilePage() {
                 </div>
               </CardContent>
             </Card>
-          </div>
+          </div> */}
         </div>
       </main>
     </div>

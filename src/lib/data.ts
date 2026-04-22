@@ -32,6 +32,15 @@ export type MonthStats = {
   topGrowthCategory: { category: string; growth: number } | null
 }
 
+export type SavingsGoal = {
+  id: string
+  name: string
+  target_amount: number
+  current_amount: number
+  deadline: string | null
+  icon: string | null
+}
+
 export type DashboardData = {
   profile: { full_name: string } | null
   accounts: DashboardAccount[]
@@ -50,6 +59,7 @@ export type DashboardData = {
   incomeVsExpensesMonthly: IncomeExpensePoint[]
   monthStats: MonthStats
   budgetAlerts: BudgetAlert[]
+  topGoals: SavingsGoal[]
 }
 
 export type TransactionsPageData = {
@@ -134,6 +144,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     incomeVsExpensesMonthly: [],
     monthStats: { topSpendingDay: null, avgDailyExpense: 0, topGrowthCategory: null },
     budgetAlerts: [],
+    topGoals: [],
   }
 
   if (!user) return empty
@@ -149,7 +160,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   const sixMonthsAgoDate = new Date(now.getFullYear(), now.getMonth() - 5, 1)
   const sixMonthsAgo = `${sixMonthsAgoDate.getFullYear()}-${String(sixMonthsAgoDate.getMonth() + 1).padStart(2, '0')}-01`
 
-  const [profileRes, accountsRes, currentTxRes, prevTxRes, chartTxRes, budgetsRes] = await Promise.all([
+  const [profileRes, accountsRes, currentTxRes, prevTxRes, chartTxRes, budgetsRes, goalsRes] = await Promise.all([
     supabase
       .from('profiles')
       .select('full_name')
@@ -181,6 +192,11 @@ export async function getDashboardData(): Promise<DashboardData> {
       .from('budgets')
       .select('category, monthly_limit')
       .eq('user_id', user.id),
+    supabase
+      .from('savings_goals')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('deadline', { ascending: true }),
   ])
 
   const accounts: DashboardAccount[] = accountsRes.data ?? []
@@ -261,6 +277,11 @@ export async function getDashboardData(): Promise<DashboardData> {
       return { category: b.category, spent, limit, percentage, isOver: spent > limit }
     })
     .sort((a, b) => b.percentage - a.percentage)
+
+  const allGoals: SavingsGoal[] = goalsRes.data ?? []
+  const topGoals = allGoals
+    .filter(g => g.current_amount < g.target_amount)
+    .slice(0, 2)
 
   // Income vs Expenses — weekly (last 7 days) and monthly (last 6 months)
   const chartTx = chartTxRes.data ?? []
@@ -350,6 +371,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     incomeVsExpensesMonthly,
     monthStats,
     budgetAlerts,
+    topGoals,
   }
 }
 
@@ -418,4 +440,18 @@ function formatTxDate(dateStr: string): string {
   if (datePart === yesterday.toISOString().substring(0, 10)) return 'Ayer'
 
   return date.toLocaleDateString('es-CO', { day: 'numeric', month: 'short', timeZone: 'UTC' })
+}
+
+export async function getGoalsData(): Promise<SavingsGoal[]> {
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+
+  const res = await supabase
+    .from('savings_goals')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('deadline', { ascending: true })
+
+  return res.data ?? []
 }
