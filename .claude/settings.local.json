@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Read(//d D:/Repositories/**)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(npx tsc *)",
+      "Bash(npm install *)"
     ]
   }
 }

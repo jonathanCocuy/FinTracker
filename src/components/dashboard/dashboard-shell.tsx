@@ -2,22 +2,23 @@
 
 import { useState } from "react"
 import { useI18n } from "@/src/lib/i18n"
-import { BarChartComponent } from "./bar-chart"
 import { KpiGrid, type KpiItem } from "./kpi-cards"
 import { CategoryDonut } from "./category-donut"
+import { IncomeExpenseChart } from "./income-expense-chart"
+import { MonthStats } from "./month-stats"
 import { createColumns } from "./columns"
 import { TransactionTable } from "./transaction-table"
 import { TransactionModal } from "./transaction-modal"
 import { AccountGrid } from "./account-card"
 import { EmptyState } from "@/src/components/ui/empty-state"
-import { ArrowUpRight, Wallet } from "lucide-react"
+import { ArrowUpRight, Wallet, AlertTriangle, CheckCircle2, ChevronRight } from "lucide-react"
+import Link from "next/link"
 import { Navbar } from "@/src/components/navbar"
 import { AccountModal } from "@/src/components/dashboard/account-modal"
+import { ExportMenu } from "@/src/components/dashboard/export-menu"
+import { Progress } from "@/src/components/ui/progress"
 import type { DashboardData, DashboardTransaction } from "@/src/lib/data"
-
-const WEEKDAY_KEYS = [
-  "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday",
-] as const
+import { cn } from "@/src/lib/utils"
 
 const CATEGORY_COLORS: Record<string, string> = {
   food: "#fbbf24",
@@ -28,7 +29,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 }
 
 export function DashboardShell({ data }: { data: DashboardData }) {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const [hoveredAccountId, setHoveredAccountId] = useState<string | null>(null)
   const [editingTransaction, setEditingTransaction] = useState<DashboardTransaction | null>(null)
   const [createAccountOpen, setCreateAccountOpen] = useState(false)
@@ -68,9 +69,26 @@ export function DashboardShell({ data }: { data: DashboardData }) {
     },
   ]
 
-  const barChartData = data.barChartData.map(({ dayIndex, value }) => ({
-    label: t(`weekdays.${WEEKDAY_KEYS[dayIndex]}`),
-    value,
+  const dateLocale = locale === "en" ? "en-US" : "es-CO"
+
+  const incomeVsExpensesWeekly = data.incomeVsExpensesWeekly.map(({ period, ingresos, gastos }) => ({
+    label: new Date(period + "T00:00:00Z").toLocaleDateString(dateLocale, {
+      weekday: "short",
+      day: "numeric",
+      timeZone: "UTC",
+    }),
+    ingresos,
+    gastos,
+  }))
+
+  const incomeVsExpensesMonthly = data.incomeVsExpensesMonthly.map(({ period, ingresos, gastos }) => ({
+    label: new Date(period + "T00:00:00Z").toLocaleDateString(dateLocale, {
+      month: "short",
+      year: "2-digit",
+      timeZone: "UTC",
+    }),
+    ingresos,
+    gastos,
   }))
 
   const donutData = data.donutData.map(({ category, value }) => ({
@@ -79,7 +97,7 @@ export function DashboardShell({ data }: { data: DashboardData }) {
     color: CATEGORY_COLORS[category] ?? "#6b7280",
   }))
 
-  const columns = createColumns(t)
+  const columns = createColumns(t, data.accounts, locale)
 
   return (
     <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">
@@ -124,33 +142,107 @@ export function DashboardShell({ data }: { data: DashboardData }) {
 
       ) : (
         <>
-          {/* Charts Section */}
-          <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-4 w-full">
-            <div className="flex flex-col gap-4 items-center justify-center w-full min-w-0">
-              <div className="w-full flex flex-col gap-2 mt-4 px-2">
-                <p className="text-[14px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
-                  {t("dashboard.dayChart")}
-                </p>
-                <div className="h-1 w-full bg-linear-to-r from-border/50 via-border to-transparent" />
-              </div>
-              <div className="w-full h-[300px]">
-                <BarChartComponent data={barChartData} color="var(--color-finance-expense)" />
-              </div>
+          {/* Income vs Expenses Chart */}
+          <div className="w-full flex flex-col gap-4">
+            <div className="w-full flex flex-col gap-2 mt-4 px-2">
+              <p className="text-[14px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
+                {t("dashboard.incomeVsExpensesChart")}
+              </p>
+              <div className="h-1 w-full bg-linear-to-r from-border/50 via-border to-transparent" />
             </div>
+            <IncomeExpenseChart
+              weeklyData={incomeVsExpensesWeekly}
+              monthlyData={incomeVsExpensesMonthly}
+              labelIncome={t("transactionModal.income")}
+              labelExpense={t("transactionModal.expense")}
+              labelWeekly={t("dashboard.weekly")}
+              labelMonthly={t("dashboard.monthly")}
+            />
+          </div>
 
-            {/* Donut Section */}
-            <div className="flex flex-col gap-4 items-center justify-center w-full min-w-0">
+          {/* Donut + Recent Transactions */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+            <div className="flex flex-col gap-4 w-full min-w-0">
               <div className="w-full flex flex-col gap-2 mt-4 px-2">
                 <p className="text-[14px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
-                  {t("dashboard.categoryChart") || "Category Chart"}
+                  {t("dashboard.categoryChart")}
                 </p>
                 <div className="h-1 w-full bg-linear-to-r from-border/50 via-border to-transparent" />
               </div>
-              <div className="w-full h-[300px]">
+              <div className="w-full h-[280px]">
                 <CategoryDonut data={donutData} />
               </div>
             </div>
+
+            <div className="flex flex-col gap-4 w-full min-w-0">
+              <div className="w-full flex flex-col gap-2 mt-4 px-2">
+                <p className="text-[14px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
+                  {t("dashboard.monthStats")}
+                </p>
+                <div className="h-1 w-full bg-linear-to-r from-border/50 via-border to-transparent" />
+              </div>
+              <MonthStats stats={data.monthStats} t={t} locale={locale} />
+            </div>
           </div>
+
+          {/* Budget Widget */}
+          {data.budgetAlerts.length > 0 && (
+            <div className="flex flex-col gap-4 w-full">
+              <div className="w-full flex flex-col gap-2 mt-4 px-2">
+                <p className="text-[14px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
+                  {t("budgets.widget")}
+                </p>
+                <div className="h-1 w-full bg-linear-to-r from-border/50 via-border to-transparent" />
+              </div>
+              <Link
+                href="/budgets"
+                className="group w-full rounded-2xl border border-border/50 bg-card p-4 hover:border-primary/30 transition-all duration-200 block"
+              >
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {data.budgetAlerts.some(b => b.isOver) ? (
+                        <AlertTriangle size={15} className="text-amber-500" />
+                      ) : (
+                        <CheckCircle2 size={15} className="text-emerald-500" />
+                      )}
+                      <span className="text-sm font-semibold">
+                        {data.budgetAlerts.some(b => b.isOver)
+                          ? t("budgets.overBudget")
+                          : t("budgets.onTrack")}
+                      </span>
+                    </div>
+                    <span className="flex items-center gap-0.5 text-xs font-semibold text-muted-foreground group-hover:text-primary transition-colors">
+                      {t("budgets.widgetLink")}
+                      <ChevronRight size={13} />
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-2.5">
+                    {data.budgetAlerts.slice(0, 3).map(alert => (
+                      <div key={alert.category} className="flex items-center gap-3">
+                        <span className="text-xs text-muted-foreground w-24 shrink-0 truncate">
+                          {t(`categories.${alert.category}`)}
+                        </span>
+                        <Progress
+                          value={Math.min(alert.percentage, 100)}
+                          className="flex-1 h-1.5"
+                          indicatorClassName={cn(
+                            alert.isOver ? "bg-rose-500" : alert.percentage >= 80 ? "bg-amber-500" : "bg-emerald-500"
+                          )}
+                        />
+                        <span className={cn(
+                          "text-xs font-bold tabular-nums w-10 text-right shrink-0",
+                          alert.isOver ? "text-rose-500" : alert.percentage >= 80 ? "text-amber-500" : "text-muted-foreground/60"
+                        )}>
+                          {Math.round(alert.percentage)}%
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </Link>
+            </div>
+          )}
 
           {/* Transactions Section */}
           <div className="flex flex-col gap-4 items-left w-full">
@@ -160,18 +252,31 @@ export function DashboardShell({ data }: { data: DashboardData }) {
                   <p className="text-[14px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
                     {t("dashboard.transactionsTitle")}
                   </p>
-                  
-                  <div className="h-1 w-full bg-linar-to-r from-border/50 via-border to-transparent" />
+                  <div className="h-1 w-full bg-linear-to-r from-border/50 via-border to-transparent" />
                 </div>
-                <TransactionModal />
+                <div className="flex items-center gap-2 shrink-0">
+                  <ExportMenu transactions={data.transactions} />
+                  <TransactionModal />
+                </div>
               </div>
               {data.transactions.length > 0 ? (
-                <TransactionTable
-                  columns={columns}
-                  data={data.transactions}
-                  hoveredAccountId={hoveredAccountId}
-                  onRowClick={(row) => setEditingTransaction(row as DashboardTransaction)}
-                />
+                <>
+                  <TransactionTable
+                    columns={columns}
+                    data={data.transactions.slice(0, 5)}
+                    hoveredAccountId={hoveredAccountId}
+                    onRowClick={(row) => setEditingTransaction(row as DashboardTransaction)}
+                  />
+                  <div className="flex justify-end pr-1">
+                    <Link
+                      href="/transactions"
+                      className="text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+                    >
+                      {t("dashboard.viewAll")}
+                      <ArrowUpRight size={13} />
+                    </Link>
+                  </div>
+                </>
               ) : (
                 <div className="rounded-md border bg-card p-12 flex flex-col items-center justify-center text-center">
                   <EmptyState icon={ArrowUpRight} title={t("dashboard.noTransactions")} />

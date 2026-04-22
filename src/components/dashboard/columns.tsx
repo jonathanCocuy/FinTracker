@@ -3,6 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpRight, ShoppingBag, Utensils, Car, Tv, Wallet } from "lucide-react"
 import { Transaction } from "@/src/types/transaction.types"
+import type { DashboardAccount } from "@/src/lib/data"
 
 export type { Transaction }
 
@@ -17,7 +18,11 @@ const CategoryIcon = ({ category }: { category: string }) => {
   return icons[category] || <Wallet size={14} />
 }
 
-export function createColumns(t: (key: string) => string): ColumnDef<Transaction>[] {
+export function createColumns(t: (key: string) => string, accounts: DashboardAccount[] = [], locale = "es"): ColumnDef<Transaction>[] {
+  const dateLocale = locale === "en" ? "en-US" : "es-CO"
+  const todayStr = new Date().toISOString().substring(0, 10)
+  const d = new Date(); d.setDate(d.getDate() - 1)
+  const yesterdayStr = d.toISOString().substring(0, 10)
   return [
     {
       accessorKey: "description",
@@ -43,11 +48,22 @@ export function createColumns(t: (key: string) => string): ColumnDef<Transaction
     },
     {
       accessorKey: "date",
-      header: "Fecha",
+      header: t("table.date"),
       cell: ({ row }) => {
-        const dateStr = row.original.date;
-        if (!dateStr) return <span className="text-muted-foreground">-</span>;
-        return <span className="text-sm font-medium">{dateStr}</span>;
+        const raw = row.original.rawDate
+        if (!raw) return <span className="text-muted-foreground">-</span>
+        const datePart = raw.substring(0, 10)
+        let label: string
+        if (datePart === todayStr) {
+          label = t("common.today")
+        } else if (datePart === yesterdayStr) {
+          label = t("common.yesterday")
+        } else {
+          label = new Date(datePart + "T00:00:00Z").toLocaleDateString(dateLocale, {
+            day: "numeric", month: "short", timeZone: "UTC",
+          })
+        }
+        return <span className="text-sm font-medium">{label}</span>
       },
     },
     {
@@ -65,14 +81,15 @@ export function createColumns(t: (key: string) => string): ColumnDef<Transaction
       },
     },
     {
-      accessorKey: "account",
-      header: () => <div className="hidden md:block">{"Account"}</div>,
+      accessorKey: "account_id",
+      header: () => <div className="hidden md:block">{t("table.account")}</div>,
       cell: ({ row }) => {
-        const account = row.getValue("account_id") as string | null
+        const accountId = row.getValue("account_id") as string | null
+        const name = accounts.find(a => a.id === accountId)?.name ?? accountId
         return (
           <div className="hidden md:block">
-            <span className="text-xs text-muted-foreground/80 uppercase tracking-widest font-bold ">
-              {account}
+            <span className="text-xs text-muted-foreground/80 uppercase tracking-widest font-bold">
+              {name}
             </span>
           </div>
         )

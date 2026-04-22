@@ -19,7 +19,9 @@
     "description": "Description",
     "category": "Category",
     "account": "Account",
-    "pickDate": "Pick a date"
+    "pickDate": "Pick a date",
+    "today": "Today",
+    "yesterday": "Yesterday"
   },
   "home": {
     "hello": "Hello World"
@@ -80,6 +82,9 @@
     "welcome": "Welcome",
     "dayChart": "Day",
     "categoryChart": "Category",
+    "incomeVsExpensesChart": "Income vs Expenses",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
     "transactionsTitle": "Transactions",
     "noTransactions": "No recent transactions.",
     "noKpis": "No KPIs.",
@@ -88,7 +93,9 @@
     "vsPreviousMonth": "vs previous month",
     "noAccountsTitle": "Create your first account",
     "noAccountsDescription": "To start tracking your finances, add at least one account (e.g. Nequi, Bancolombia, Cash).",
-    "noAccountsCta": "Create account"
+    "noAccountsCta": "Create account",
+    "viewAll": "View all",
+    "monthStats": "This Month"
   },
   "kpis": {
     "balanceTotal": "Total Balance",
@@ -141,6 +148,7 @@
   },
   "navbar": {
     "summary": "Summary",
+    "budgets": "Budgets",
     "history": "History",
     "profile": "Profile",
     "logout": "Log out",
@@ -271,11 +279,60 @@
       }
     }
   },
+  "history": {
+    "title": "History",
+    "searchPlaceholder": "Search transaction...",
+    "filterAll": "All",
+    "allMonths": "All months",
+    "allAccounts": "All accounts"
+  },
+  "monthStats": {
+    "topSpendingDay": "Top Spending Day",
+    "avgDailyExpense": "Daily Average",
+    "topGrowthCategory": "Top Growth Category",
+    "vsLastMonth": "vs last mo."
+  },
   "table": {
     "description": "Description",
     "date": "Date",
     "amount": "Amount",
-    "category": "Category"
+    "category": "Category",
+    "account": "Account"
+  },
+  "budgets": {
+    "title": "Budgets",
+    "subtitle": "Track your monthly spending limits by category.",
+    "addBudget": "Add Budget",
+    "editBudget": "Edit Budget",
+    "saveBudget": "Save Budget",
+    "saveChanges": "Save Changes",
+    "empty": "No budgets configured yet.",
+    "emptyDescription": "Set monthly spending limits per category to stay on track.",
+    "limitLabel": "Monthly Limit",
+    "limitPlaceholder": "e.g. 500000",
+    "categoryLabel": "Category",
+    "spentOf": "of",
+    "remaining": "Remaining",
+    "overspent": "Over by",
+    "widget": "Budget Status",
+    "widgetLink": "View all",
+    "overBudget": "Over budget",
+    "onTrack": "On track"
+  },
+  "export": {
+    "button": "Export",
+    "toExcel": "Export to Excel (.xlsx)",
+    "toPdf": "Export to PDF (.pdf)",
+    "totalIncome": "Total Income",
+    "totalExpenses": "Total Expenses",
+    "netBalance": "Net Balance",
+    "reportTitle": "Transaction Report",
+    "colDate": "Date",
+    "colCategory": "Category",
+    "colDescription": "Description",
+    "colType": "Type",
+    "colAmount": "Amount",
+    "sheetName": "Transactions"
   },
   "weekdays": {
     "monday": "Monday",

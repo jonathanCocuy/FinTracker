@@ -1,7 +1,7 @@
 "use client"
 
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, navigationMenuTriggerStyle } from "@/src/components/ui/navigation-menu"
-import { PiggyBank, UserIcon, Menu, LayoutDashboard, History } from "lucide-react"
+import { PiggyBank, UserIcon, Menu, LayoutDashboard, History, Wallet } from "lucide-react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"
 import { LanguageSwitcher } from "./language-switcher"
@@ -10,13 +10,15 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/src/components/
 import { Button } from "@/src/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/src/components/ui/dropdown-menu"
 import { LogOut, User, Loader2 } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { supabase } from "@/src/lib/supabase"
 import { useProfile } from "@/src/hooks/useProfile"
 import { useI18n } from "@/src/lib/i18n"
+import { cn } from "@/src/lib/utils"
 
 export function Navbar() {
   const router = useRouter()
+  const pathname = usePathname()
   const { profile, loading } = useProfile()
   const { t } = useI18n()
 
@@ -53,14 +55,21 @@ export function Navbar() {
           <NavigationMenu className="hidden md:flex">
             <NavigationMenuList>
               <NavigationMenuItem>
-                <NavigationMenuLink asChild>
+                <NavigationMenuLink asChild data-active={pathname.startsWith("/dashboard") || undefined}>
                   <Link href="/dashboard" className={navigationMenuTriggerStyle()}>
                     {t("navbar.summary")}
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <NavigationMenuLink asChild>
+                <NavigationMenuLink asChild data-active={pathname.startsWith("/budgets") || undefined}>
+                  <Link href="/budgets" className={navigationMenuTriggerStyle()}>
+                    {t("navbar.budgets")}
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild data-active={pathname.startsWith("/transactions") || undefined}>
                   <Link href="/transactions" className={navigationMenuTriggerStyle()}>
                     {t("navbar.history")}
                   </Link>
@@ -128,6 +137,13 @@ export function Navbar() {
 
 function MobileNav() {
   const { t } = useI18n()
+  const pathname = usePathname()
+
+  const navItems = [
+    { href: "/dashboard", label: t("navbar.summary"), Icon: LayoutDashboard },
+    { href: "/budgets", label: t("navbar.budgets"), Icon: Wallet },
+    { href: "/transactions", label: t("navbar.history"), Icon: History },
+  ]
 
   return (
     <Sheet>
@@ -137,12 +153,11 @@ function MobileNav() {
           <span className="sr-only">{t("navbar.openMenu")}</span>
         </Button>
       </SheetTrigger>
-      
-      <SheetContent 
-        side="left" 
+
+      <SheetContent
+        side="left"
         className="bg-background/95 backdrop-blur-xl border-r border-border/40 w-[280px] p-0 flex flex-col"
       >
-        {/* Encabezado del Menú */}
         <div className="p-6 pb-2">
           <SheetTitle className="text-left flex items-center gap-2">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white border border-border/50 shadow-sm">
@@ -151,33 +166,35 @@ function MobileNav() {
             <span className="tracking-tighter font-bold text-xl">FinTracker</span>
           </SheetTitle>
         </div>
-  
-        {/* Cuerpo de Navegación */}
+
         <div className="flex-1 px-4 mt-4">
           <nav className="flex flex-col gap-1">
-            <Link 
-              href="/dashboard" 
-              className="group flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all duration-200"
-            >
-              <div className="p-1.5 rounded-md bg-muted group-hover:bg-primary/20">
-                <LayoutDashboard size={18} />
-              </div>
-              <span className="font-semibold text-sm">{t("navbar.summary")}</span>
-            </Link>
-  
-            <Link 
-              href="/transactions" 
-              className="group flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all duration-200"
-            >
-              <div className="p-1.5 rounded-md bg-muted group-hover:bg-primary/20">
-                <History size={18} />
-              </div>
-              <span className="font-semibold text-sm">{t("navbar.history")}</span>
-            </Link>
+            {navItems.map(({ href, label, Icon }) => {
+              const isActive = pathname.startsWith(href)
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={cn(
+                    "group flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200",
+                    isActive
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-primary/10 hover:text-primary"
+                  )}
+                >
+                  <div className={cn(
+                    "p-1.5 rounded-md transition-colors",
+                    isActive ? "bg-primary/20" : "bg-muted group-hover:bg-primary/20"
+                  )}>
+                    <Icon size={18} />
+                  </div>
+                  <span className="font-semibold text-sm">{label}</span>
+                </Link>
+              )
+            })}
           </nav>
         </div>
-  
-        {/* Pie de Menú (Configuraciones rápidas) */}
+
         <div className="p-6 mt-auto border-t border-border/40 bg-accent/5">
           <div className="flex items-center justify-between bg-background/50 p-3 rounded-2xl border border-border/50">
             <div className="flex items-center gap-2">

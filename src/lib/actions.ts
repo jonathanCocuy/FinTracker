@@ -174,6 +174,63 @@ export async function updateTransaction(
   return { success: true }
 }
 
+// ─── upsertBudget ─────────────────────────────────────────────────────────────
+
+const upsertBudgetSchema = z.object({
+  category: z.string().min(1),
+  monthly_limit: z.string().min(1),
+})
+
+export type UpsertBudgetInput = z.infer<typeof upsertBudgetSchema>
+
+export async function upsertBudget(
+  input: UpsertBudgetInput
+): Promise<{ success?: true; error?: string }> {
+  const parsed = upsertBudgetSchema.safeParse(input)
+  if (!parsed.success) return { error: 'Datos inválidos' }
+
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'No autenticado' }
+
+  const { category, monthly_limit } = parsed.data
+  const limit = parseFloat(monthly_limit)
+  if (isNaN(limit) || limit <= 0) return { error: 'Monto inválido' }
+
+  const { error } = await supabase
+    .from('budgets')
+    .upsert(
+      { user_id: user.id, category, monthly_limit: limit },
+      { onConflict: 'user_id,category' }
+    )
+
+  if (error) return { error: error.message }
+  revalidatePath('/budgets')
+  revalidatePath('/dashboard')
+  return { success: true }
+}
+
+// ─── deleteBudget ─────────────────────────────────────────────────────────────
+
+export async function deleteBudget(
+  id: string
+): Promise<{ success?: true; error?: string }> {
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'No autenticado' }
+
+  const { error } = await supabase
+    .from('budgets')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) return { error: error.message }
+  revalidatePath('/budgets')
+  revalidatePath('/dashboard')
+  return { success: true }
+}
+
 // ─── deleteTransaction ────────────────────────────────────────────────────────
 
 export async function deleteTransaction(

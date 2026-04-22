@@ -190,6 +190,7 @@ type SubmitErrorState = { message: string; owner: "create" | string }
 export function TransactionModal({ transaction, open: externalOpen, onOpenChange: externalOnOpenChange }: TransactionModalProps = {}) {
   const { t } = useI18n()
   const [internalOpen, setInternalOpen] = useState(false)
+  const [calendarOpen, setCalendarOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [submitError, setSubmitError] = useState<SubmitErrorState | null>(null)
@@ -232,7 +233,7 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
   }, [open])
 
   const formSchema = z.object({
-    icon: z.string().min(1, t("validation.selectIcon")),
+    icon: z.string(),
     description: z.string().min(2, t("validation.descriptionRequired")),
     amount: z.string().min(1, t("validation.enterAmount")),
     category: z.string().min(1, t("validation.selectCategory")),
@@ -268,7 +269,7 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
     clearSubmitError()
 
     const payload = {
-      icon: values.icon,
+      icon: values.icon || "Wallet",
       description: values.description,
       amount: values.amount,
       category: values.category,
@@ -456,7 +457,7 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
                     <FormLabel className="text-[10px] font-bold uppercase opacity-60">
                       {t("transactionModal.dateLabel")}
                     </FormLabel>
-                    <Popover>
+                    <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button variant="outline" className="w-full h-[42px] px-3 justify-start font-normal bg-background/40 cursor-pointer">
@@ -469,7 +470,10 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
                         <Calendar
                           mode="single"
                           selected={field.value}
-                          onSelect={field.onChange}
+                          onSelect={(date) => {
+                            field.onChange(date)
+                            setCalendarOpen(false)
+                          }}
                           initialFocus
                         />
                       </PopoverContent>
