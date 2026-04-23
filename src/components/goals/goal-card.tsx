@@ -29,10 +29,6 @@ export function GoalCard({
   const isAchieved = percentage >= 100
   const remaining = Math.max(goal.target_amount - goal.current_amount, 0)
 
-  const radius = 38
-  const circumference = 2 * Math.PI * radius
-  const strokeDashoffset = circumference - (percentage / 100) * circumference
-
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat(locale === "en" ? "en-US" : "es-CO", {
       style: "currency",
@@ -56,7 +52,7 @@ export function GoalCard({
       {/* Top accent bar */}
       <div className={cn(
         "h-1 w-full",
-        isAchieved ? "bg-gradient-to-r from-emerald-400 to-emerald-500" : "bg-gradient-to-r from-blue-500 to-indigo-500"
+        isAchieved ? "bg-linear-to-r from-emerald-400 to-emerald-500" : "bg-linear-to-r from-blue-500 to-indigo-500"
       )} />
 
       <div className="p-5 flex flex-col gap-5">
@@ -105,8 +101,8 @@ export function GoalCard({
               className={cn(
                 "h-full rounded-full transition-all duration-700",
                 isAchieved
-                  ? "bg-gradient-to-r from-emerald-400 to-emerald-500"
-                  : "bg-gradient-to-r from-blue-500 to-indigo-500"
+                  ? "bg-linear-to-r from-emerald-400 to-emerald-500"
+                  : "bg-linear-to-r from-blue-500 to-indigo-500"
               )}
               style={{ width: `${percentage}%` }}
             />
