@@ -8,7 +8,8 @@ import * as z from "zod"
 import * as LucideIcons from "lucide-react"
 import { CalendarIcon, Plus, Smile, Trash2 } from "lucide-react"
 import { supabase } from "@/src/lib/supabase"
-import { createTransaction, updateTransaction, deleteTransaction } from "@/src/lib/actions"
+import { createTransaction, updateTransaction, deleteTransaction, fetchUserCategories } from "@/src/lib/actions"
+import { CategoryModal } from "@/src/components/categories/category-modal"
 
 import { Calendar } from "@/src/components/ui/calendar"
 import { Button } from "@/src/components/ui/button"
@@ -118,6 +119,9 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
   const [isDeleting, setIsDeleting] = useState(false)
   const [submitError, setSubmitError] = useState<SubmitErrorState | null>(null)
   const [accounts, setAccounts] = useState<{ id: string; name: string }[]>([])
+  const [categories, setCategories] = useState<{ id: string; name: string; label: string; color: string }[]>([])
+  const [categorySelectOpen, setCategorySelectOpen] = useState(false)
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false)
 
   const isEditMode = !!transaction
   const isControlled = externalOpen !== undefined
@@ -149,10 +153,8 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
 
   useEffect(() => {
     if (!open) return
-    supabase
-      .from('accounts')
-      .select('id, name')
-      .then(({ data }) => { if (data) setAccounts(data) })
+    supabase.from('accounts').select('id, name').then(({ data }) => { if (data) setAccounts(data) })
+    fetchUserCategories().then(cats => setCategories(cats))
   }, [open])
 
   const formSchema = z.object({
@@ -231,6 +233,7 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
   }
 
   return (
+    <>
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       {!isEditMode && (
         <DialogTrigger asChild>
@@ -351,20 +354,43 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
                     <FormLabel className="text-[10px] font-bold uppercase opacity-60">
                       {t("transactionModal.categoryLabel")}
                     </FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      open={categorySelectOpen}
+                      onOpenChange={setCategorySelectOpen}
+                    >
                       <FormControl>
                         <SelectTrigger className="h-10 bg-background/40 cursor-pointer">
                           <SelectValue placeholder={t("transactionModal.categoryPlaceholder")} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="food">{t("categories.food")}</SelectItem>
-                        <SelectItem value="transport">{t("categories.transport")}</SelectItem>
-                        <SelectItem value="housing">{t("categories.housing")}</SelectItem>
-                        <SelectItem value="subscriptions">{t("categories.subscriptions")}</SelectItem>
-                        <SelectItem value="leisure">{t("categories.leisure")}</SelectItem>
-                        <SelectItem value="income">{t("categories.income")}</SelectItem>
-                        <SelectItem value="other">{t("categories.other")}</SelectItem>
+                        {categories.map(cat => (
+                          <SelectItem key={cat.name} value={cat.name}>
+                            <span className="flex items-center gap-2">
+                              <span
+                                className="w-2 h-2 rounded-full shrink-0"
+                                style={{ backgroundColor: cat.color }}
+                              />
+                              {cat.label}
+                            </span>
+                          </SelectItem>
+                        ))}
+                        <div className="border-t border-border/40 mt-1 pt-1 px-1">
+                          <button
+                            type="button"
+                            className="w-full flex items-center gap-2 px-2 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10 rounded-md transition-colors cursor-pointer"
+                            onPointerDown={(e) => {
+                              e.preventDefault()
+                              setCategorySelectOpen(false)
+                              setCategoryModalOpen(true)
+                            }}
+                          >
+                            <Plus size={12} />
+                            {t("categoriesPage.addCategory")}
+                          </button>
+                        </div>
                       </SelectContent>
                     </Select>
                     <FormMessage className="text-[10px]" />
@@ -461,5 +487,14 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
         </Form>
       </DialogContent>
     </Dialog>
+
+    <CategoryModal
+      open={categoryModalOpen}
+      onOpenChange={(open) => {
+        setCategoryModalOpen(open)
+        if (!open) fetchUserCategories().then(cats => setCategories(cats))
+      }}
+    />
+    </>
   )
 }

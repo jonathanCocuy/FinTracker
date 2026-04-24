@@ -6,12 +6,19 @@ import { Progress } from "@/src/components/ui/progress"
 import { Button } from "@/src/components/ui/button"
 import { useI18n } from "@/src/lib/i18n"
 import { deleteBudget } from "@/src/lib/actions"
-import { BudgetModal, CATEGORY_ICONS, BUDGET_CATEGORIES } from "./budget-modal"
-import type { BudgetsPageData, BudgetWithProgress } from "@/src/lib/data"
-import { Plus, Pencil, Trash2, Target, Package } from "lucide-react"
+import { BudgetModal } from "./budget-modal"
+import type { BudgetsPageData, BudgetWithProgress, UserCategory } from "@/src/lib/data"
+import * as LucideIcons from "lucide-react"
+import { Plus, Pencil, Trash2, Target, Tag } from "lucide-react"
 import { cn } from "@/src/lib/utils"
 
-const DEFAULT_ICON = <Package size={20} />
+function CategoryIconDynamic({ cat, size = 16, overBudget }: { cat?: UserCategory; size?: number; overBudget?: boolean }) {
+  if (!cat) return <Tag size={size} />
+  const Icon = (LucideIcons as unknown as Record<string, React.ComponentType<{ size?: number; style?: React.CSSProperties }>>)[cat.icon]
+  const color = overBudget ? '#ef4444' : cat.color
+  if (Icon) return <Icon size={size} style={{ color }} />
+  return <Tag size={size} style={{ color }} />
+}
 
 function fmtCurrency(amount: number) {
   return new Intl.NumberFormat("es-CO", {
@@ -29,10 +36,12 @@ function progressColor(pct: number): string {
 
 function BudgetCard({
   budget,
+  catInfo,
   onEdit,
   t,
 }: {
   budget: BudgetWithProgress
+  catInfo?: UserCategory
   onEdit: () => void
   t: (key: string) => string
 }) {
@@ -59,14 +68,12 @@ function BudgetCard({
         <div className="flex items-center gap-3">
           <div className={cn(
             "p-2 rounded-xl",
-            budget.isOverBudget
-              ? "bg-rose-500/15 text-rose-500"
-              : "bg-muted text-muted-foreground"
+            budget.isOverBudget ? "bg-rose-500/15" : "bg-muted"
           )}>
-            {CATEGORY_ICONS[budget.category] ?? DEFAULT_ICON}
+            <CategoryIconDynamic cat={catInfo} size={16} overBudget={budget.isOverBudget} />
           </div>
           <div className="flex flex-col">
-            <span className="text-sm font-bold">{t(`categories.${budget.category}`)}</span>
+            <span className="text-sm font-bold">{catInfo?.label ?? t(`categories.${budget.category}`)}</span>
             <span className="text-xs text-muted-foreground">
               {fmtCurrency(budget.spent)} {t("budgets.spentOf")} {fmtCurrency(budget.monthly_limit)}
             </span>
@@ -154,7 +161,8 @@ export function BudgetsShell({ data }: { data: BudgetsPageData }) {
   const [editingBudget, setEditingBudget] = useState<BudgetWithProgress | null>(null)
 
   const usedCategories = data.budgets.map(b => b.category)
-  const canAddMore = usedCategories.length < BUDGET_CATEGORIES.length
+  const canAddMore = usedCategories.length < data.categories.length
+  const categoriesMap = Object.fromEntries(data.categories.map(c => [c.name, c]))
 
   return (
     <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">
@@ -203,6 +211,7 @@ export function BudgetsShell({ data }: { data: BudgetsPageData }) {
               <BudgetCard
                 key={budget.id}
                 budget={budget}
+                catInfo={categoriesMap[budget.category]}
                 onEdit={() => setEditingBudget(budget)}
                 t={t}
               />
@@ -215,6 +224,7 @@ export function BudgetsShell({ data }: { data: BudgetsPageData }) {
         open={createOpen}
         onOpenChange={setCreateOpen}
         usedCategories={usedCategories}
+        categories={data.categories}
       />
       {editingBudget && (
         <BudgetModal
@@ -222,6 +232,7 @@ export function BudgetsShell({ data }: { data: BudgetsPageData }) {
           onOpenChange={open => { if (!open) setEditingBudget(null) }}
           existingBudget={editingBudget}
           usedCategories={usedCategories}
+          categories={data.categories}
         />
       )}
     </div>

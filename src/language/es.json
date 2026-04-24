@@ -151,10 +151,26 @@
     "budgets": "Presupuestos",
     "goals": "Metas",
     "history": "Historial",
+    "categories": "Categorías",
     "profile": "Perfil",
     "logout": "Cerrar sesión",
     "openMenu": "Abrir menú",
     "language": "Idioma"
+  },
+  "categoriesPage": {
+    "title": "Categorías",
+    "subtitle": "Personaliza tus categorías de gastos e ingresos.",
+    "addCategory": "Nueva categoría",
+    "editCategory": "Editar categoría",
+    "labelLabel": "Nombre",
+    "labelPlaceholder": "ej. Educación",
+    "colorLabel": "Color",
+    "iconLabel": "Ícono",
+    "empty": "No tienes categorías.",
+    "emptyDescription": "Crea categorías personalizadas para organizar tus finanzas.",
+    "deleteCategory": "Eliminar categoría",
+    "save": "Guardar",
+    "saveChanges": "Guardar cambios"
   },
   "profile": {
     "badges": {
@@ -320,7 +336,10 @@
     "widget": "Estado de Presupuestos",
     "widgetLink": "Ver todos",
     "overBudget": "Límite superado",
-    "onTrack": "En control"
+    "onTrack": "En control",
+    "widgetEmpty": "Sin presupuestos aún",
+    "widgetEmptyDescription": "Crea presupuestos para controlar tus gastos por categoría.",
+    "widgetEmptyCta": "Crear presupuesto"
   },
   "export": {
     "button": "Exportar",

@@ -108,7 +108,7 @@ export function KpiCard({ item }: { item: KpiItem }) {
   return (
     <div className="bg-muted/50 rounded-lg px-4 py-3.5 flex flex-col gap-1.5">
       <p className="text-[11px] text-muted-foreground">{label}</p>
-      <p className={`text-xl font-medium leading-tight ${colorMap[color]}`}>
+      <p className={`text-lg font-medium leading-tight ${colorMap[color]}`}>
         {/* Aquí integramos la animación manteniendo tu estilo de texto */}
         <AnimatedValue value={value} prefix={prefix} color={color} />
         {suffix}

@@ -339,6 +339,131 @@ export async function deleteGoal(
   return { success: true }
 }
 
+// ─── fetchUserCategories ──────────────────────────────────────────────────────
+
+import type { UserCategory } from './data'
+
+const DEFAULT_CATEGORIES_SEED = [
+  { name: 'food',      label: 'Alimentación', color: '#f97316', icon: 'Utensils' },
+  { name: 'home',      label: 'Hogar',        color: '#3b82f6', icon: 'Home' },
+  { name: 'transport', label: 'Transporte',   color: '#8b5cf6', icon: 'Car' },
+  { name: 'health',    label: 'Salud',        color: '#ef4444', icon: 'Heart' },
+  { name: 'leisure',   label: 'Ocio',         color: '#fbbf24', icon: 'Gamepad2' },
+  { name: 'income',    label: 'Ingreso',      color: '#22c55e', icon: 'TrendingUp' },
+]
+
+export async function fetchUserCategories(): Promise<UserCategory[]> {
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+
+  const { data, error } = await supabase
+    .from('categories')
+    .select('id, name, label, color, icon')
+    .eq('user_id', user.id)
+    .order('created_at')
+
+  if (error) return []
+
+  if (!data || data.length === 0) {
+    await supabase.from('categories').upsert(
+      DEFAULT_CATEGORIES_SEED.map(c => ({ ...c, user_id: user.id })),
+      { onConflict: 'user_id,name' }
+    )
+    const { data: seeded } = await supabase
+      .from('categories')
+      .select('id, name, label, color, icon')
+      .eq('user_id', user.id)
+      .order('created_at')
+    return seeded ?? []
+  }
+
+  return data
+}
+
+// ─── createCategory ───────────────────────────────────────────────────────────
+
+const categorySchema = z.object({
+  name: z.string().min(1),
+  label: z.string().min(1),
+  color: z.string().min(1),
+  icon: z.string().min(1),
+})
+
+export async function createCategory(
+  input: z.infer<typeof categorySchema>
+): Promise<{ success?: true; error?: string }> {
+  const parsed = categorySchema.safeParse(input)
+  if (!parsed.success) return { error: 'Invalid data' }
+
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { error } = await supabase.from('categories').insert({
+    user_id: user.id,
+    ...parsed.data,
+  })
+
+  if (error) return { error: error.message }
+  revalidatePath('/categories')
+  revalidatePath('/dashboard')
+  return { success: true }
+}
+
+// ─── updateCategory ───────────────────────────────────────────────────────────
+
+const updateCategorySchema = z.object({
+  label: z.string().min(1),
+  color: z.string().min(1),
+  icon: z.string().min(1),
+})
+
+export async function updateCategory(
+  id: string,
+  input: z.infer<typeof updateCategorySchema>
+): Promise<{ success?: true; error?: string }> {
+  const parsed = updateCategorySchema.safeParse(input)
+  if (!parsed.success) return { error: 'Invalid data' }
+
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { error } = await supabase
+    .from('categories')
+    .update(parsed.data)
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) return { error: error.message }
+  revalidatePath('/categories')
+  revalidatePath('/dashboard')
+  revalidatePath('/budgets')
+  return { success: true }
+}
+
+// ─── deleteCategory ───────────────────────────────────────────────────────────
+
+export async function deleteCategory(
+  id: string
+): Promise<{ success?: true; error?: string }> {
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { error } = await supabase
+    .from('categories')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) return { error: error.message }
+  revalidatePath('/categories')
+  revalidatePath('/dashboard')
+  return { success: true }
+}
+
 // ─── contributeToGoal ─────────────────────────────────────────────────────────
 
 const contributeGoalSchema = z.object({

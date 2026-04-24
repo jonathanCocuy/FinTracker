@@ -151,10 +151,26 @@
     "budgets": "Budgets",
     "goals": "Goals",
     "history": "History",
+    "categories": "Categories",
     "profile": "Profile",
     "logout": "Log out",
     "openMenu": "Open menu",
     "language": "Language"
+  },
+  "categoriesPage": {
+    "title": "Categories",
+    "subtitle": "Customize your income and expense categories.",
+    "addCategory": "New category",
+    "editCategory": "Edit category",
+    "labelLabel": "Name",
+    "labelPlaceholder": "e.g. Education",
+    "colorLabel": "Color",
+    "iconLabel": "Icon",
+    "empty": "No categories yet.",
+    "emptyDescription": "Create custom categories to organize your finances.",
+    "deleteCategory": "Delete category",
+    "save": "Save",
+    "saveChanges": "Save changes"
   },
   "profile": {
     "badges": {
@@ -320,7 +336,10 @@
     "widget": "Budget Status",
     "widgetLink": "View all",
     "overBudget": "Over budget",
-    "onTrack": "On track"
+    "onTrack": "On track",
+    "widgetEmpty": "No budgets yet",
+    "widgetEmptyDescription": "Create budgets to track your spending by category.",
+    "widgetEmptyCta": "Create budget"
   },
   "export": {
     "button": "Export",

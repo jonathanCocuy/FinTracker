@@ -21,19 +21,15 @@ import { Progress } from "@/src/components/ui/progress"
 import type { DashboardData, DashboardTransaction } from "@/src/lib/data"
 import { cn } from "@/src/lib/utils"
 
-const CATEGORY_COLORS: Record<string, string> = {
-  food: "#fbbf24",
-  transport: "#3b82f6",
-  housing: "#f43f5e",
-  subscriptions: "#10b981",
-  leisure: "#a855f7",
-}
-
 export function DashboardShell({ data }: { data: DashboardData }) {
   const { t, locale } = useI18n()
   const [hoveredAccountId, setHoveredAccountId] = useState<string | null>(null)
   const [editingTransaction, setEditingTransaction] = useState<DashboardTransaction | null>(null)
   const [createAccountOpen, setCreateAccountOpen] = useState(false)
+
+  const categoryColorMap: Record<string, string> = Object.fromEntries(
+    data.categories.map(c => [c.name, c.color])
+  )
 
   const hasAccounts = data.accounts.length > 0
 
@@ -92,13 +88,16 @@ export function DashboardShell({ data }: { data: DashboardData }) {
     gastos,
   }))
 
-  const donutData = data.donutData.map(({ category, value }) => ({
-    name: t(`categories.${category}`),
-    value,
-    color: CATEGORY_COLORS[category] ?? "#6b7280",
-  }))
+  const donutData = data.donutData.map(({ category, value }) => {
+    const cat = data.categories.find(c => c.name === category)
+    return {
+      name: cat?.label ?? t(`categories.${category}`),
+      value,
+      color: categoryColorMap[category] ?? "#6b7280",
+    }
+  })
 
-  const columns = createColumns(t, data.accounts, locale)
+  const columns = createColumns(t, data.accounts, locale, data.categories)
 
   return (
     <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">
@@ -189,7 +188,6 @@ export function DashboardShell({ data }: { data: DashboardData }) {
           {/* Budget & Goals Widgets */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
             {/* Budget Widget */}
-            {data.budgetAlerts.length > 0 ? (
               <div className="flex flex-col gap-4 w-full">
                 <div className="w-full flex flex-col gap-2 mt-4 px-2">
                   <p className="text-[14px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
@@ -199,7 +197,7 @@ export function DashboardShell({ data }: { data: DashboardData }) {
                 </div>
                 <Link
                   href="/budgets"
-                  className="group w-full rounded-2xl border border-border/50 bg-card p-4 hover:border-primary/30 transition-all duration-200 block"
+                  className="group w-full rounded-2xl border border-border/50 bg-card p-4 hover:border-primary/30 transition-all duration-200 flex flex-col flex-1"
                 >
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center justify-between">
@@ -220,6 +218,7 @@ export function DashboardShell({ data }: { data: DashboardData }) {
                         <ChevronRight size={13} />
                       </span>
                     </div>
+                  {data.budgetAlerts.length > 0 ? (
                     <div className="flex flex-col gap-2.5">
                       {data.budgetAlerts.slice(0, 3).map(alert => (
                         <div key={alert.category} className="flex items-center gap-3">
@@ -242,11 +241,18 @@ export function DashboardShell({ data }: { data: DashboardData }) {
                         </div>
                       ))}
                     </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">{t("budgets.widgetEmpty")}</span>
+                      <span className="text-xs font-semibold text-primary flex items-center gap-0.5">
+                        {t("budgets.widgetEmptyCta")}
+                        <ChevronRight size={12} />
+                      </span>
+                    </div>
+                  )}
                   </div>
                 </Link>
               </div>
-            ) : <div />}
-
             {/* Goals Widget */}
             {data.topGoals.length > 0 ? (
               <div className="flex flex-col gap-4 w-full">
@@ -258,7 +264,7 @@ export function DashboardShell({ data }: { data: DashboardData }) {
                 </div>
                 <Link
                   href="/goals"
-                  className="group w-full rounded-2xl border border-border/50 bg-card p-4 hover:border-primary/30 transition-all duration-200 block"
+                  className="group w-full rounded-2xl border border-border/50 bg-card p-4 hover:border-primary/30 transition-all duration-200 flex flex-col flex-1"
                 >
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center justify-between">

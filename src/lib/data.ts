@@ -1,6 +1,50 @@
 import { createSupabaseServer } from './supabase-server'
 import type { KpiItem } from '@/src/components/dashboard/kpi-cards'
 
+export type UserCategory = {
+  id: string
+  name: string
+  label: string
+  color: string
+  icon: string
+}
+
+const DEFAULT_CATEGORIES: Omit<UserCategory, 'id'>[] = [
+  { name: 'food',          label: 'Alimentación', color: '#f97316', icon: 'Utensils' },
+  { name: 'home',          label: 'Hogar',        color: '#3b82f6', icon: 'Home' },
+  { name: 'transport',     label: 'Transporte',   color: '#8b5cf6', icon: 'Car' },
+  { name: 'health',        label: 'Salud',        color: '#ef4444', icon: 'Heart' },
+  { name: 'leisure',       label: 'Ocio',         color: '#fbbf24', icon: 'Gamepad2' },
+  { name: 'income',        label: 'Ingreso',      color: '#22c55e', icon: 'TrendingUp' },
+]
+
+export async function getCategories(): Promise<UserCategory[]> {
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+
+  const { data } = await supabase
+    .from('categories')
+    .select('id, name, label, color, icon')
+    .eq('user_id', user.id)
+    .order('created_at')
+
+  if (!data || data.length === 0) {
+    await supabase.from('categories').upsert(
+      DEFAULT_CATEGORIES.map(c => ({ ...c, user_id: user.id })),
+      { onConflict: 'user_id,name' }
+    )
+    const { data: seeded } = await supabase
+      .from('categories')
+      .select('id, name, label, color, icon')
+      .eq('user_id', user.id)
+      .order('created_at')
+    return seeded ?? []
+  }
+
+  return data
+}
+
 export type DashboardAccount = {
   id: string
   name: string
@@ -60,6 +104,7 @@ export type DashboardData = {
   monthStats: MonthStats
   budgetAlerts: BudgetAlert[]
   topGoals: SavingsGoal[]
+  categories: UserCategory[]
 }
 
 export type TransactionsPageData = {
@@ -82,6 +127,7 @@ export type BudgetWithProgress = Budget & {
 
 export type BudgetsPageData = {
   budgets: BudgetWithProgress[]
+  categories: UserCategory[]
 }
 
 export type BudgetAlert = {
@@ -145,6 +191,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     monthStats: { topSpendingDay: null, avgDailyExpense: 0, topGrowthCategory: null },
     budgetAlerts: [],
     topGoals: [],
+    categories: [],
   }
 
   if (!user) return empty
@@ -160,7 +207,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   const sixMonthsAgoDate = new Date(now.getFullYear(), now.getMonth() - 5, 1)
   const sixMonthsAgo = `${sixMonthsAgoDate.getFullYear()}-${String(sixMonthsAgoDate.getMonth() + 1).padStart(2, '0')}-01`
 
-  const [profileRes, accountsRes, currentTxRes, prevTxRes, chartTxRes, budgetsRes, goalsRes] = await Promise.all([
+  const [profileRes, accountsRes, currentTxRes, prevTxRes, chartTxRes, budgetsRes, goalsRes, categoriesRes] = await Promise.all([
     supabase
       .from('profiles')
       .select('full_name')
@@ -197,7 +244,26 @@ export async function getDashboardData(): Promise<DashboardData> {
       .select('*')
       .eq('user_id', user.id)
       .order('deadline', { ascending: true }),
+    supabase
+      .from('categories')
+      .select('id, name, label, color, icon')
+      .eq('user_id', user.id)
+      .order('created_at'),
   ])
+
+  let categories: UserCategory[] = categoriesRes.data ?? []
+  if (categories.length === 0) {
+    await supabase.from('categories').upsert(
+      DEFAULT_CATEGORIES.map(c => ({ ...c, user_id: user.id })),
+      { onConflict: 'user_id,name' }
+    )
+    const { data: seeded } = await supabase
+      .from('categories')
+      .select('id, name, label, color, icon')
+      .eq('user_id', user.id)
+      .order('created_at')
+    categories = seeded ?? []
+  }
 
   const accounts: DashboardAccount[] = accountsRes.data ?? []
   const totalBalance = accounts.reduce((sum, a) => sum + (a.balance ?? 0), 0)
@@ -372,19 +438,20 @@ export async function getDashboardData(): Promise<DashboardData> {
     monthStats,
     budgetAlerts,
     topGoals,
+    categories,
   }
 }
 
 export async function getBudgetsData(): Promise<BudgetsPageData> {
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { budgets: [] }
+  if (!user) return { budgets: [], categories: [] }
 
   const now = new Date()
   const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1)
     .toISOString().split('T')[0]
 
-  const [budgetsRes, txRes] = await Promise.all([
+  const [budgetsRes, txRes, categoriesRes] = await Promise.all([
     supabase
       .from('budgets')
       .select('id, category, monthly_limit')
@@ -396,6 +463,11 @@ export async function getBudgetsData(): Promise<BudgetsPageData> {
       .eq('user_id', user.id)
       .eq('type', 'expense')
       .gte('date', startOfCurrentMonth),
+    supabase
+      .from('categories')
+      .select('id, name, label, color, icon')
+      .eq('user_id', user.id)
+      .order('created_at'),
   ])
 
   const spentByCategory: Record<string, number> = {}
@@ -418,7 +490,7 @@ export async function getBudgetsData(): Promise<BudgetsPageData> {
     }
   })
 
-  return { budgets }
+  return { budgets, categories: categoriesRes.data ?? [] }
 }
 
 function formatTxDate(dateStr: string): string {

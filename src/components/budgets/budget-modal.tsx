@@ -11,33 +11,19 @@ import { Button } from "@/src/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/select"
 import { upsertBudget } from "@/src/lib/actions"
 import { useI18n } from "@/src/lib/i18n"
-import type { BudgetWithProgress } from "@/src/lib/data"
-import { Utensils, Car, Building2, Home, Tv, Gamepad2, Tag, Package } from "lucide-react"
-
-export const BUDGET_CATEGORIES = [
-  "food", "transport", "housing", "home", "subscriptions", "leisure", "other",
-] as const
-
-export const CATEGORY_ICONS: Record<string, React.ReactNode> = {
-  food: <Utensils size={16} />,
-  transport: <Car size={16} />,
-  housing: <Building2 size={16} />,
-  home: <Home size={16} />,
-  subscriptions: <Tv size={16} />,
-  leisure: <Gamepad2 size={16} />,
-  other: <Tag size={16} />,
-}
-
-const DEFAULT_ICON = <Package size={16} />
+import type { BudgetWithProgress, UserCategory } from "@/src/lib/data"
+import * as LucideIcons from "lucide-react"
+import { Tag } from "lucide-react"
 
 interface BudgetModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   existingBudget?: BudgetWithProgress | null
   usedCategories?: string[]
+  categories?: UserCategory[]
 }
 
-export function BudgetModal({ open, onOpenChange, existingBudget, usedCategories = [] }: BudgetModalProps) {
+export function BudgetModal({ open, onOpenChange, existingBudget, usedCategories = [], categories = [] }: BudgetModalProps) {
   const { t } = useI18n()
   const [saving, setSaving] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
@@ -75,8 +61,8 @@ export function BudgetModal({ open, onOpenChange, existingBudget, usedCategories
     onOpenChange(false)
   }
 
-  const availableCategories = BUDGET_CATEGORIES.filter(
-    c => isEditing ? true : !usedCategories.includes(c)
+  const availableCategories = categories.filter(
+    c => isEditing ? true : !usedCategories.includes(c.name)
   )
 
   return (
@@ -100,24 +86,43 @@ export function BudgetModal({ open, onOpenChange, existingBudget, usedCategories
                   </FormLabel>
                   <FormControl>
                     {isEditing ? (
-                      <div className="flex items-center gap-2 h-9 px-3 rounded-xl border border-border/40 bg-muted/30 text-sm text-muted-foreground">
-                        <span className="text-foreground/60">{CATEGORY_ICONS[field.value] ?? DEFAULT_ICON}</span>
-                        <span>{t(`categories.${field.value}`)}</span>
-                      </div>
+                      (() => {
+                        const cat = categories.find(c => c.name === field.value)
+                        const Icon = cat?.icon
+                          ? (LucideIcons as unknown as Record<string, React.ComponentType<{ size?: number; style?: React.CSSProperties }>>)[cat.icon]
+                          : null
+                        return (
+                          <div className="flex items-center gap-2 h-9 px-3 rounded-xl border border-border/40 bg-muted/30 text-sm text-muted-foreground">
+                            {Icon
+                              ? <Icon size={16} style={{ color: cat?.color }} />
+                              : <Tag size={16} />
+                            }
+                            <span>{cat?.label ?? field.value}</span>
+                          </div>
+                        )
+                      })()
                     ) : (
                       <Select onValueChange={field.onChange} value={field.value}>
                         <SelectTrigger className="rounded-xl border-border/40 bg-muted/30 text-sm h-9">
                           <SelectValue placeholder={t("budgets.categoryLabel")} />
                         </SelectTrigger>
                         <SelectContent>
-                          {availableCategories.map(cat => (
-                            <SelectItem key={cat} value={cat}>
-                              <span className="flex items-center gap-2">
-                                {CATEGORY_ICONS[cat] ?? DEFAULT_ICON}
-                                {t(`categories.${cat}`)}
-                              </span>
-                            </SelectItem>
-                          ))}
+                          {availableCategories.map(cat => {
+                            const Icon = cat.icon
+                              ? (LucideIcons as unknown as Record<string, React.ComponentType<{ size?: number; style?: React.CSSProperties }>>)[cat.icon]
+                              : null
+                            return (
+                              <SelectItem key={cat.name} value={cat.name}>
+                                <span className="flex items-center gap-2">
+                                  {Icon
+                                    ? <Icon size={16} style={{ color: cat.color }} />
+                                    : <Tag size={16} style={{ color: cat.color }} />
+                                  }
+                                  {cat.label}
+                                </span>
+                              </SelectItem>
+                            )
+                          })}
                         </SelectContent>
                       </Select>
                     )}
