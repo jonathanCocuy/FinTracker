@@ -83,14 +83,14 @@ export function AccountGrid({ accounts, onHoverAccount, hoveredAccountId, showAd
                 "p-2 rounded-lg shrink-0 shadow-lg shadow-black/20 group-hover:scale-110 transition-transform",
                 account.color
               )}>
-                <Wallet size={15} className="text-white" />
+                <Wallet size={12} className="text-white" />
               </div>
 
               <div className="flex flex-col min-w-0">
                 <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest truncate">
                   {account.name}
                 </span>
-                <div className="text-md font-bold tracking-tight text-foreground">
+                <div className="text-sm md:text-md font-bold tracking-tight text-foreground">
                   <AnimatedBalance value={account.balance} />
                 </div>
               </div>

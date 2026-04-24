@@ -317,7 +317,6 @@ export function DashboardShell({ data }: { data: DashboardData }) {
                   <div className="h-1 w-full bg-linear-to-r from-border/50 via-border to-transparent" />
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <ExportMenu transactions={data.transactions} />
                   <TransactionModal />
                 </div>
               </div>

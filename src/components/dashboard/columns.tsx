@@ -35,10 +35,10 @@ export function createColumns(t: (key: string) => string, accounts: DashboardAcc
               <CategoryIcon category={category} />
             </div>
             <div className="flex flex-col min-w-0 gap-1"> 
-              <span className="font-semibold text-sm md:text-base truncate max-w-[130px] sm:max-w-[300px] lg:max-w-[350px]">
+              <span className="font-semibold text-[12px] md:text-base truncate max-w-[130px] sm:max-w-[300px] lg:max-w-[350px]">
                 {row.getValue("description")}
               </span>
-              <span className="text-xs md:text-sm text-muted-foreground/80 md:hidden uppercase tracking-widest font-bold">
+              <span className="text-[10px] md:text-sm text-muted-foreground/80 md:hidden uppercase tracking-widest font-bold">
                 {t(`categories.${category}`)}
               </span>
             </div>
@@ -63,7 +63,7 @@ export function createColumns(t: (key: string) => string, accounts: DashboardAcc
             day: "numeric", month: "short", timeZone: "UTC",
           })
         }
-        return <span className="text-sm font-medium">{label}</span>
+        return <span className="text-[12px] md:text-sm font-medium">{label}</span>
       },
     },
     {
@@ -111,7 +111,7 @@ export function createColumns(t: (key: string) => string, accounts: DashboardAcc
         return (
           <div className="text-right">
             <span className={`
-              inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs md:text-sm font-black tabular-nums border
+              inline-flex items-center px-2.5 py-0.5 rounded-lg text-[10px] md:text-sm font-black tabular-nums border
               ${type === 'income' 
                 ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' 
                 : 'text-rose-400 bg-rose-500/10 border-rose-500/20'
