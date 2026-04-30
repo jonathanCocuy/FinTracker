@@ -21,7 +21,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-sans)", ...defaultTheme.fontFamily.sans],
-        mono: ["var(--font-geist-mono)", ...defaultTheme.fontFamily.mono],
+        mono: [...defaultTheme.fontFamily.mono],
       },
     },
   },
