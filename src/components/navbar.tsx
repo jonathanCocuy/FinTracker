@@ -1,7 +1,7 @@
 "use client"
 
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, navigationMenuTriggerStyle } from "@/src/components/ui/navigation-menu"
-import { PiggyBank, UserIcon, Menu, LayoutDashboard, History, Wallet, Target, Tags } from "lucide-react"
+import { PiggyBank, UserIcon, Menu, LayoutDashboard, History, Wallet, Target, Tags, Repeat } from "lucide-react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"
 import { LanguageSwitcher } from "./language-switcher"
@@ -89,6 +89,13 @@ export function Navbar() {
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild data-active={pathname.startsWith("/recurring") || undefined}>
+                  <Link href="/recurring" className={navigationMenuTriggerStyle()}>
+                    {t("navbar.recurring")}
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
         </div>
@@ -159,6 +166,7 @@ function MobileNav() {
     { href: "/goals", label: t("navbar.goals"), Icon: Target },
     { href: "/transactions", label: t("navbar.history"), Icon: History },
     { href: "/categories", label: t("navbar.categories"), Icon: Tags },
+    { href: "/recurring",  label: t("navbar.recurring"),  Icon: Repeat },
   ]
 
   return (

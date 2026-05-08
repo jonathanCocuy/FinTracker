@@ -61,6 +61,7 @@
     "enterAmount": "Ingresa un monto",
     "selectCategory": "Selecciona una categoría",
     "selectAccount": "Selecciona una cuenta",
+    "selectDestinationAccount": "Selecciona la cuenta destino",
     "accountNameRequired": "El nombre debe tener al menos 2 caracteres",
     "selectColor": "Selecciona un color"
   },
@@ -117,15 +118,19 @@
     "typeLabel": "Tipo",
     "income": "Ingreso",
     "expense": "Gasto",
+    "transfer": "Transferir",
     "categoryLabel": "Categoría",
     "dateLabel": "Fecha",
     "accountLabel": "Cuenta",
+    "originAccountLabel": "Cuenta Origen",
+    "destinationAccountLabel": "Cuenta Destino",
     "saveTransaction": "Guardar Transacción",
     "saveChanges": "Guardar Cambios",
     "deleteTransaction": "Eliminar transacción",
     "searchIcon": "Buscar icono...",
     "categoryPlaceholder": "Alimentación",
-    "accountPlaceholder": "Bancolombia"
+    "accountPlaceholder": "Bancolombia",
+    "destinationAccountPlaceholder": "Cuenta destino"
   },
   "categories": {
     "home": "Hogar",
@@ -152,6 +157,7 @@
     "goals": "Metas",
     "history": "Historial",
     "categories": "Categorías",
+    "recurring": "Recurrentes",
     "profile": "Perfil",
     "logout": "Cerrar sesión",
     "openMenu": "Abrir menú",
@@ -365,6 +371,24 @@
     "saturday": "Sábado",
     "sunday": "Domingo"
   },
+  "recurring": {
+    "title": "Recurrentes",
+    "subtitle": "Automatiza suscripciones, arriendos y salarios.",
+    "addTemplate": "Nueva Recurrente",
+    "editTemplate": "Editar Recurrente",
+    "saveTemplate": "Guardar",
+    "saveChanges": "Guardar Cambios",
+    "deleteTemplate": "Eliminar recurrente",
+    "intervalLabel": "Frecuencia",
+    "monthly": "Mensual",
+    "weekly": "Semanal",
+    "dayOfMonthLabel": "Día del mes",
+    "dayOfWeekLabel": "Día de la semana",
+    "everyMonthDay": "El día {{day}} de cada mes",
+    "empty": "Sin transacciones recurrentes",
+    "emptyDescription": "Programa suscripciones, el arriendo o tu salario y la app los registrará automáticamente.",
+    "descriptionPlaceholder": "Ej. Netflix, Arriendo, Salario..."
+  },
   "goals": {
     "title": "Metas de Ahorro",
     "subtitle": "Ahorra para tus sueños paso a paso.",
@@ -386,6 +410,8 @@
     "emptyDescription": "Crea una meta y empieza a ahorrar para tu próximo gran objetivo.",
     "iconLabel": "Ícono",
     "noAccounts": "No tienes cuentas para descontar.",
-    "contributionDescription": "Aporte a meta: {{name}}"
+    "contributionDescription": "Aporte a meta: {{name}}",
+    "deleteGoal": "Eliminar meta",
+    "deleteGoalDesc": "Esta acción no se puede deshacer. La meta y todo su progreso serán eliminados permanentemente."
   }
 }

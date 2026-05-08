@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/src/components/ui/dialog"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/src/components/ui/alert-dialog"
 import { Button } from "@/src/components/ui/button"
 import { Input } from "@/src/components/ui/input"
 import { Label } from "@/src/components/ui/label"
@@ -42,6 +43,7 @@ export function GoalModal({
   const { t } = useI18n()
   const [loading, setLoading] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
   const [icon, setIcon] = useState(goal?.icon || 'Target')
 
   const {
@@ -101,15 +103,11 @@ export function GoalModal({
 
   const handleDelete = async () => {
     if (!goal) return
-    if (!confirm(t("common.delete") + "?")) return
-
     setDeleting(true)
     const res = await deleteGoal(goal.id)
     setDeleting(false)
 
-    if (res.error) {
-      alert(res.error)
-    } else {
+    if (!res.error) {
       onOpenChange(false)
     }
   }
@@ -177,15 +175,35 @@ export function GoalModal({
 
           <DialogFooter className="mt-6 flex sm:justify-between items-center gap-2 border-t border-border/40 pt-4">
             {goal ? (
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={handleDelete}
-                disabled={loading || deleting}
-                className="text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 px-4 rounded-xl"
-              >
-                {deleting ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
-              </Button>
+              <>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setConfirmOpen(true)}
+                  disabled={loading || deleting}
+                  className="text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 px-4 rounded-xl"
+                >
+                  {deleting ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                </Button>
+                <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>{t("goals.deleteGoal")}</AlertDialogTitle>
+                      <AlertDialogDescription>{t("goals.deleteGoalDesc")}</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel className="rounded-xl">{t("common.cancel")}</AlertDialogCancel>
+                      <AlertDialogAction
+                        variant="destructive"
+                        className="rounded-xl"
+                        onClick={handleDelete}
+                      >
+                        {t("common.delete")}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </>
             ) : (
               <div />
             )}

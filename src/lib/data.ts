@@ -20,7 +20,8 @@ const DEFAULT_CATEGORIES: Omit<UserCategory, 'id'>[] = [
 
 export async function getCategories(): Promise<UserCategory[]> {
   const supabase = await createSupabaseServer()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { session } } = await supabase.auth.getSession()
+  const user = session?.user
   if (!user) return []
 
   const { data } = await supabase
@@ -60,8 +61,9 @@ export type DashboardTransaction = {
   description: string
   icon: string
   amount: number
-  type: 'income' | 'expense'
+  type: 'income' | 'expense' | 'transfer'
   account_id: string
+  destination_account_id: string | null
 }
 
 export type IncomeExpensePoint = {
@@ -140,13 +142,14 @@ export type BudgetAlert = {
 
 export async function getTransactionsData(): Promise<TransactionsPageData> {
   const supabase = await createSupabaseServer()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { session } } = await supabase.auth.getSession()
+  const user = session?.user
   if (!user) return { transactions: [], accounts: [] }
 
   const [txRes, accountsRes] = await Promise.all([
     supabase
       .from('transactions')
-      .select('id, description, amount, category, type, date, account_id, icon')
+      .select('id, description, amount, category, type, date, account_id, destination_account_id, icon')
       .eq('user_id', user.id)
       .order('date', { ascending: false }),
     supabase
@@ -163,8 +166,9 @@ export async function getTransactionsData(): Promise<TransactionsPageData> {
     description: tx.description,
     icon: tx.icon ?? '',
     amount: tx.amount,
-    type: tx.type as 'income' | 'expense',
+    type: tx.type as 'income' | 'expense' | 'transfer',
     account_id: tx.account_id,
+    destination_account_id: tx.destination_account_id ?? null,
   }))
 
   return { transactions, accounts: accountsRes.data ?? [] }
@@ -172,7 +176,8 @@ export async function getTransactionsData(): Promise<TransactionsPageData> {
 
 export async function getDashboardData(): Promise<DashboardData> {
   const supabase = await createSupabaseServer()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { session } } = await supabase.auth.getSession()
+  const user = session?.user
 
   const empty: DashboardData = {
     profile: null,
@@ -219,7 +224,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       .eq('user_id', user.id),
     supabase
       .from('transactions')
-      .select('id, description, amount, category, type, date, account_id, icon')
+      .select('id, description, amount, category, type, date, account_id, destination_account_id, icon')
       .eq('user_id', user.id)
       .gte('date', startOfCurrentMonth)
       .order('date', { ascending: false }),
@@ -284,6 +289,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   const prevMonthExpenses = prevTx
     .filter(t => t.type === 'expense')
     .reduce((s, t) => s + t.amount, 0)
+  // Transfers are excluded from income/expense totals — they are internal movements.
 
   // Estimate last month's ending balance
   const prevTotalBalance =
@@ -300,8 +306,9 @@ export async function getDashboardData(): Promise<DashboardData> {
     description: tx.description,
     icon: tx.icon ?? '',
     amount: tx.amount,
-    type: tx.type as 'income' | 'expense',
+    type: tx.type as 'income' | 'expense' | 'transfer',
     account_id: tx.account_id,
+    destination_account_id: (tx as { destination_account_id?: string | null }).destination_account_id ?? null,
   }))
 
   // Bar chart: expenses per weekday for the current week (Mon–Sun)
@@ -360,6 +367,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     weeklyMap.set(key, { ingresos: 0, gastos: 0 })
   }
   chartTx.forEach(tx => {
+    if (tx.type === 'transfer') return
     const day = tx.date.substring(0, 10)
     const entry = weeklyMap.get(day)
     if (entry) {
@@ -377,6 +385,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     monthlyMap.set(key, { ingresos: 0, gastos: 0 })
   }
   chartTx.forEach(tx => {
+    if (tx.type === 'transfer') return
     const monthKey = tx.date.substring(0, 7) + '-01'
     const entry = monthlyMap.get(monthKey)
     if (entry) {
@@ -444,7 +453,8 @@ export async function getDashboardData(): Promise<DashboardData> {
 
 export async function getBudgetsData(): Promise<BudgetsPageData> {
   const supabase = await createSupabaseServer()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { session } } = await supabase.auth.getSession()
+  const user = session?.user
   if (!user) return { budgets: [], categories: [] }
 
   const now = new Date()
@@ -514,9 +524,63 @@ function formatTxDate(dateStr: string): string {
   return date.toLocaleDateString('es-CO', { day: 'numeric', month: 'short', timeZone: 'UTC' })
 }
 
+// ─── Recurring Templates ──────────────────────────────────────────────────────
+
+export type RecurringTemplate = {
+  id: string
+  description: string
+  icon: string
+  amount: number
+  category: string
+  type: 'income' | 'expense'
+  interval: 'monthly' | 'weekly'
+  day_of_month: number | null
+  day_of_week: number | null
+  last_generated_date: string | null
+  is_active: boolean
+  account_id: string
+}
+
+export type RecurringPageData = {
+  templates: RecurringTemplate[]
+  accounts: DashboardAccount[]
+  categories: UserCategory[]
+}
+
+export async function getRecurringData(): Promise<RecurringPageData> {
+  const supabase = await createSupabaseServer()
+  const { data: { session } } = await supabase.auth.getSession()
+  const user = session?.user
+  if (!user) return { templates: [], accounts: [], categories: [] }
+
+  const [templatesRes, accountsRes, categoriesRes] = await Promise.all([
+    supabase
+      .from('recurring_templates')
+      .select('id, description, icon, amount, category, type, interval, day_of_month, day_of_week, last_generated_date, is_active, account_id')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('accounts')
+      .select('id, name, balance, color')
+      .eq('user_id', user.id),
+    supabase
+      .from('categories')
+      .select('id, name, label, color, icon')
+      .eq('user_id', user.id)
+      .order('created_at'),
+  ])
+
+  return {
+    templates: (templatesRes.data ?? []) as RecurringTemplate[],
+    accounts: accountsRes.data ?? [],
+    categories: categoriesRes.data ?? [],
+  }
+}
+
 export async function getGoalsData(): Promise<SavingsGoal[]> {
   const supabase = await createSupabaseServer()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { session } } = await supabase.auth.getSession()
+  const user = session?.user
   if (!user) return []
 
   const res = await supabase

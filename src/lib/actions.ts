@@ -50,6 +50,125 @@ export async function createTransaction(
   return { success: true }
 }
 
+// ─── createTransfer ───────────────────────────────────────────────────────────
+
+const createTransferSchema = z.object({
+  description: z.string().min(2),
+  amount: z.string().min(1),
+  date: z.string(),
+  account_id: z.string().min(1),
+  destination_account_id: z.string().min(1),
+  icon: z.string().optional(),
+})
+
+export type CreateTransferInput = z.infer<typeof createTransferSchema>
+
+export async function createTransfer(
+  input: CreateTransferInput
+): Promise<{ success?: true; error?: string }> {
+  const parsed = createTransferSchema.safeParse(input)
+  if (!parsed.success) return { error: 'Invalid data' }
+
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { description, amount, date, account_id, destination_account_id, icon } = parsed.data
+
+  const validDate = date && !isNaN(new Date(date).getTime())
+    ? new Date(date).toISOString()
+    : new Date().toISOString()
+
+  const amountNum = parseFloat(amount)
+  if (isNaN(amountNum) || amountNum <= 0) return { error: 'El monto debe ser positivo' }
+
+  const { error } = await supabase.rpc('create_transfer', {
+    p_user_id:     user.id,
+    p_from_id:     account_id,
+    p_to_id:       destination_account_id,
+    p_amount:      amountNum,
+    p_description: description,
+    p_icon:        icon || 'ArrowRightLeft',
+    p_date:        validDate,
+  })
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/dashboard')
+  revalidatePath('/transactions')
+  return { success: true }
+}
+
+// ─── updateTransfer ───────────────────────────────────────────────────────────
+
+const updateTransferSchema = z.object({
+  description: z.string().min(2),
+  amount: z.string().min(1),
+  date: z.string(),
+  account_id: z.string().min(1),
+  destination_account_id: z.string().min(1),
+  icon: z.string().optional(),
+})
+
+export async function updateTransfer(
+  id: string,
+  input: z.infer<typeof updateTransferSchema>
+): Promise<{ success?: true; error?: string }> {
+  const parsed = updateTransferSchema.safeParse(input)
+  if (!parsed.success) return { error: 'Invalid data' }
+
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { description, amount, date, account_id, destination_account_id, icon } = parsed.data
+
+  const validDate = date && !isNaN(new Date(date).getTime())
+    ? new Date(date).toISOString()
+    : new Date().toISOString()
+
+  const amountNum = parseFloat(amount)
+  if (isNaN(amountNum) || amountNum <= 0) return { error: 'El monto debe ser positivo' }
+
+  const { error } = await supabase.rpc('update_transfer', {
+    p_user_id:     user.id,
+    p_tx_id:       id,
+    p_from_id:     account_id,
+    p_to_id:       destination_account_id,
+    p_amount:      amountNum,
+    p_description: description,
+    p_icon:        icon || 'ArrowRightLeft',
+    p_date:        validDate,
+  })
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/dashboard')
+  revalidatePath('/transactions')
+  return { success: true }
+}
+
+// ─── deleteTransfer ───────────────────────────────────────────────────────────
+
+export async function deleteTransfer(
+  id: string
+): Promise<{ success?: true; error?: string }> {
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { error } = await supabase.rpc('delete_transfer', {
+    p_user_id: user.id,
+    p_tx_id:   id,
+  })
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/dashboard')
+  revalidatePath('/transactions')
+  return { success: true }
+}
+
 // ─── createAccount ────────────────────────────────────────────────────────────
 
 const createAccountSchema = z.object({
@@ -461,6 +580,127 @@ export async function deleteCategory(
   if (error) return { error: error.message }
   revalidatePath('/categories')
   revalidatePath('/dashboard')
+  return { success: true }
+}
+
+// ─── Recurring Templates ──────────────────────────────────────────────────────
+
+const recurringTemplateSchema = z.object({
+  description: z.string().min(2),
+  icon: z.string().min(1),
+  amount: z.string().min(1),
+  category: z.string().min(1),
+  type: z.enum(['income', 'expense']),
+  account_id: z.string().min(1),
+  interval: z.enum(['monthly', 'weekly']),
+  day_of_month: z.number().int().min(1).max(31).nullable(),
+  day_of_week: z.number().int().min(0).max(6).nullable(),
+})
+
+export type RecurringTemplateInput = z.infer<typeof recurringTemplateSchema>
+
+export async function createRecurringTemplate(
+  input: RecurringTemplateInput
+): Promise<{ success?: true; error?: string }> {
+  const parsed = recurringTemplateSchema.safeParse(input)
+  if (!parsed.success) return { error: 'Invalid data' }
+
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { description, icon, amount, category, type, account_id, interval, day_of_month, day_of_week } = parsed.data
+  const amountNum = parseFloat(amount)
+  if (isNaN(amountNum) || amountNum <= 0) return { error: 'Invalid amount' }
+
+  const { error } = await supabase.from('recurring_templates').insert({
+    user_id: user.id,
+    account_id,
+    description,
+    icon,
+    amount: amountNum,
+    category,
+    type,
+    interval,
+    day_of_month: interval === 'monthly' ? day_of_month : null,
+    day_of_week:  interval === 'weekly'  ? day_of_week  : null,
+  })
+
+  if (error) return { error: error.message }
+  revalidatePath('/recurring')
+  return { success: true }
+}
+
+export async function updateRecurringTemplate(
+  id: string,
+  input: RecurringTemplateInput
+): Promise<{ success?: true; error?: string }> {
+  const parsed = recurringTemplateSchema.safeParse(input)
+  if (!parsed.success) return { error: 'Invalid data' }
+
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { description, icon, amount, category, type, account_id, interval, day_of_month, day_of_week } = parsed.data
+  const amountNum = parseFloat(amount)
+  if (isNaN(amountNum) || amountNum <= 0) return { error: 'Invalid amount' }
+
+  const { error } = await supabase
+    .from('recurring_templates')
+    .update({
+      account_id,
+      description,
+      icon,
+      amount: amountNum,
+      category,
+      type,
+      interval,
+      day_of_month: interval === 'monthly' ? day_of_month : null,
+      day_of_week:  interval === 'weekly'  ? day_of_week  : null,
+    })
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) return { error: error.message }
+  revalidatePath('/recurring')
+  return { success: true }
+}
+
+export async function toggleRecurringTemplate(
+  id: string,
+  is_active: boolean
+): Promise<{ success?: true; error?: string }> {
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { error } = await supabase
+    .from('recurring_templates')
+    .update({ is_active })
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) return { error: error.message }
+  revalidatePath('/recurring')
+  return { success: true }
+}
+
+export async function deleteRecurringTemplate(
+  id: string
+): Promise<{ success?: true; error?: string }> {
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { error } = await supabase
+    .from('recurring_templates')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) return { error: error.message }
+  revalidatePath('/recurring')
   return { success: true }
 }
 

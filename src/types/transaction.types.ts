@@ -7,5 +7,6 @@ export type Transaction = {
   amount: number;
   category: string;
   account_id: string;
-  type: "income" | "expense";
+  type: "income" | "expense" | "transfer";
+  destination_account_id?: string | null;
 }

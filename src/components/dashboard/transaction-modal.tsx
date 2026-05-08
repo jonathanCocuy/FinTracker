@@ -5,10 +5,13 @@ import { useI18n } from "@/src/lib/i18n"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import * as LucideIcons from "lucide-react"
-import { CalendarIcon, Plus, Smile, Trash2 } from "lucide-react"
+import { CalendarIcon, Plus } from "lucide-react"
 import { supabase } from "@/src/lib/supabase"
-import { createTransaction, updateTransaction, deleteTransaction, fetchUserCategories } from "@/src/lib/actions"
+import {
+  createTransaction, updateTransaction, deleteTransaction,
+  createTransfer, updateTransfer, deleteTransfer,
+  fetchUserCategories,
+} from "@/src/lib/actions"
 import { CategoryModal } from "@/src/components/categories/category-modal"
 
 import { Calendar } from "@/src/components/ui/calendar"
@@ -42,6 +45,7 @@ import {
   PopoverTrigger,
 } from "@/src/components/ui/popover"
 import { IconPicker } from "@/src/components/ui/icon-picker"
+import { Trash2 } from "lucide-react"
 import type { DashboardTransaction } from "@/src/lib/data"
 
 
@@ -102,7 +106,6 @@ function AmountInput({
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 interface TransactionModalProps {
-  // Edit mode: externally controlled
   transaction?: DashboardTransaction
   open?: boolean
   onOpenChange?: (open: boolean) => void
@@ -161,18 +164,38 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
     icon: z.string(),
     description: z.string().min(2, t("validation.descriptionRequired")),
     amount: z.string().min(1, t("validation.enterAmount")),
-    category: z.string().min(1, t("validation.selectCategory")),
-    type: z.enum(["income", "expense"]),
+    category: z.string(),
+    destination_account_id: z.string(),
+    type: z.enum(["income", "expense", "transfer"]),
     date: z.date(),
     account: z.string().min(1, t("validation.selectAccount")),
+  }).superRefine((data, ctx) => {
+    if (data.type !== "transfer") {
+      if (!data.category || data.category.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t("validation.selectCategory"),
+          path: ["category"],
+        })
+      }
+    } else {
+      if (!data.destination_account_id || data.destination_account_id.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t("validation.selectDestinationAccount"),
+          path: ["destination_account_id"],
+        })
+      }
+    }
   })
 
   const buildDefaults = (tx?: DashboardTransaction) => ({
     icon: tx?.icon ?? "",
     description: tx?.description ?? "",
     amount: tx ? String(tx.amount) : "",
-    category: tx?.category ?? "",
-    type: (tx?.type ?? "expense") as "income" | "expense",
+    category: tx?.type !== "transfer" ? (tx?.category ?? "") : "",
+    destination_account_id: tx?.destination_account_id ?? "",
+    type: (tx?.type ?? "expense") as "income" | "expense" | "transfer",
     date: tx?.rawDate ? new Date(tx.rawDate) : new Date(),
     account: tx?.account_id ?? "",
   })
@@ -182,30 +205,50 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
     defaultValues: buildDefaults(transaction),
   })
 
-  // Reset when a different transaction is opened
   useEffect(() => {
     if (open) {
       form.reset(buildDefaults(transaction))
     }
   }, [open, transaction?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  const watchType = form.watch("type")
+  const watchAccount = form.watch("account")
+
+  // Exclude origin account from destination options
+  const destinationAccounts = accounts.filter(a => a.id !== watchAccount)
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true)
     clearSubmitError()
 
-    const payload = {
-      icon: values.icon || "Wallet",
-      description: values.description,
-      amount: values.amount,
-      category: values.category,
-      type: values.type,
-      date: values.date.toISOString(),
-      account_id: values.account,
-    }
+    let result: { success?: true; error?: string }
 
-    const result = isEditMode && transaction
-      ? await updateTransaction(transaction.id, payload)
-      : await createTransaction(payload)
+    if (values.type === "transfer") {
+      const payload = {
+        icon: values.icon || "ArrowRightLeft",
+        description: values.description,
+        amount: values.amount,
+        date: values.date.toISOString(),
+        account_id: values.account,
+        destination_account_id: values.destination_account_id!,
+      }
+      result = isEditMode && transaction
+        ? await updateTransfer(transaction.id, payload)
+        : await createTransfer(payload)
+    } else {
+      const payload = {
+        icon: values.icon || "Wallet",
+        description: values.description,
+        amount: values.amount,
+        category: values.category!,
+        type: values.type,
+        date: values.date.toISOString(),
+        account_id: values.account,
+      }
+      result = isEditMode && transaction
+        ? await updateTransaction(transaction.id, payload)
+        : await createTransaction(payload)
+    }
 
     setIsSubmitting(false)
 
@@ -222,7 +265,9 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
   async function onDelete() {
     if (!transaction) return
     setIsDeleting(true)
-    const result = await deleteTransaction(transaction.id)
+    const result = transaction.type === "transfer"
+      ? await deleteTransfer(transaction.id)
+      : await deleteTransaction(transaction.id)
     setIsDeleting(false)
     if (result.error) {
       commitSubmitError(result.error)
@@ -285,7 +330,7 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
                     {t("transactionModal.typeLabel")}
                   </FormLabel>
                   <FormControl>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-3 gap-2">
                       <button
                         type="button"
                         onClick={() => field.onChange("expense")}
@@ -307,6 +352,17 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
                         }`}
                       >
                         {t("transactionModal.income")}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => field.onChange("transfer")}
+                        className={`h-9 rounded-lg text-xs font-bold border transition-all ${
+                          field.value === "transfer"
+                            ? "bg-indigo-500/20 border-indigo-500/50 text-indigo-400"
+                            : "bg-background/40 border-border/60 text-muted-foreground hover:border-border"
+                        }`}
+                      >
+                        {t("transactionModal.transfer")}
                       </button>
                     </div>
                   </FormControl>
@@ -345,117 +401,208 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-[10px] font-bold uppercase opacity-60">
-                      {t("transactionModal.categoryLabel")}
-                    </FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      open={categorySelectOpen}
-                      onOpenChange={setCategorySelectOpen}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="h-10 bg-background/40 cursor-pointer">
-                          <SelectValue placeholder={t("transactionModal.categoryPlaceholder")} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {categories.map(cat => (
-                          <SelectItem key={cat.name} value={cat.name}>
-                            <span className="flex items-center gap-2">
-                              <span
-                                className="w-2 h-2 rounded-full shrink-0"
-                                style={{ backgroundColor: cat.color }}
-                              />
-                              {cat.label}
-                            </span>
-                          </SelectItem>
-                        ))}
-                        <div className="border-t border-border/40 mt-1 pt-1 px-1">
-                          <button
-                            type="button"
-                            className="w-full flex items-center gap-2 px-2 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10 rounded-md transition-colors cursor-pointer"
-                            onPointerDown={(e) => {
-                              e.preventDefault()
-                              setCategorySelectOpen(false)
-                              setCategoryModalOpen(true)
-                            }}
-                          >
-                            <Plus size={12} />
-                            {t("categoriesPage.addCategory")}
-                          </button>
-                        </div>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage className="text-[10px]" />
-                  </FormItem>
-                )}
-              />
+            {watchType !== "transfer" ? (
+              <>
+                <div className="grid grid-cols-2 gap-3">
+                  <FormField
+                    control={form.control}
+                    name="category"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[10px] font-bold uppercase opacity-60">
+                          {t("transactionModal.categoryLabel")}
+                        </FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                          open={categorySelectOpen}
+                          onOpenChange={setCategorySelectOpen}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="h-10 bg-background/40 cursor-pointer">
+                              <SelectValue placeholder={t("transactionModal.categoryPlaceholder")} />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {categories.map(cat => (
+                              <SelectItem key={cat.name} value={cat.name}>
+                                <span className="flex items-center gap-2">
+                                  <span
+                                    className="w-2 h-2 rounded-full shrink-0"
+                                    style={{ backgroundColor: cat.color }}
+                                  />
+                                  {cat.label}
+                                </span>
+                              </SelectItem>
+                            ))}
+                            <div className="border-t border-border/40 mt-1 pt-1 px-1">
+                              <button
+                                type="button"
+                                className="w-full flex items-center gap-2 px-2 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10 rounded-md transition-colors cursor-pointer"
+                                onPointerDown={(e) => {
+                                  e.preventDefault()
+                                  setCategorySelectOpen(false)
+                                  setCategoryModalOpen(true)
+                                }}
+                              >
+                                <Plus size={12} />
+                                {t("categoriesPage.addCategory")}
+                              </button>
+                            </div>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage className="text-[10px]" />
+                      </FormItem>
+                    )}
+                  />
 
-              <FormField
-                control={form.control}
-                name="date"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-[10px] font-bold uppercase opacity-60">
-                      {t("transactionModal.dateLabel")}
-                    </FormLabel>
-                    <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-                      <PopoverTrigger asChild>
+                  <FormField
+                    control={form.control}
+                    name="date"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[10px] font-bold uppercase opacity-60">
+                          {t("transactionModal.dateLabel")}
+                        </FormLabel>
+                        <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button variant="outline" className="w-full h-[42px] px-3 justify-start font-normal bg-background/40 cursor-pointer">
+                                <CalendarIcon className="mr-2 h-4 w-4 opacity-50" />
+                                {field.value ? field.value.toLocaleDateString() : <span>{t("common.pickDate")}</span>}
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="end">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={(date) => {
+                                field.onChange(date)
+                                setCalendarOpen(false)
+                              }}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="account"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-[10px] font-bold uppercase opacity-60">
+                        {t("transactionModal.accountLabel")}
+                      </FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <Button variant="outline" className="w-full h-[42px] px-3 justify-start font-normal bg-background/40 cursor-pointer">
-                            <CalendarIcon className="mr-2 h-4 w-4 opacity-50" />
-                            {field.value ? field.value.toLocaleDateString() : <span>{t("common.pickDate")}</span>}
-                          </Button>
+                          <SelectTrigger className="h-10 bg-background/40 cursor-pointer">
+                            <SelectValue placeholder={t("transactionModal.accountPlaceholder")} />
+                          </SelectTrigger>
                         </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="end">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={(date) => {
-                            field.onChange(date)
-                            setCalendarOpen(false)
-                          }}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </FormItem>
-                )}
-              />
-            </div>
+                        <SelectContent>
+                          {accounts.map(acc => (
+                            <SelectItem key={acc.id} value={acc.id}>{acc.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage className="text-[10px]" />
+                    </FormItem>
+                  )}
+                />
+              </>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 gap-3">
+                  <FormField
+                    control={form.control}
+                    name="account"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[10px] font-bold uppercase opacity-60">
+                          {t("transactionModal.originAccountLabel")}
+                        </FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="h-10 bg-background/40 cursor-pointer">
+                              <SelectValue placeholder={t("transactionModal.accountPlaceholder")} />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {accounts.map(acc => (
+                              <SelectItem key={acc.id} value={acc.id}>{acc.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage className="text-[10px]" />
+                      </FormItem>
+                    )}
+                  />
 
-            <FormField
-              control={form.control}
-              name="account"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-[10px] font-bold uppercase opacity-60">
-                    {t("transactionModal.accountLabel")}
-                  </FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="h-10 bg-background/40 cursor-pointer">
-                        <SelectValue placeholder={t("transactionModal.accountPlaceholder")} />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {accounts.map(acc => (
-                        <SelectItem key={acc.id} value={acc.id}>{acc.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage className="text-[10px]" />
-                </FormItem>
-              )}
-            />
+                  <FormField
+                    control={form.control}
+                    name="destination_account_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[10px] font-bold uppercase opacity-60">
+                          {t("transactionModal.destinationAccountLabel")}
+                        </FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="h-10 bg-background/40 cursor-pointer">
+                              <SelectValue placeholder={t("transactionModal.destinationAccountPlaceholder")} />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {destinationAccounts.map(acc => (
+                              <SelectItem key={acc.id} value={acc.id}>{acc.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage className="text-[10px]" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="date"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-[10px] font-bold uppercase opacity-60">
+                        {t("transactionModal.dateLabel")}
+                      </FormLabel>
+                      <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button variant="outline" className="w-full h-[42px] px-3 justify-start font-normal bg-background/40 cursor-pointer">
+                              <CalendarIcon className="mr-2 h-4 w-4 opacity-50" />
+                              {field.value ? field.value.toLocaleDateString() : <span>{t("common.pickDate")}</span>}
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="end">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={(date) => {
+                              field.onChange(date)
+                              setCalendarOpen(false)
+                            }}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
 
             {displayedSubmitError && (
               <p className="text-sm text-red-500 text-center font-bold bg-red-500/10 p-2 rounded-lg border border-red-500/20">

@@ -53,7 +53,9 @@ export function TransactionTable<TData, TValue>({
               
               // 2. Lógica de resaltado: 
               // Si hay un hover activo Y esta fila NO pertenece a esa cuenta -> la opacamos
-              const isDimmed = hoveredAccountId != null && transaction.account_id !== hoveredAccountId;
+              const isDimmed = hoveredAccountId != null &&
+                transaction.account_id !== hoveredAccountId &&
+                transaction.destination_account_id !== hoveredAccountId;
 
               return (
                 <TableRow

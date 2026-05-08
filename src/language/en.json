@@ -61,6 +61,7 @@
     "enterAmount": "Enter an amount",
     "selectCategory": "Select a category",
     "selectAccount": "Select an account",
+    "selectDestinationAccount": "Select destination account",
     "accountNameRequired": "Name must be at least 2 characters",
     "selectColor": "Select a color"
   },
@@ -117,15 +118,19 @@
     "typeLabel": "Type",
     "income": "Income",
     "expense": "Expense",
+    "transfer": "Transfer",
     "categoryLabel": "Category",
     "dateLabel": "Date",
     "accountLabel": "Account",
+    "originAccountLabel": "Origin Account",
+    "destinationAccountLabel": "Destination Account",
     "saveTransaction": "Save Transaction",
     "saveChanges": "Save Changes",
     "deleteTransaction": "Delete transaction",
     "searchIcon": "Search icon...",
     "categoryPlaceholder": "Food",
-    "accountPlaceholder": "Bancolombia"
+    "accountPlaceholder": "Bancolombia",
+    "destinationAccountPlaceholder": "Destination account"
   },
   "categories": {
     "home": "Home",
@@ -152,10 +157,29 @@
     "goals": "Goals",
     "history": "History",
     "categories": "Categories",
+    "recurring": "Recurring",
     "profile": "Profile",
     "logout": "Log out",
     "openMenu": "Open menu",
     "language": "Language"
+  },
+  "recurring": {
+    "title": "Recurring",
+    "subtitle": "Automate subscriptions, rent, and salaries.",
+    "addTemplate": "New Recurring",
+    "editTemplate": "Edit Recurring",
+    "saveTemplate": "Save",
+    "saveChanges": "Save Changes",
+    "deleteTemplate": "Delete recurring",
+    "intervalLabel": "Frequency",
+    "monthly": "Monthly",
+    "weekly": "Weekly",
+    "dayOfMonthLabel": "Day of month",
+    "dayOfWeekLabel": "Day of week",
+    "everyMonthDay": "Day {{day}} of every month",
+    "empty": "No recurring transactions",
+    "emptyDescription": "Schedule subscriptions, rent, or your salary and the app will record them automatically.",
+    "descriptionPlaceholder": "e.g. Netflix, Rent, Salary..."
   },
   "categoriesPage": {
     "title": "Categories",
@@ -386,6 +410,8 @@
     "emptyDescription": "Create a goal and start saving for your next big target.",
     "iconLabel": "Icon",
     "noAccounts": "You don't have any accounts to deduct from.",
-    "contributionDescription": "Contribution to goal: {{name}}"
+    "contributionDescription": "Contribution to goal: {{name}}",
+    "deleteGoal": "Delete goal",
+    "deleteGoalDesc": "This action cannot be undone. The goal and all its progress will be permanently deleted."
   }
 }

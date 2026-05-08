@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { Wallet, Tag } from "lucide-react"
+import { Wallet, Tag, ArrowRightLeft } from "lucide-react"
 import * as LucideIcons from "lucide-react"
 import { Transaction } from "@/src/types/transaction.types"
 import type { DashboardAccount, UserCategory } from "@/src/lib/data"
@@ -9,6 +9,7 @@ import type { DashboardAccount, UserCategory } from "@/src/lib/data"
 export type { Transaction }
 
 const CategoryIcon = ({ category, categories }: { category: string; categories: UserCategory[] }) => {
+  if (category === 'transfer') return <ArrowRightLeft size={14} style={{ color: '#6366f1' }} />
   const cat = categories.find(c => c.name === category)
   if (cat) {
     const Icon = (LucideIcons as unknown as Record<string, React.ComponentType<{ size?: number; style?: React.CSSProperties }>>)[cat.icon]
@@ -39,7 +40,9 @@ export function createColumns(t: (key: string) => string, accounts: DashboardAcc
                 {row.getValue("description")}
               </span>
               <span className="text-[10px] md:text-sm text-muted-foreground/80 md:hidden uppercase tracking-widest font-bold">
-                {categories.find(c => c.name === category)?.label ?? t(`categories.${category}`)}
+                {category === 'transfer'
+                  ? 'Transferencia'
+                  : categories.find(c => c.name === category)?.label ?? t(`categories.${category}`)}
               </span>
             </div>
           </div>
@@ -73,8 +76,13 @@ export function createColumns(t: (key: string) => string, accounts: DashboardAcc
         const category = row.getValue("category") as string
         return (
           <div className="hidden md:block">
-            <span className="text-xs text-muted-foreground/80 uppercase tracking-widest font-bold">
-              {categories.find(c => c.name === category)?.label ?? t(`categories.${category}`)}
+            <span
+              className="text-xs uppercase tracking-widest font-bold"
+              style={{ color: category === 'transfer' ? '#6366f1' : undefined }}
+            >
+              {category === 'transfer'
+                ? 'Transferencia'
+                : categories.find(c => c.name === category)?.label ?? t(`categories.${category}`)}
             </span>
           </div>
         )
@@ -112,12 +120,14 @@ export function createColumns(t: (key: string) => string, accounts: DashboardAcc
           <div className="text-right">
             <span className={`
               inline-flex items-center px-2.5 py-0.5 rounded-lg text-[10px] md:text-sm font-black tabular-nums border
-              ${type === 'income' 
-                ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' 
-                : 'text-rose-400 bg-rose-500/10 border-rose-500/20'
+              ${type === 'income'
+                ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
+                : type === 'transfer'
+                  ? 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20'
+                  : 'text-rose-400 bg-rose-500/10 border-rose-500/20'
               }
             `}>
-              {type === 'income' ? '+ ' : '- '}
+              {type === 'income' ? '+ ' : type === 'transfer' ? '↕ ' : '- '}
               {formatted}
             </span>
           </div>
