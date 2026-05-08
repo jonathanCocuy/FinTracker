@@ -17,6 +17,7 @@ interface RecurringTemplate {
   description: string
   icon: string
   amount: number
+  currency: string
   category: string
   type: 'income' | 'expense'
   interval: 'monthly' | 'weekly'
@@ -45,7 +46,7 @@ Deno.serve(async (req: Request) => {
     // ── Fetch all active templates (service role bypasses RLS) ────────────────
     const { data: templates, error: fetchErr } = await supabase
       .from('recurring_templates')
-      .select('id, user_id, account_id, description, icon, amount, category, type, interval, day_of_month, day_of_week, last_generated_date')
+      .select('id, user_id, account_id, description, icon, amount, currency, category, type, interval, day_of_month, day_of_week, last_generated_date')
       .eq('is_active', true)
 
     if (fetchErr) throw fetchErr
@@ -54,27 +55,66 @@ Deno.serve(async (req: Request) => {
       return json({ generated: 0, message: 'No active templates' })
     }
 
+    // ── Filter to only due templates ──────────────────────────────────────────
+    const due = (templates as RecurringTemplate[]).filter(t =>
+      isDue(t, todayDay, todayWday, todayYYMM, todayStr)
+    )
+
+    if (!due.length) {
+      return json({ generated: 0, message: 'No templates due today' })
+    }
+
+    // ── Fetch base currency per user ──────────────────────────────────────────
+    const userIds = [...new Set(due.map(t => t.user_id))]
+    const { data: profileRows } = await supabase
+      .from('profiles')
+      .select('id, base_currency')
+      .in('id', userIds)
+
+    const baseCurrencyMap: Record<string, string> = {}
+    for (const p of (profileRows ?? [])) {
+      baseCurrencyMap[p.id] = p.base_currency ?? 'COP'
+    }
+
+    // ── Fetch live exchange rates (single call, USD base) ─────────────────────
+    let rates: Record<string, number> = {}
+    try {
+      const res = await fetch('https://open.er-api.com/v6/latest/USD')
+      const data = await res.json() as { rates: Record<string, number> }
+      rates = data.rates ?? {}
+    } catch {
+      // If rate fetch fails, all exchange_rates will fall back to 1
+      console.warn('[generate-recurring] Could not fetch exchange rates, using 1')
+    }
+
+    // ── Build transaction inserts ─────────────────────────────────────────────
     const txToInsert: Record<string, unknown>[] = []
     const idsToUpdate: string[] = []
 
-    for (const t of templates as RecurringTemplate[]) {
-      if (!isDue(t, todayDay, todayWday, todayYYMM, todayStr)) continue
+    for (const t of due) {
+      const baseCurrency = baseCurrencyMap[t.user_id] ?? 'COP'
+      const currency = t.currency ?? 'COP'
+
+      let exchange_rate = 1
+      if (currency !== baseCurrency && Object.keys(rates).length > 0) {
+        const fromRate = rates[currency] ?? 1
+        const toRate   = rates[baseCurrency] ?? 1
+        exchange_rate  = toRate / fromRate
+      }
 
       txToInsert.push({
-        user_id:     t.user_id,
-        account_id:  t.account_id,
-        description: t.description,
-        icon:        t.icon,
-        amount:      t.amount,
-        category:    t.category,
-        type:        t.type,
-        date:        todayStr + 'T00:00:00.000Z',
+        user_id:       t.user_id,
+        account_id:    t.account_id,
+        description:   t.description,
+        icon:          t.icon,
+        amount:        t.amount,
+        currency,
+        exchange_rate,
+        category:      t.category,
+        type:          t.type,
+        date:          todayStr + 'T00:00:00.000Z',
       })
       idsToUpdate.push(t.id)
-    }
-
-    if (!txToInsert.length) {
-      return json({ generated: 0, message: 'No templates due today' })
     }
 
     const { error: insertErr } = await supabase.from('transactions').insert(txToInsert)

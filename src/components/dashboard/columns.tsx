@@ -5,6 +5,7 @@ import { Wallet, Tag, ArrowRightLeft } from "lucide-react"
 import * as LucideIcons from "lucide-react"
 import { Transaction } from "@/src/types/transaction.types"
 import type { DashboardAccount, UserCategory } from "@/src/lib/data"
+import { formatCurrency } from "@/src/lib/currency"
 
 export type { Transaction }
 
@@ -109,12 +110,9 @@ export function createColumns(t: (key: string) => string, accounts: DashboardAcc
       cell: ({ row }) => {
         const amount = parseFloat(row.getValue("amount"))
         const type = row.original.type
-        
-        const formatted = new Intl.NumberFormat("es-CO", {
-          style: "currency",
-          currency: "COP",
-          maximumFractionDigits: 0,
-        }).format(amount)
+        const currency = row.original.currency ?? 'COP'
+
+        const formatted = formatCurrency(amount, currency)
 
         return (
           <div className="text-right">

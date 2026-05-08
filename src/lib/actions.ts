@@ -12,6 +12,8 @@ const createTransactionSchema = z.object({
   type: z.enum(['income', 'expense']),
   date: z.string(),        // ISO string serialized from client Date
   account_id: z.string().min(1),
+  currency: z.string().min(3).max(3).default('COP'),
+  exchange_rate: z.string().default('1'),
 })
 
 export type CreateTransactionInput = z.infer<typeof createTransactionSchema>
@@ -26,11 +28,11 @@ export async function createTransaction(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
 
-  const { icon, description, amount, category, type, date, account_id } = parsed.data
+  const { icon, description, amount, category, type, date, account_id, currency, exchange_rate } = parsed.data
 
   // Validamos que la fecha sea real, si no, usamos la fecha de hoy
-  const validDate = date && !isNaN(new Date(date).getTime()) 
-    ? new Date(date).toISOString() 
+  const validDate = date && !isNaN(new Date(date).getTime())
+    ? new Date(date).toISOString()
     : new Date().toISOString();
 
   const { error } = await supabase.from('transactions').insert({
@@ -41,7 +43,9 @@ export async function createTransaction(
     amount: parseFloat(amount),
     category,
     type,
-    date: validDate, 
+    date: validDate,
+    currency: currency ?? 'COP',
+    exchange_rate: parseFloat(exchange_rate ?? '1'),
   });
 
   if (error) return { error: error.message }
@@ -264,6 +268,8 @@ const updateTransactionSchema = z.object({
   type: z.enum(['income', 'expense']),
   date: z.string(),
   account_id: z.string().min(1),
+  currency: z.string().min(3).max(3).default('COP'),
+  exchange_rate: z.string().default('1'),
 })
 
 export async function updateTransaction(
@@ -277,14 +283,18 @@ export async function updateTransaction(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
 
-  const { icon, description, amount, category, type, date, account_id } = parsed.data
+  const { icon, description, amount, category, type, date, account_id, currency, exchange_rate } = parsed.data
   const validDate = date && !isNaN(new Date(date).getTime())
     ? new Date(date).toISOString()
     : new Date().toISOString()
 
   const { error } = await supabase
     .from('transactions')
-    .update({ description, icon, amount: parseFloat(amount), category, type, date: validDate, account_id })
+    .update({
+      description, icon, amount: parseFloat(amount), category, type, date: validDate, account_id,
+      currency: currency ?? 'COP',
+      exchange_rate: parseFloat(exchange_rate ?? '1'),
+    })
     .eq('id', id)
     .eq('user_id', user.id)
 
@@ -595,6 +605,7 @@ const recurringTemplateSchema = z.object({
   interval: z.enum(['monthly', 'weekly']),
   day_of_month: z.number().int().min(1).max(31).nullable(),
   day_of_week: z.number().int().min(0).max(6).nullable(),
+  currency: z.string().min(3).max(3).default('COP'),
 })
 
 export type RecurringTemplateInput = z.infer<typeof recurringTemplateSchema>
@@ -609,7 +620,7 @@ export async function createRecurringTemplate(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
 
-  const { description, icon, amount, category, type, account_id, interval, day_of_month, day_of_week } = parsed.data
+  const { description, icon, amount, category, type, account_id, interval, day_of_month, day_of_week, currency } = parsed.data
   const amountNum = parseFloat(amount)
   if (isNaN(amountNum) || amountNum <= 0) return { error: 'Invalid amount' }
 
@@ -619,6 +630,7 @@ export async function createRecurringTemplate(
     description,
     icon,
     amount: amountNum,
+    currency,
     category,
     type,
     interval,
@@ -642,7 +654,7 @@ export async function updateRecurringTemplate(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
 
-  const { description, icon, amount, category, type, account_id, interval, day_of_month, day_of_week } = parsed.data
+  const { description, icon, amount, category, type, account_id, interval, day_of_month, day_of_week, currency } = parsed.data
   const amountNum = parseFloat(amount)
   if (isNaN(amountNum) || amountNum <= 0) return { error: 'Invalid amount' }
 
@@ -653,6 +665,7 @@ export async function updateRecurringTemplate(
       description,
       icon,
       amount: amountNum,
+      currency,
       category,
       type,
       interval,
@@ -769,4 +782,77 @@ export async function contributeToGoal(
   revalidatePath('/goals')
   revalidatePath('/dashboard')
   return { success: true }
+}
+
+// ─── importTransactions ────────────────────────────────────────────────────────
+
+export type ImportRow = {
+  date: string
+  amount: number
+  description: string
+  type: 'income' | 'expense'
+  fingerprint: string
+}
+
+export async function importTransactions(
+  rows: ImportRow[],
+  account_id: string,
+): Promise<{ imported: number; skipped: number; error?: string }> {
+  if (!rows.length || !account_id) return { imported: 0, skipped: 0, error: 'Invalid input' }
+
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { imported: 0, skipped: 0, error: 'Not authenticated' }
+
+  // Build fingerprint set from existing transactions in this account
+  const { data: existing } = await supabase
+    .from('transactions')
+    .select('date, amount, description')
+    .eq('user_id', user.id)
+    .eq('account_id', account_id)
+
+  const existingFps = new Set(
+    (existing ?? []).map(tx => {
+      const d = new Date(tx.date).toISOString().substring(0, 10)
+      return `${d}|${Number(tx.amount).toFixed(2)}|${String(tx.description).trim().toLowerCase()}`
+    })
+  )
+
+  // Filter out duplicates (DB + intra-file)
+  const seen = new Set<string>()
+  const toInsert: ImportRow[] = []
+  let skipped = 0
+
+  for (const row of rows) {
+    if (existingFps.has(row.fingerprint) || seen.has(row.fingerprint)) {
+      skipped++
+    } else {
+      seen.add(row.fingerprint)
+      toInsert.push(row)
+    }
+  }
+
+  if (!toInsert.length) return { imported: 0, skipped }
+
+  const records = toInsert.map(row => ({
+    user_id: user.id,
+    account_id,
+    date: row.date,
+    amount: row.amount,
+    description: row.description,
+    type: row.type,
+    icon: 'Receipt',
+    category: 'Sin categoría',
+  }))
+
+  // Bulk insert in chunks of 100
+  const CHUNK = 100
+  for (let i = 0; i < records.length; i += CHUNK) {
+    const { error } = await supabase.from('transactions').insert(records.slice(i, i + CHUNK))
+    if (error) return { imported: 0, skipped, error: error.message }
+  }
+
+  revalidatePath('/dashboard')
+  revalidatePath('/transactions')
+  return { imported: toInsert.length, skipped }
 }

@@ -4,6 +4,7 @@ import * as React from "react"
 import { useEffect, useRef } from "react"
 import { useInView, useMotionValue, useSpring } from "framer-motion"
 import { cn } from "@/src/lib/utils"
+import { CURRENCY_INFO, type SupportedCurrency } from "@/src/lib/currency"
 
 export type KpiColor = "income" | "expense" | "savings" | "default"
 
@@ -15,18 +16,21 @@ export type KpiItem = {
   prefix?: string
   suffix?: string
   color?: KpiColor
+  currencyCode?: string
 }
 
 // ─── Componente de Animación Interno ─────────────────────────────────────────
 
-function AnimatedValue({ 
-  value, 
-  prefix, 
-  color 
-}: { 
-  value: number; 
-  prefix: string; 
-  color: KpiColor 
+function AnimatedValue({
+  value,
+  prefix,
+  color,
+  currencyCode,
+}: {
+  value: number;
+  prefix: string;
+  color: KpiColor;
+  currencyCode?: string;
 }) {
   const ref = useRef<HTMLSpanElement>(null)
   const motionValue = useMotionValue(0)
@@ -39,6 +43,16 @@ function AnimatedValue({
 
   const formatDisplay = (val: number) => {
     const sign = color === "income" ? "+" : color === "expense" ? "-" : ""
+    if (currencyCode) {
+      const info = CURRENCY_INFO[currencyCode as SupportedCurrency]
+      const formatted = new Intl.NumberFormat(info?.locale ?? 'en-US', {
+        style: 'currency',
+        currency: currencyCode,
+        maximumFractionDigits: info?.decimals ?? 2,
+        minimumFractionDigits: 0,
+      }).format(Math.abs(Number(val.toFixed(info?.decimals ?? 2))))
+      return `${sign}${formatted}`
+    }
     const formatted = new Intl.NumberFormat("es-CO", {
       maximumFractionDigits: 0,
     }).format(Number(val.toFixed(0)))
@@ -103,14 +117,13 @@ function TrendBadge({ value, prev }: { value: number; prev: number }) {
 // ─── KpiCard (Mismo tamaño y diseño) ─────────────────────────────────────────
 
 export function KpiCard({ item }: { item: KpiItem }) {
-  const { label, value, previousValue, subtitle, prefix = "$", suffix = "", color = "default" } = item
+  const { label, value, previousValue, subtitle, prefix = "$", suffix = "", color = "default", currencyCode } = item
 
   return (
     <div className="bg-muted/50 rounded-lg px-4 py-3.5 flex flex-col gap-1.5">
       <p className="text-[11px] text-muted-foreground">{label}</p>
       <p className={`text-lg font-medium leading-tight ${colorMap[color]}`}>
-        {/* Aquí integramos la animación manteniendo tu estilo de texto */}
-        <AnimatedValue value={value} prefix={prefix} color={color} />
+        <AnimatedValue value={value} prefix={prefix} color={color} currencyCode={currencyCode} />
         {suffix}
       </p>
       <div className="flex items-center justify-between gap-2 min-h-[18px]">

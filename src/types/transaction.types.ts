@@ -9,4 +9,6 @@ export type Transaction = {
   account_id: string;
   type: "income" | "expense" | "transfer";
   destination_account_id?: string | null;
+  currency: string;
+  exchange_rate: number;
 }

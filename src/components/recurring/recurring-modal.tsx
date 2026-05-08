@@ -38,8 +38,9 @@ import {
   SelectValue,
 } from "@/src/components/ui/select"
 import { IconPicker } from "@/src/components/ui/icon-picker"
-import { Trash2, Plus } from "lucide-react"
+import { Trash2, Plus, Loader2 } from "lucide-react"
 import type { RecurringTemplate } from "@/src/lib/data"
+import { SUPPORTED_CURRENCIES, getExchangeRate, getFlagUrl } from "@/src/lib/currency"
 
 // ─── Amount input (same locale logic as transaction modal) ────────────────────
 const amountFormatter = new Intl.NumberFormat("es-CO", {
@@ -109,6 +110,7 @@ const formSchema = z.object({
   icon: z.string(),
   description: z.string().min(2),
   amount: z.string().min(1),
+  currency: z.string().min(3).max(3),
   category: z.string().min(1),
   type: z.enum(["income", "expense"]),
   account_id: z.string().min(1),
@@ -136,6 +138,8 @@ export function RecurringModal({ template, open, onOpenChange }: RecurringModalP
   const [categories, setCategories] = useState<{ id: string; name: string; label: string; color: string }[]>([])
   const [categorySelectOpen, setCategorySelectOpen] = useState(false)
   const [categoryModalOpen, setCategoryModalOpen] = useState(false)
+  const [baseCurrency, setBaseCurrency] = useState('COP')
+  const [fetchingRate, setFetchingRate] = useState(false)
 
   const isEditMode = !!template
 
@@ -143,6 +147,7 @@ export function RecurringModal({ template, open, onOpenChange }: RecurringModalP
     icon:         t?.icon       ?? "",
     description:  t?.description ?? "",
     amount:       t             ? String(t.amount) : "",
+    currency:     t?.currency   ?? "COP",
     category:     t?.category   ?? "",
     type:         (t?.type      ?? "expense") as "income" | "expense",
     account_id:   t?.account_id ?? "",
@@ -161,7 +166,20 @@ export function RecurringModal({ template, open, onOpenChange }: RecurringModalP
     form.reset(buildDefaults(template))
     supabase.from("accounts").select("id, name").then(({ data }) => { if (data) setAccounts(data) })
     fetchUserCategories().then(setCategories)
+    supabase.from("profiles").select("base_currency").single().then(({ data }) => {
+      if (data?.base_currency) setBaseCurrency(data.base_currency)
+    })
   }, [open, template?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const watchCurrency = form.watch("currency")
+
+  async function handleCurrencyChange(currency: string) {
+    form.setValue("currency", currency)
+    if (currency === baseCurrency) return
+    setFetchingRate(true)
+    try { await getExchangeRate(currency, baseCurrency) } catch { /* ignore */ }
+    finally { setFetchingRate(false) }
+  }
 
   const watchInterval = form.watch("interval")
 
@@ -173,6 +191,7 @@ export function RecurringModal({ template, open, onOpenChange }: RecurringModalP
       icon:         values.icon || "Repeat",
       description:  values.description,
       amount:       values.amount,
+      currency:     values.currency,
       category:     values.category,
       type:         values.type,
       account_id:   values.account_id,
@@ -235,6 +254,26 @@ export function RecurringModal({ template, open, onOpenChange }: RecurringModalP
                   </FormItem>
                 )}
               />
+
+              {/* ── Currency selector ───────────────────────────────────────── */}
+              <div className="flex items-center justify-center gap-2">
+                <Select value={watchCurrency} onValueChange={handleCurrencyChange}>
+                  <SelectTrigger className="h-7 w-28 text-xs bg-background/40 border-border/60 rounded-lg px-2">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SUPPORTED_CURRENCIES.map(c => (
+                      <SelectItem key={c} value={c} className="text-xs">
+                        <span className="flex items-center gap-1.5">
+                          <img src={getFlagUrl(c)} alt={c} className="w-4 h-auto rounded-sm shrink-0" />
+                          {c}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {fetchingRate && <Loader2 size={12} className="animate-spin text-muted-foreground" />}
+              </div>
 
               {/* ── Type toggle ──────────────────────────────────────────────── */}
               <FormField

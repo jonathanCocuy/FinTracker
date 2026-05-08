@@ -8,9 +8,11 @@ import { TransactionModal } from "@/src/components/dashboard/transaction-modal"
 import { createColumns } from "@/src/components/dashboard/columns"
 import { Input } from "@/src/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/select"
-import { Search } from "lucide-react"
+import { Search, Upload } from "lucide-react"
 import type { DashboardTransaction, TransactionsPageData } from "@/src/lib/data"
 import { ExportMenu } from "@/src/components/dashboard/export-menu"
+import { ImportModal } from "@/src/components/dashboard/import-modal"
+import { Button } from "@/src/components/ui/button"
 
 export function TransactionsShell({ data }: { data: TransactionsPageData }) {
   const { t, locale } = useI18n()
@@ -21,6 +23,7 @@ export function TransactionsShell({ data }: { data: TransactionsPageData }) {
   const [monthFilter, setMonthFilter] = useState("all")
   const [accountFilter, setAccountFilter] = useState("all")
   const [editingTransaction, setEditingTransaction] = useState<DashboardTransaction | null>(null)
+  const [importOpen, setImportOpen] = useState(false)
 
   const months = useMemo(() => {
     const seen = new Set<string>()
@@ -64,7 +67,18 @@ export function TransactionsShell({ data }: { data: TransactionsPageData }) {
       <div className="flex flex-col gap-6 w-full">
         <div className="flex items-center justify-between px-2">
           <h1 className="text-2xl font-bold">{t("history.title")}</h1>
-          <ExportMenu transactions={filtered} />
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setImportOpen(true)}
+              className="h-9 gap-2 rounded-xl border-border/40 bg-muted/30 text-xs font-semibold"
+            >
+              <Upload size={14} />
+              {t("import.button")}
+            </Button>
+            <ExportMenu transactions={filtered} />
+          </div>
         </div>
 
         {/* Filters */}
@@ -141,6 +155,12 @@ export function TransactionsShell({ data }: { data: TransactionsPageData }) {
           onOpenChange={open => { if (!open) setEditingTransaction(null) }}
         />
       )}
+
+      <ImportModal
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        accounts={data.accounts}
+      />
     </div>
   )
 }

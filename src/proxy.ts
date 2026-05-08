@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 const PUBLIC_ROUTES = ['/login', '/register', '/auth/reset-password']
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   let response = NextResponse.next({
     request: { headers: request.headers },
@@ -34,7 +34,6 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Sin sesión → solo puede estar en rutas públicas
   if (!user) {
     if (!PUBLIC_ROUTES.includes(pathname)) {
       return NextResponse.redirect(new URL('/login', request.url))
@@ -42,7 +41,6 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
-  // Con sesión → redirigir fuera de rutas de auth
   const onboardingCompleted = user.user_metadata?.onboarding_completed === true
 
   if (!onboardingCompleted && pathname !== '/onboarding') {

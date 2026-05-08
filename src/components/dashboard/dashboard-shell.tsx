@@ -4,7 +4,6 @@ import { useState } from "react"
 import { useI18n } from "@/src/lib/i18n"
 import { KpiGrid, type KpiItem } from "./kpi-cards"
 import { CategoryDonut } from "./category-donut"
-import { IncomeExpenseChart } from "./income-expense-chart"
 import { MonthStats } from "./month-stats"
 import { createColumns } from "./columns"
 import { TransactionTable } from "./transaction-table"
@@ -17,9 +16,11 @@ import Link from "next/link"
 import { Navbar } from "@/src/components/navbar"
 import { AccountModal } from "@/src/components/dashboard/account-modal"
 import { ExportMenu } from "@/src/components/dashboard/export-menu"
+import { HistoricalTrends } from "@/src/components/dashboard/historical-trends"
 import { Progress } from "@/src/components/ui/progress"
 import type { DashboardData, DashboardTransaction } from "@/src/lib/data"
 import { cn } from "@/src/lib/utils"
+import { TrmBadge } from "@/src/components/dashboard/trm-badge"
 
 export function DashboardShell({ data }: { data: DashboardData }) {
   const { t, locale } = useI18n()
@@ -34,6 +35,7 @@ export function DashboardShell({ data }: { data: DashboardData }) {
   const hasAccounts = data.accounts.length > 0
 
   const firstName = data.profile?.full_name?.split(" ")[0] || "..."
+  const baseCurrency = data.profile?.base_currency ?? 'COP'
 
   const kpis: KpiItem[] = [
     {
@@ -42,6 +44,7 @@ export function DashboardShell({ data }: { data: DashboardData }) {
       previousValue: data.prevTotalBalance,
       subtitle: t("dashboard.vsPreviousMonth"),
       color: "default",
+      currencyCode: baseCurrency,
     },
     {
       label: t("kpis.incomeMonth"),
@@ -49,6 +52,7 @@ export function DashboardShell({ data }: { data: DashboardData }) {
       previousValue: data.prevMonthIncome,
       subtitle: t("dashboard.vsPreviousMonth"),
       color: "income",
+      currencyCode: baseCurrency,
     },
     {
       label: t("kpis.expensesMonth"),
@@ -56,6 +60,7 @@ export function DashboardShell({ data }: { data: DashboardData }) {
       previousValue: data.prevMonthExpenses,
       subtitle: t("dashboard.vsPreviousMonth"),
       color: "expense",
+      currencyCode: baseCurrency,
     },
     {
       label: t("kpis.savingsGoal"),
@@ -63,30 +68,9 @@ export function DashboardShell({ data }: { data: DashboardData }) {
       previousValue: data.prevMonthIncome - data.prevMonthExpenses,
       subtitle: t("dashboard.vsPreviousMonth"),
       color: "savings",
+      currencyCode: baseCurrency,
     },
   ]
-
-  const dateLocale = locale === "en" ? "en-US" : "es-CO"
-
-  const incomeVsExpensesWeekly = data.incomeVsExpensesWeekly.map(({ period, ingresos, gastos }) => ({
-    label: new Date(period + "T00:00:00Z").toLocaleDateString(dateLocale, {
-      weekday: "short",
-      day: "numeric",
-      timeZone: "UTC",
-    }),
-    ingresos,
-    gastos,
-  }))
-
-  const incomeVsExpensesMonthly = data.incomeVsExpensesMonthly.map(({ period, ingresos, gastos }) => ({
-    label: new Date(period + "T00:00:00Z").toLocaleDateString(dateLocale, {
-      month: "short",
-      year: "2-digit",
-      timeZone: "UTC",
-    }),
-    ingresos,
-    gastos,
-  }))
 
   const donutData = data.donutData.map(({ category, value }) => {
     const cat = data.categories.find(c => c.name === category)
@@ -103,7 +87,10 @@ export function DashboardShell({ data }: { data: DashboardData }) {
     <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">
       <Navbar />
       <div className="flex flex-col gap-4 justify-center items-left p-4 w-full max-w-7xl mx-auto">
-        <h1 className="text-2xl font-bold">{t("dashboard.welcome")}, {firstName}</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">{t("dashboard.welcome")}, {firstName}</h1>
+          <TrmBadge baseCurrency={baseCurrency} />
+        </div>
       </div>
 
       <KpiGrid data={kpis} className="grid grid-cols-2 md:grid-cols-4 w-full gap-4" />
@@ -142,22 +129,15 @@ export function DashboardShell({ data }: { data: DashboardData }) {
 
       ) : (
         <>
-          {/* Income vs Expenses Chart */}
+          {/* Historical Trends */}
           <div className="w-full flex flex-col gap-4">
             <div className="w-full flex flex-col gap-2 mt-4 px-2">
               <p className="text-[14px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
-                {t("dashboard.incomeVsExpensesChart")}
+                {t("trends.title")}
               </p>
               <div className="h-1 w-full bg-linear-to-r from-border/50 via-border to-transparent" />
             </div>
-            <IncomeExpenseChart
-              weeklyData={incomeVsExpensesWeekly}
-              monthlyData={incomeVsExpensesMonthly}
-              labelIncome={t("transactionModal.income")}
-              labelExpense={t("transactionModal.expense")}
-              labelWeekly={t("dashboard.weekly")}
-              labelMonthly={t("dashboard.monthly")}
-            />
+            <HistoricalTrends data={data.incomeVsExpensesMonthly} />
           </div>
 
           {/* Donut + Recent Transactions */}

@@ -8,6 +8,8 @@ interface ProfileData {
   full_name: string;
   avatar_url: string;
   email: string;
+  email_notifications: boolean;
+  base_currency: string;
 }
 
 export function useProfile() {
@@ -30,7 +32,7 @@ export function useProfile() {
         // 2. Traemos los datos adicionales de la tabla pública 'profiles'
         const { data: dbProfile, error: dbError } = await supabase
           .from("profiles")
-          .select("full_name, avatar_url")
+          .select("full_name, avatar_url, email_notifications, base_currency")
           .eq("id", user.id)
           .single();
 
@@ -42,7 +44,9 @@ export function useProfile() {
         setProfile({
           full_name: dbProfile?.full_name || "Usuario",
           avatar_url: dbProfile?.avatar_url || "",
-          email: user.email || "", // El email siempre viene del objeto Auth
+          email: user.email || "",
+          email_notifications: dbProfile?.email_notifications ?? true,
+          base_currency: dbProfile?.base_currency ?? 'COP',
         });
 
       } catch (err) {

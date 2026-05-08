@@ -5,7 +5,7 @@ import { useI18n } from "@/src/lib/i18n"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { CalendarIcon, Plus } from "lucide-react"
+import { CalendarIcon, Plus, Loader2 } from "lucide-react"
 import { supabase } from "@/src/lib/supabase"
 import {
   createTransaction, updateTransaction, deleteTransaction,
@@ -13,6 +13,7 @@ import {
   fetchUserCategories,
 } from "@/src/lib/actions"
 import { CategoryModal } from "@/src/components/categories/category-modal"
+import { SUPPORTED_CURRENCIES, CURRENCY_INFO, getExchangeRate, getFlagUrl } from "@/src/lib/currency"
 
 import { Calendar } from "@/src/components/ui/calendar"
 import { Button } from "@/src/components/ui/button"
@@ -125,6 +126,9 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
   const [categories, setCategories] = useState<{ id: string; name: string; label: string; color: string }[]>([])
   const [categorySelectOpen, setCategorySelectOpen] = useState(false)
   const [categoryModalOpen, setCategoryModalOpen] = useState(false)
+  const [baseCurrency, setBaseCurrency] = useState('COP')
+  const [exchangeRate, setExchangeRate] = useState(1)
+  const [fetchingRate, setFetchingRate] = useState(false)
 
   const isEditMode = !!transaction
   const isControlled = externalOpen !== undefined
@@ -158,7 +162,18 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
     if (!open) return
     supabase.from('accounts').select('id, name').then(({ data }) => { if (data) setAccounts(data) })
     fetchUserCategories().then(cats => setCategories(cats))
-  }, [open])
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) return
+      const { data } = await supabase.from('profiles').select('base_currency').eq('id', user.id).single()
+      const base = data?.base_currency ?? 'COP'
+      setBaseCurrency(base)
+      if (transaction) {
+        setExchangeRate(transaction.exchange_rate ?? 1)
+      } else {
+        setExchangeRate(1)
+      }
+    })
+  }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const formSchema = z.object({
     icon: z.string(),
@@ -169,6 +184,7 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
     type: z.enum(["income", "expense", "transfer"]),
     date: z.date(),
     account: z.string().min(1, t("validation.selectAccount")),
+    currency: z.string().length(3),
   }).superRefine((data, ctx) => {
     if (data.type !== "transfer") {
       if (!data.category || data.category.length === 0) {
@@ -198,6 +214,7 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
     type: (tx?.type ?? "expense") as "income" | "expense" | "transfer",
     date: tx?.rawDate ? new Date(tx.rawDate) : new Date(),
     account: tx?.account_id ?? "",
+    currency: tx?.currency ?? baseCurrency,
   })
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -213,6 +230,20 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
 
   const watchType = form.watch("type")
   const watchAccount = form.watch("account")
+  const watchCurrency = form.watch("currency")
+  const watchAmount = form.watch("amount")
+
+  const handleCurrencyChange = async (currency: string) => {
+    form.setValue("currency", currency)
+    if (currency === baseCurrency) {
+      setExchangeRate(1)
+      return
+    }
+    setFetchingRate(true)
+    const rate = await getExchangeRate(currency, baseCurrency)
+    setExchangeRate(rate)
+    setFetchingRate(false)
+  }
 
   // Exclude origin account from destination options
   const destinationAccounts = accounts.filter(a => a.id !== watchAccount)
@@ -244,6 +275,8 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
         type: values.type,
         date: values.date.toISOString(),
         account_id: values.account,
+        currency: values.currency,
+        exchange_rate: String(exchangeRate),
       }
       result = isEditMode && transaction
         ? await updateTransaction(transaction.id, payload)
@@ -315,6 +348,29 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
                       className="h-14 text-3xl font-bold text-center bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0"
                     />
                   </FormControl>
+                  <div className="flex items-center justify-center gap-2 pt-0.5">
+                    <Select value={watchCurrency} onValueChange={handleCurrencyChange}>
+                      <SelectTrigger className="h-7 w-28 text-xs bg-background/40 border-border/60 px-2">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {SUPPORTED_CURRENCIES.map(c => (
+                          <SelectItem key={c} value={c} className="text-xs">
+                            <span className="flex items-center gap-1.5">
+                              <img src={getFlagUrl(c)} alt={c} className="w-4 h-auto rounded-sm shrink-0" />
+                              {c}
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {fetchingRate && <Loader2 size={12} className="animate-spin text-muted-foreground" />}
+                    {watchCurrency !== baseCurrency && exchangeRate !== 1 && watchAmount && (
+                      <span className="text-[10px] text-muted-foreground tabular-nums">
+                        ≈ {new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(parseFloat(watchAmount || '0') * exchangeRate)} {baseCurrency}
+                      </span>
+                    )}
+                  </div>
                   <FormMessage className="text-[10px]" />
                 </FormItem>
               )}

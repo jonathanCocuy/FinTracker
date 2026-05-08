@@ -10,6 +10,7 @@ import { Switch } from "@/src/components/ui/switch"
 import { RecurringModal } from "@/src/components/recurring/recurring-modal"
 import { toggleRecurringTemplate } from "@/src/lib/actions"
 import type { RecurringTemplate, RecurringPageData, DashboardAccount, UserCategory } from "@/src/lib/data"
+import { formatCurrency } from "@/src/lib/currency"
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -57,9 +58,7 @@ function RecurringCard({
 
   const accountName = accounts.find(a => a.id === template.account_id)?.name ?? "—"
 
-  const formatted = new Intl.NumberFormat("es-CO", {
-    style: "currency", currency: "COP", maximumFractionDigits: 0,
-  }).format(template.amount)
+  const formatted = formatCurrency(template.amount, template.currency ?? "COP")
 
   async function handleToggle(checked: boolean) {
     setActive(checked)

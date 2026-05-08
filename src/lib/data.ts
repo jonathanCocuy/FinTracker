@@ -20,8 +20,7 @@ const DEFAULT_CATEGORIES: Omit<UserCategory, 'id'>[] = [
 
 export async function getCategories(): Promise<UserCategory[]> {
   const supabase = await createSupabaseServer()
-  const { data: { session } } = await supabase.auth.getSession()
-  const user = session?.user
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) return []
 
   const { data } = await supabase
@@ -64,6 +63,8 @@ export type DashboardTransaction = {
   type: 'income' | 'expense' | 'transfer'
   account_id: string
   destination_account_id: string | null
+  currency: string
+  exchange_rate: number
 }
 
 export type IncomeExpensePoint = {
@@ -88,7 +89,7 @@ export type SavingsGoal = {
 }
 
 export type DashboardData = {
-  profile: { full_name: string } | null
+  profile: { full_name: string; base_currency: string } | null
   accounts: DashboardAccount[]
   totalBalance: number
   prevTotalBalance: number
@@ -142,14 +143,13 @@ export type BudgetAlert = {
 
 export async function getTransactionsData(): Promise<TransactionsPageData> {
   const supabase = await createSupabaseServer()
-  const { data: { session } } = await supabase.auth.getSession()
-  const user = session?.user
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { transactions: [], accounts: [] }
 
   const [txRes, accountsRes] = await Promise.all([
     supabase
       .from('transactions')
-      .select('id, description, amount, category, type, date, account_id, destination_account_id, icon')
+      .select('id, description, amount, currency, exchange_rate, category, type, date, account_id, destination_account_id, icon')
       .eq('user_id', user.id)
       .order('date', { ascending: false }),
     supabase
@@ -169,6 +169,8 @@ export async function getTransactionsData(): Promise<TransactionsPageData> {
     type: tx.type as 'income' | 'expense' | 'transfer',
     account_id: tx.account_id,
     destination_account_id: tx.destination_account_id ?? null,
+    currency: tx.currency ?? 'COP',
+    exchange_rate: tx.exchange_rate ?? 1,
   }))
 
   return { transactions, accounts: accountsRes.data ?? [] }
@@ -176,8 +178,7 @@ export async function getTransactionsData(): Promise<TransactionsPageData> {
 
 export async function getDashboardData(): Promise<DashboardData> {
   const supabase = await createSupabaseServer()
-  const { data: { session } } = await supabase.auth.getSession()
-  const user = session?.user
+  const { data: { user } } = await supabase.auth.getUser()
 
   const empty: DashboardData = {
     profile: null,
@@ -215,7 +216,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   const [profileRes, accountsRes, currentTxRes, prevTxRes, chartTxRes, budgetsRes, goalsRes, categoriesRes] = await Promise.all([
     supabase
       .from('profiles')
-      .select('full_name')
+      .select('full_name, base_currency')
       .eq('id', user.id)
       .single(),
     supabase
@@ -224,19 +225,19 @@ export async function getDashboardData(): Promise<DashboardData> {
       .eq('user_id', user.id),
     supabase
       .from('transactions')
-      .select('id, description, amount, category, type, date, account_id, destination_account_id, icon')
+      .select('id, description, amount, currency, exchange_rate, category, type, date, account_id, destination_account_id, icon')
       .eq('user_id', user.id)
       .gte('date', startOfCurrentMonth)
       .order('date', { ascending: false }),
     supabase
       .from('transactions')
-      .select('amount, type, category')
+      .select('amount, type, category, exchange_rate')
       .eq('user_id', user.id)
       .gte('date', startOfPrevMonth)
       .lte('date', endOfPrevMonth),
     supabase
       .from('transactions')
-      .select('date, amount, type')
+      .select('date, amount, type, exchange_rate')
       .eq('user_id', user.id)
       .gte('date', sixMonthsAgo)
       .order('date', { ascending: true }),
@@ -278,17 +279,17 @@ export async function getDashboardData(): Promise<DashboardData> {
 
   const currentMonthIncome = currentTx
     .filter(t => t.type === 'income')
-    .reduce((s, t) => s + t.amount, 0)
+    .reduce((s, t) => s + t.amount * (t.exchange_rate ?? 1), 0)
   const currentMonthExpenses = currentTx
     .filter(t => t.type === 'expense')
-    .reduce((s, t) => s + t.amount, 0)
+    .reduce((s, t) => s + t.amount * (t.exchange_rate ?? 1), 0)
 
   const prevMonthIncome = prevTx
     .filter(t => t.type === 'income')
-    .reduce((s, t) => s + t.amount, 0)
+    .reduce((s, t) => s + t.amount * (t.exchange_rate ?? 1), 0)
   const prevMonthExpenses = prevTx
     .filter(t => t.type === 'expense')
-    .reduce((s, t) => s + t.amount, 0)
+    .reduce((s, t) => s + t.amount * (t.exchange_rate ?? 1), 0)
   // Transfers are excluded from income/expense totals — they are internal movements.
 
   // Estimate last month's ending balance
@@ -309,6 +310,8 @@ export async function getDashboardData(): Promise<DashboardData> {
     type: tx.type as 'income' | 'expense' | 'transfer',
     account_id: tx.account_id,
     destination_account_id: (tx as { destination_account_id?: string | null }).destination_account_id ?? null,
+    currency: (tx as { currency?: string }).currency ?? 'COP',
+    exchange_rate: (tx as { exchange_rate?: number }).exchange_rate ?? 1,
   }))
 
   // Bar chart: expenses per weekday for the current week (Mon–Sun)
@@ -324,7 +327,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     .forEach(tx => {
       const d = new Date(tx.date + 'T00:00:00').getDay() // 0=Sun
       const idx = d === 0 ? 6 : d - 1
-      weekTotals[idx] += tx.amount
+      weekTotals[idx] += tx.amount * ((tx as { exchange_rate?: number }).exchange_rate ?? 1)
     })
 
   const barChartData = weekTotals.map((value, dayIndex) => ({ dayIndex, value }))
@@ -334,7 +337,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   currentTx
     .filter(tx => tx.type === 'expense')
     .forEach(tx => {
-      catTotals[tx.category] = (catTotals[tx.category] ?? 0) + tx.amount
+      catTotals[tx.category] = (catTotals[tx.category] ?? 0) + tx.amount * ((tx as { exchange_rate?: number }).exchange_rate ?? 1)
     })
 
   const donutData = Object.entries(catTotals)
@@ -371,8 +374,9 @@ export async function getDashboardData(): Promise<DashboardData> {
     const day = tx.date.substring(0, 10)
     const entry = weeklyMap.get(day)
     if (entry) {
-      if (tx.type === 'income') entry.ingresos += tx.amount
-      else entry.gastos += tx.amount
+      const converted = tx.amount * (tx.exchange_rate ?? 1)
+      if (tx.type === 'income') entry.ingresos += converted
+      else entry.gastos += converted
     }
   })
   const incomeVsExpensesWeekly = Array.from(weeklyMap.entries())
@@ -389,8 +393,9 @@ export async function getDashboardData(): Promise<DashboardData> {
     const monthKey = tx.date.substring(0, 7) + '-01'
     const entry = monthlyMap.get(monthKey)
     if (entry) {
-      if (tx.type === 'income') entry.ingresos += tx.amount
-      else entry.gastos += tx.amount
+      const converted = tx.amount * (tx.exchange_rate ?? 1)
+      if (tx.type === 'income') entry.ingresos += converted
+      else entry.gastos += converted
     }
   })
   const incomeVsExpensesMonthly = Array.from(monthlyMap.entries())
@@ -402,7 +407,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     .filter(tx => tx.type === 'expense')
     .forEach(tx => {
       const day = tx.date.substring(0, 10)
-      dailyTotals.set(day, (dailyTotals.get(day) ?? 0) + tx.amount)
+      dailyTotals.set(day, (dailyTotals.get(day) ?? 0) + tx.amount * ((tx as { exchange_rate?: number }).exchange_rate ?? 1))
     })
   let topSpendingDay: { date: string; total: number } | null = null
   dailyTotals.forEach((total, date) => {
@@ -415,11 +420,11 @@ export async function getDashboardData(): Promise<DashboardData> {
   const prevCatMap = new Map<string, number>()
   prevTx
     .filter(tx => tx.type === 'expense')
-    .forEach(tx => { prevCatMap.set(tx.category, (prevCatMap.get(tx.category) ?? 0) + tx.amount) })
+    .forEach(tx => { prevCatMap.set(tx.category, (prevCatMap.get(tx.category) ?? 0) + tx.amount * (tx.exchange_rate ?? 1)) })
   const currCatMap = new Map<string, number>()
   currentTx
     .filter(tx => tx.type === 'expense')
-    .forEach(tx => { currCatMap.set(tx.category, (currCatMap.get(tx.category) ?? 0) + tx.amount) })
+    .forEach(tx => { currCatMap.set(tx.category, (currCatMap.get(tx.category) ?? 0) + tx.amount * ((tx as { exchange_rate?: number }).exchange_rate ?? 1)) })
   let topGrowthCategory: { category: string; growth: number } | null = null
   currCatMap.forEach((curr, cat) => {
     const growth = curr - (prevCatMap.get(cat) ?? 0)
@@ -453,8 +458,7 @@ export async function getDashboardData(): Promise<DashboardData> {
 
 export async function getBudgetsData(): Promise<BudgetsPageData> {
   const supabase = await createSupabaseServer()
-  const { data: { session } } = await supabase.auth.getSession()
-  const user = session?.user
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { budgets: [], categories: [] }
 
   const now = new Date()
@@ -469,7 +473,7 @@ export async function getBudgetsData(): Promise<BudgetsPageData> {
       .order('category'),
     supabase
       .from('transactions')
-      .select('category, amount')
+      .select('category, amount, exchange_rate')
       .eq('user_id', user.id)
       .eq('type', 'expense')
       .gte('date', startOfCurrentMonth),
@@ -482,7 +486,7 @@ export async function getBudgetsData(): Promise<BudgetsPageData> {
 
   const spentByCategory: Record<string, number> = {}
   for (const tx of txRes.data ?? []) {
-    spentByCategory[tx.category] = (spentByCategory[tx.category] ?? 0) + tx.amount
+    spentByCategory[tx.category] = (spentByCategory[tx.category] ?? 0) + tx.amount * (tx.exchange_rate ?? 1)
   }
 
   const budgets: BudgetWithProgress[] = (budgetsRes.data ?? []).map(b => {
@@ -539,6 +543,7 @@ export type RecurringTemplate = {
   last_generated_date: string | null
   is_active: boolean
   account_id: string
+  currency: string
 }
 
 export type RecurringPageData = {
@@ -549,14 +554,13 @@ export type RecurringPageData = {
 
 export async function getRecurringData(): Promise<RecurringPageData> {
   const supabase = await createSupabaseServer()
-  const { data: { session } } = await supabase.auth.getSession()
-  const user = session?.user
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { templates: [], accounts: [], categories: [] }
 
   const [templatesRes, accountsRes, categoriesRes] = await Promise.all([
     supabase
       .from('recurring_templates')
-      .select('id, description, icon, amount, category, type, interval, day_of_month, day_of_week, last_generated_date, is_active, account_id')
+      .select('id, description, icon, amount, currency, category, type, interval, day_of_month, day_of_week, last_generated_date, is_active, account_id')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false }),
     supabase
@@ -579,8 +583,7 @@ export async function getRecurringData(): Promise<RecurringPageData> {
 
 export async function getGoalsData(): Promise<SavingsGoal[]> {
   const supabase = await createSupabaseServer()
-  const { data: { session } } = await supabase.auth.getSession()
-  const user = session?.user
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) return []
 
   const res = await supabase

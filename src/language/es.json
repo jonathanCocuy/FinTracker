@@ -197,6 +197,14 @@
       "twoFactorTitle": "Autenticación de dos pasos",
       "twoFactorDescription": "Añade una capa extra de seguridad."
     },
+    "notifications": {
+      "title": "Notificaciones",
+      "emailAlertsTitle": "Alertas de presupuesto por correo",
+      "emailAlertsDescription": "Recibe un aviso cuando alcances el 80% o 100% de un presupuesto.",
+      "triggersTitle": "Cuándo recibirás alertas",
+      "trigger80": "Al 80% de un presupuesto — aviso de advertencia",
+      "trigger100": "Al 100% — presupuesto superado"
+    },
     "preferences": {
       "title": "Personalización",
       "darkModeTitle": "Modo Oscuro",
@@ -347,6 +355,32 @@
     "widgetEmptyDescription": "Crea presupuestos para controlar tus gastos por categoría.",
     "widgetEmptyCta": "Crear presupuesto"
   },
+  "import": {
+    "title": "Importar desde CSV",
+    "button": "Importar",
+    "dropzone": "Arrastra tu archivo CSV aquí o haz clic para seleccionar",
+    "dropHere": "Suelta el archivo aquí",
+    "csvOnly": "Solo archivos .csv",
+    "continue": "Continuar",
+    "selectColumn": "Seleccionar columna",
+    "noColumn": "Sin columna",
+    "field": {
+      "date": "Fecha",
+      "amount": "Monto",
+      "description": "Descripción",
+      "type": "Tipo (opcional)"
+    },
+    "found": "transacciones encontradas",
+    "invalidRows": "filas inválidas omitidas",
+    "duplicatesNote": "Los duplicados se detectarán y omitirán automáticamente.",
+    "import": "Importar",
+    "importing": "Importando...",
+    "transactions": "transacciones",
+    "imported": "transacciones importadas",
+    "skipped": "omitidas como duplicadas",
+    "close": "Cerrar",
+    "more": "más"
+  },
   "export": {
     "button": "Exportar",
     "toExcel": "Exportar a Excel (.xlsx)",
@@ -388,6 +422,28 @@
     "empty": "Sin transacciones recurrentes",
     "emptyDescription": "Programa suscripciones, el arriendo o tu salario y la app los registrará automáticamente.",
     "descriptionPlaceholder": "Ej. Netflix, Arriendo, Salario..."
+  },
+  "trends": {
+    "title": "Tendencias",
+    "subtitle": "Resumen financiero de 6 meses",
+    "incomeChange": "Ingresos",
+    "expenseChange": "Gastos",
+    "avgSavingsRate": "Tasa de Ahorro Prom.",
+    "vsLastMonth": "vs mes anterior",
+    "last6Months": "últimos 6 meses",
+    "incomeVsExpenses": "Ingresos vs Gastos",
+    "cumulativeSavings": "Ahorro Acumulado"
+  },
+  "currency": {
+    "baseCurrency": "Moneda Base",
+    "transactionCurrency": "Moneda",
+    "trmTitle": "Tasa de Cambio",
+    "COP": "Peso Colombiano",
+    "USD": "Dólar Estadounidense",
+    "GBP": "Libra Esterlina",
+    "EUR": "Euro",
+    "MXN": "Peso Mexicano",
+    "BRL": "Real Brasileño"
   },
   "goals": {
     "title": "Metas de Ahorro",

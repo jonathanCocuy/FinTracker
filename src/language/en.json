@@ -215,6 +215,14 @@
       "twoFactorTitle": "Two-factor authentication",
       "twoFactorDescription": "Add an extra layer of security."
     },
+    "notifications": {
+      "title": "Notifications",
+      "emailAlertsTitle": "Budget alerts by email",
+      "emailAlertsDescription": "Get notified when you reach 80% or 100% of a budget.",
+      "triggersTitle": "When you'll be notified",
+      "trigger80": "At 80% of a budget — warning alert",
+      "trigger100": "At 100% — budget exceeded"
+    },
     "preferences": {
       "title": "Personalization",
       "darkModeTitle": "Dark Mode",
@@ -365,6 +373,32 @@
     "widgetEmptyDescription": "Create budgets to track your spending by category.",
     "widgetEmptyCta": "Create budget"
   },
+  "import": {
+    "title": "Import from CSV",
+    "button": "Import",
+    "dropzone": "Drag your CSV file here or click to select",
+    "dropHere": "Drop the file here",
+    "csvOnly": "CSV files only",
+    "continue": "Continue",
+    "selectColumn": "Select column",
+    "noColumn": "No column",
+    "field": {
+      "date": "Date",
+      "amount": "Amount",
+      "description": "Description",
+      "type": "Type (optional)"
+    },
+    "found": "transactions found",
+    "invalidRows": "invalid rows skipped",
+    "duplicatesNote": "Duplicates will be detected and skipped automatically.",
+    "import": "Import",
+    "importing": "Importing...",
+    "transactions": "transactions",
+    "imported": "transactions imported",
+    "skipped": "skipped as duplicates",
+    "close": "Close",
+    "more": "more"
+  },
   "export": {
     "button": "Export",
     "toExcel": "Export to Excel (.xlsx)",
@@ -388,6 +422,28 @@
     "friday": "Friday",
     "saturday": "Saturday",
     "sunday": "Sunday"
+  },
+  "trends": {
+    "title": "Trends",
+    "subtitle": "6-month financial overview",
+    "incomeChange": "Income",
+    "expenseChange": "Expenses",
+    "avgSavingsRate": "Avg. Savings Rate",
+    "vsLastMonth": "vs last month",
+    "last6Months": "last 6 months",
+    "incomeVsExpenses": "Income vs Expenses",
+    "cumulativeSavings": "Cumulative Savings"
+  },
+  "currency": {
+    "baseCurrency": "Base Currency",
+    "transactionCurrency": "Currency",
+    "trmTitle": "Exchange Rate",
+    "COP": "Colombian Peso",
+    "USD": "US Dollar",
+    "GBP": "British Pound",
+    "EUR": "Euro",
+    "MXN": "Mexican Peso",
+    "BRL": "Brazilian Real"
   },
   "goals": {
     "title": "Savings Goals",

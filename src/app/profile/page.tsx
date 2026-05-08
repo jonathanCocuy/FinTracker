@@ -10,11 +10,19 @@ import { Label } from "@/src/components/ui/label"
 import { Switch } from "@/src/components/ui/switch"
 import { Separator } from "@/src/components/ui/separator"
 import { ChangePasswordModal } from "@/src/components/auth/change-password"
-import { User, ShieldCheck, Crown, Loader2, Camera } from "lucide-react"
+import { User, ShieldCheck, Crown, Loader2, Camera, Bell } from "lucide-react"
 import { useI18n } from "@/src/lib/i18n"
 import { ForgotPasswordModal } from "@/src/components/auth/forgot-password"
 import { supabase } from "@/src/lib/supabase"
 import { useProfile } from "@/src/hooks/useProfile"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/src/components/ui/select"
+import { SUPPORTED_CURRENCIES, CURRENCY_INFO, getFlagUrl } from "@/src/lib/currency"
 // IMPORTACIÓN CORREGIDA: Cada uno viene de su respectivo archivo
 import { MfaUnenrollModal } from "@/src/components/auth/mfa-enrollment-modal"
 import dynamic from "next/dynamic"
@@ -33,9 +41,12 @@ export default function ProfilePage() {
   const [isMfaEnrollOpen, setIsMfaEnrollOpen] = useState(false);
   const [isMfaUnenrollOpen, setIsMfaUnenrollOpen] = useState(false);
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
-  const [isStatusLoading, setIsStatusLoading] = useState(true);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [emailNotificationsOverride, setEmailNotificationsOverride] = useState<boolean | null>(null);
+  const emailNotifications = emailNotificationsOverride !== null ? emailNotificationsOverride : (profile?.email_notifications ?? true);
+  const [baseCurrencyOverride, setBaseCurrencyOverride] = useState<string | null>(null);
+  const baseCurrency = baseCurrencyOverride !== null ? baseCurrencyOverride : (profile?.base_currency ?? 'COP');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -49,12 +60,24 @@ export default function ProfilePage() {
         }
       } catch (err) {
         console.error("Error checking MFA status:", err);
-      } finally {
-        setIsStatusLoading(false);
       }
     };
     checkMFAStatus();
   }, []);
+
+  const handleToggleEmailNotifications = async (checked: boolean) => {
+    setEmailNotificationsOverride(checked);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    await supabase.from('profiles').update({ email_notifications: checked }).eq('id', user.id);
+  };
+
+  const handleBaseCurrencyChange = async (currency: string) => {
+    setBaseCurrencyOverride(currency);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    await supabase.from('profiles').update({ base_currency: currency }).eq('id', user.id);
+  };
 
   const handleToggle2FA = (checked: boolean) => {
     if (checked) {
@@ -103,7 +126,7 @@ export default function ProfilePage() {
     return name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "JP";
   };
 
-  if (!hasMounted || profileLoading || isStatusLoading) {
+  if (!hasMounted || profileLoading) {
     return (
       <div className="h-screen w-full flex items-center justify-center bg-black">
         <Loader2 className="animate-spin text-primary" size={40} />
@@ -180,30 +203,50 @@ export default function ProfilePage() {
           </div>
         </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-3 space-y-6">
-            <Card className="border-white/5 bg-zinc-900/30 rounded-[28px]">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg text-white font-black">
-                  <User size={18} className="text-primary" />
-                  {t("profile.personalInfo.title")}
-                </CardTitle>
-                <CardDescription>{t("profile.personalInfo.description")}</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-zinc-400 px-1">{t("common.fullName")}</Label>
-                    <Input defaultValue={profile?.full_name} className="bg-zinc-950 border-white/5 rounded-2xl h-12" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-zinc-400 px-1">{t("common.email")}</Label>
-                    <Input disabled defaultValue={profile?.email} className="bg-zinc-950/50 border-white/5 opacity-50 rounded-2xl h-12" />
-                  </div>
+        <div className="space-y-6">
+          <Card className="border-white/5 bg-zinc-900/30 rounded-[28px]">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg text-white font-black">
+                <User size={18} className="text-primary" />
+                {t("profile.personalInfo.title")}
+              </CardTitle>
+              <CardDescription>{t("profile.personalInfo.description")}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-zinc-400 px-1">{t("common.fullName")}</Label>
+                  <Input defaultValue={profile?.full_name} className="bg-zinc-950 border-white/5 rounded-2xl h-12" />
                 </div>
-              </CardContent>
-            </Card>
+                <div className="space-y-2">
+                  <Label className="text-zinc-400 px-1">{t("common.email")}</Label>
+                  <Input disabled defaultValue={profile?.email} className="bg-zinc-950/50 border-white/5 opacity-50 rounded-2xl h-12" />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                <div className="space-y-2">
+                  <Label className="text-zinc-400 px-1">{t("currency.baseCurrency")}</Label>
+                  <Select value={baseCurrency} onValueChange={handleBaseCurrencyChange}>
+                    <SelectTrigger className="bg-zinc-950 border-white/5 rounded-2xl h-12">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SUPPORTED_CURRENCIES.map(c => (
+                        <SelectItem key={c} value={c}>
+                          <span className="flex items-center gap-2">
+                            <img src={getFlagUrl(c)} alt={c} className="w-5 h-auto rounded-sm shrink-0" />
+                            {c} — {t(`currency.${c}`)}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card className="border-white/5 bg-zinc-900/30 rounded-[28px]">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg text-white font-black">
@@ -214,20 +257,45 @@ export default function ProfilePage() {
               <CardContent className="space-y-6">
                 <div className="flex flex-col sm:flex-row gap-3">
                   <ChangePasswordModal />
-                  <ForgotPasswordModal /> 
+                  <ForgotPasswordModal />
                 </div>
-                
                 <Separator className="bg-white/5" />
-                
                 <div className="flex items-center justify-between p-5 rounded-3xl bg-white/5 border border-white/5">
                   <div className="space-y-1">
                     <p className="text-sm font-bold text-white">{t("profile.security.twoFactorTitle")}</p>
                     <p className="text-[11px] text-zinc-500">{t("profile.security.twoFactorDescription")}</p>
                   </div>
-                  <Switch 
-                    checked={is2FAEnabled}
-                    onCheckedChange={handleToggle2FA}
-                  />
+                  <Switch checked={is2FAEnabled} onCheckedChange={handleToggle2FA} />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-white/5 bg-zinc-900/30 rounded-[28px]">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg text-white font-black">
+                  <Bell size={18} className="text-primary" />
+                  {t("profile.notifications.title")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between p-5 rounded-3xl bg-white/5 border border-white/5">
+                  <div className="space-y-1">
+                    <p className="text-sm font-bold text-white">{t("profile.notifications.emailAlertsTitle")}</p>
+                  </div>
+                  <Switch checked={emailNotifications} onCheckedChange={handleToggleEmailNotifications} />
+                </div>
+                <div className="px-1 space-y-2">
+                  <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wide">{t("profile.notifications.triggersTitle")}</p>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
+                      <span className="text-[12px] text-zinc-400">{t("profile.notifications.trigger80")}</span>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <span className="h-2 w-2 rounded-full bg-rose-500 shrink-0" />
+                      <span className="text-[12px] text-zinc-400">{t("profile.notifications.trigger100")}</span>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -258,4 +326,4 @@ export default function ProfilePage() {
       </main>
     </div>
   )
-}
+} 

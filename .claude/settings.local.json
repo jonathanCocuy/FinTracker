@@ -6,7 +6,9 @@
       "Bash(npx tsc *)",
       "Bash(npm install *)",
       "Bash(npx shadcn@latest add alert-dialog --yes)",
-      "Bash(node *)"
+      "Bash(node *)",
+      "Bash(Get-ChildItem -Path \"D:\\\\Repositories\\\\fin-tracker\" -Recurse -Depth 2)",
+      "Bash(Select-Object -Property FullName)"
     ]
   }
 }
