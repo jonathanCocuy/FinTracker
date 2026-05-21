@@ -200,7 +200,7 @@
     "badges": {
       "premium": "Premium"
     },
-    "role": "Software Developer & Football Coach",
+    "memberSince": "Member since",
     "personalInfo": {
       "title": "Personal Information",
       "description": "Manage your basic FinTracker data.",

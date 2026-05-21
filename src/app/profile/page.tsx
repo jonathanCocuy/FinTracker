@@ -22,10 +22,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/src/components/ui/select"
-import { SUPPORTED_CURRENCIES, CURRENCY_INFO, getFlagUrl } from "@/src/lib/currency"
+import { SUPPORTED_CURRENCIES, getFlagUrl } from "@/src/lib/currency"
 // IMPORTACIÓN CORREGIDA: Cada uno viene de su respectivo archivo
 import { MfaUnenrollModal } from "@/src/components/auth/mfa-enrollment-modal"
 import dynamic from "next/dynamic"
+import Image from 'next/image'
 
 // Importación dinámica para el de activación (enrollment)
 const MfaEnrollComponent = dynamic(
@@ -34,7 +35,7 @@ const MfaEnrollComponent = dynamic(
 )
 
 export default function ProfilePage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { profile, loading: profileLoading } = useProfile();
 
   const [hasMounted, setHasMounted] = useState(false);
@@ -155,39 +156,46 @@ export default function ProfilePage() {
       
       <main className="container max-w-5xl mx-auto p-4 md:p-8 space-y-8">
         <section className="relative overflow-hidden rounded-[32px] border border-white/5 bg-zinc-900/50 p-8 md:p-12 backdrop-blur-md">
+          {/* Decorative background glows */}
+          <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[#6366f1]/10 blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-12 right-1/4 w-56 h-56 rounded-full bg-[#a78bfa]/8 blur-3xl pointer-events-none" />
+
           <div className="absolute top-0 right-0 p-6">
-             <Badge className="bg-primary/20 text-primary border-primary/30 gap-1 px-3 py-1">
-               <Crown size={14} /> {t("profile.badges.premium")}
-             </Badge>
+            <Badge className="bg-primary/20 text-primary border-primary/30 gap-1 px-3 py-1">
+              <Crown size={14} /> {t("profile.badges.premium")}
+            </Badge>
           </div>
-          
-          <div className="flex flex-col md:flex-row items-center gap-8">
+
+          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-10">
+            {/* Avatar with gradient ring */}
             <div className="relative group shrink-0">
-              <button
-                type="button"
-                onClick={() => !uploading && fileInputRef.current?.click()}
-                className="relative rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                aria-label={t("profile.personalInfo.changePhoto")}
-              >
-                <Avatar className="h-28 w-28 border-4 border-zinc-950 shadow-2xl">
-                  <AvatarImage src={avatarUrl ?? profile?.avatar_url ?? ""} />
-                  <AvatarFallback className="bg-linear-to-br from-primary to-purple-600 text-3xl font-black text-black">
-                    {getInitials(profile?.full_name || "")}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="absolute inset-0 rounded-full bg-black/60 flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  {uploading ? (
-                    <Loader2 size={20} className="animate-spin text-white" />
-                  ) : (
-                    <>
-                      <Camera size={18} className="text-white" />
-                      <span className="text-[10px] font-semibold text-white leading-none">
-                        {t("profile.personalInfo.changePhoto")}
-                      </span>
-                    </>
-                  )}
-                </div>
-              </button>
+              <div className="p-[3px] rounded-full bg-linear-to-br from-[#6366f1] via-[#8b5cf6] to-[#a78bfa] shadow-2xl shadow-[#6366f1]/30">
+                <button
+                  type="button"
+                  onClick={() => !uploading && fileInputRef.current?.click()}
+                  className="relative block rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+                  aria-label={t("profile.personalInfo.changePhoto")}
+                >
+                  <Avatar className="h-28 w-28 border-2 border-zinc-900">
+                    <AvatarImage src={avatarUrl ?? profile?.avatar_url ?? ""} />
+                    <AvatarFallback className="bg-linear-to-br from-[#6366f1] to-[#a78bfa] text-3xl font-black text-white">
+                      {getInitials(profile?.full_name || "")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="absolute inset-0 rounded-full bg-black/60 flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {uploading ? (
+                      <Loader2 size={20} className="animate-spin text-white" />
+                    ) : (
+                      <>
+                        <Camera size={18} className="text-white" />
+                        <span className="text-[10px] font-semibold text-white leading-none">
+                          {t("profile.personalInfo.changePhoto")}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </button>
+              </div>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -197,8 +205,23 @@ export default function ProfilePage() {
               />
             </div>
 
-            <div className="flex flex-col text-center md:text-left space-y-2">
-              <h1 className="text-4xl font-black tracking-tight text-white">{profile?.full_name}</h1>
+            {/* Name & info */}
+            <div className="flex flex-col text-center md:text-left gap-0.5">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                {profile?.email}
+              </p>
+              <h1 className="text-4xl font-black leading-none tracking-tight bg-linear-to-r from-[#6366f1] via-[#8b5cf6] to-[#a78bfa] bg-clip-text text-transparent mt-1">
+                {profile?.full_name}
+              </h1>
+              {profile?.created_at && (
+                <p className="text-sm text-zinc-500 mt-2">
+                  {t("profile.memberSince")}{" "}
+                  {new Date(profile.created_at).toLocaleDateString(
+                    locale === "en" ? "en-US" : "es-CO",
+                    { month: "long", year: "numeric" }
+                  )}
+                </p>
+              )}
             </div>
           </div>
         </section>
@@ -234,7 +257,7 @@ export default function ProfilePage() {
                       {SUPPORTED_CURRENCIES.map(c => (
                         <SelectItem key={c} value={c}>
                           <span className="flex items-center gap-2">
-                            <img src={getFlagUrl(c)} alt={c} className="w-5 h-auto rounded-sm shrink-0" />
+                            <Image src={getFlagUrl(c)} alt={c} className="w-5 h-auto rounded-sm shrink-0" width={50} height={50}/>
                             {c} — {t(`currency.${c}`)}
                           </span>
                         </SelectItem>

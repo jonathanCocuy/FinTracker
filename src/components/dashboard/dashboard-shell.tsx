@@ -36,6 +36,12 @@ export function DashboardShell({ data }: { data: DashboardData }) {
 
   const firstName = data.profile?.full_name?.split(" ")[0] || "..."
   const baseCurrency = data.profile?.base_currency ?? 'COP'
+  const dateLocale = locale === "en" ? "en-US" : "es-CO"
+  const formattedDate = new Date().toLocaleDateString(dateLocale, {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  })
 
   const kpis: KpiItem[] = [
     {
@@ -86,11 +92,19 @@ export function DashboardShell({ data }: { data: DashboardData }) {
   return (
     <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">
       <Navbar />
-      <div className="flex flex-col gap-4 justify-center items-left p-4 w-full max-w-7xl mx-auto">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">{t("dashboard.welcome")}, {firstName}</h1>
-          <TrmBadge baseCurrency={baseCurrency} />
+      <div className="flex items-end justify-between w-full px-2 pt-2">
+        <div className="flex flex-col gap-0.5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/50">
+            {t("dashboard.welcome")}
+          </p>
+          <h1 className="text-4xl font-black leading-none tracking-tight bg-gradient-to-r from-[#6366f1] via-[#8b5cf6] to-[#a78bfa] bg-clip-text text-transparent">
+            {firstName}
+          </h1>
+          <p className="text-[11px] text-muted-foreground/50 capitalize mt-1">
+            {formattedDate}
+          </p>
         </div>
+        <TrmBadge baseCurrency={baseCurrency} />
       </div>
 
       <KpiGrid data={kpis} className="grid grid-cols-2 md:grid-cols-4 w-full gap-4" />

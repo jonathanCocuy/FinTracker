@@ -10,6 +10,7 @@ interface ProfileData {
   email: string;
   email_notifications: boolean;
   base_currency: string;
+  created_at: string;
 }
 
 export function useProfile() {
@@ -47,6 +48,7 @@ export function useProfile() {
           email: user.email || "",
           email_notifications: dbProfile?.email_notifications ?? true,
           base_currency: dbProfile?.base_currency ?? 'COP',
+          created_at: user.created_at ?? "",
         });
 
       } catch (err) {

@@ -182,20 +182,12 @@ function StatPill({
   invertColors?: boolean
   vsLabel: string
 }) {
-  if (change === null) {
-    return (
-      <div className="rounded-xl bg-card border border-border/50 p-3 flex flex-col gap-0.5">
-        <span className="text-[11px] text-muted-foreground">{label}</span>
-        <span className="text-xl font-bold text-muted-foreground leading-tight">—</span>
-        <span className="text-[10px] text-muted-foreground/50">{vsLabel}</span>
-      </div>
-    )
-  }
+  const value = change ?? 0
 
-  const isGood = invertColors ? change <= 0 : change >= 0
-  const Icon = Math.abs(change) < 0.05 ? Minus : change > 0 ? TrendingUp : TrendingDown
+  const isGood = invertColors ? value <= 0 : value >= 0
+  const Icon = Math.abs(value) < 0.05 ? Minus : value > 0 ? TrendingUp : TrendingDown
   const colorClass =
-    Math.abs(change) < 0.05 ? "text-muted-foreground" : isGood ? "text-emerald-500" : "text-rose-500"
+    Math.abs(value) < 0.05 ? "text-muted-foreground" : isGood ? "text-emerald-500" : "text-rose-500"
 
   return (
     <div className="rounded-xl bg-card border border-border/50 p-3 flex flex-col gap-0.5">
@@ -203,8 +195,8 @@ function StatPill({
       <div className={`flex items-center gap-1 leading-tight ${colorClass}`}>
         <Icon size={14} />
         <span className="text-xl font-bold tabular-nums">
-          {change > 0 ? "+" : ""}
-          {change.toFixed(1)}%
+          {value > 0 ? "+" : ""}
+          {value.toFixed(1)}%
         </span>
       </div>
       <span className="text-[10px] text-muted-foreground/50">{vsLabel}</span>
