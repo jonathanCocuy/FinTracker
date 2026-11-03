@@ -15,7 +15,7 @@ import { Input } from "@/src/components/ui/input";
 import { Button } from "@/src/components/ui/button";
 import { Label } from "@/src/components/ui/label";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/src/components/ui/card";
-import { Camera } from "lucide-react";
+import { Camera, CheckCircle2 } from "lucide-react";
 import Image from "next/image";
 
 export default function RegisterPage() {
@@ -23,6 +23,9 @@ export default function RegisterPage() {
   const router = useRouter();
   const registerSchema = createRegisterSchema(t)
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState<"uploading" | "creating" | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isRegistered, setIsRegistered] = useState(false);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
@@ -50,10 +53,12 @@ export default function RegisterPage() {
 
   const onSubmit = async (data: RegisterSchema) => {
     setIsLoading(true);
+    setErrorMessage(null);
     let avatarUrl = "";
 
     try {
       if (avatarFile) {
+        setLoadingStep("uploading");
         const fileExt = avatarFile.name.split('.').pop();
         const fileName = `${Math.random()}.${fileExt}`;
         const filePath = `${fileName}`;
@@ -68,6 +73,7 @@ export default function RegisterPage() {
         avatarUrl = urlData.publicUrl;
       }
 
+      setLoadingStep("creating");
       const { error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -82,13 +88,42 @@ export default function RegisterPage() {
 
       if (signUpError) throw signUpError;
 
-      router.push("/onboarding");
-    } catch (error) {
-      console.log(error);
+      setIsRegistered(true);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
+      setErrorMessage(msg);
     } finally {
       setIsLoading(false);
+      setLoadingStep(null);
     }
   };
+
+  if (isRegistered) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-8 h-screen">
+        <div className="flex items-center gap-2 font-bold text-2xl md:text-3xl tracking-tighter">
+          <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center shrink-0">
+            <PiggyBank className="h-6 w-6 text-black" fill="black" />
+          </div>
+          <span>FinTracker</span>
+        </div>
+        <Card className="w-full min-w-sm max-w-sm">
+          <CardHeader>
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10 mb-2">
+              <CheckCircle2 className="text-emerald-500" size={26} />
+            </div>
+            <CardTitle className="text-xl font-bold">{t("auth.register.successTitle") || "Check your inbox"}</CardTitle>
+            <CardDescription>{t("auth.register.successDescription") || "We sent a confirmation link to your email. Click it to activate your account."}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="outline" size="lg" className="w-full cursor-pointer" onClick={() => router.push("/login")}>
+              {t("auth.login.submit") || "Back to login"}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center justify-center gap-8 h-screen">
@@ -154,8 +189,19 @@ export default function RegisterPage() {
               {form.formState.errors.confirm_password?.message && <p className="text-sm text-red-500 pl-2 pt-1">{form.formState.errors.confirm_password?.message}</p>}
             </div>
 
+            {errorMessage && (
+              <p className="text-sm text-red-500 text-center font-bold bg-red-500/10 p-2 rounded-lg border border-red-500/20">
+                {errorMessage}
+              </p>
+            )}
+
             <Button type="submit" variant="default" size="lg" className="cursor-pointer" disabled={isLoading}>
-              {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : t("auth.register.submit")}
+              {isLoading ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  {loadingStep === "uploading" ? (t("auth.register.uploadingAvatar") || "Uploading photo…") : (t("auth.register.creatingAccount") || "Creating account…")}
+                </span>
+              ) : t("auth.register.submit")}
             </Button>
           </form>
         </CardContent>

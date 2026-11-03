@@ -14,10 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/src/components/ui/form"
 import { Input } from "@/src/components/ui/input"
 
-// 1. Props que recibe el componente desde la página
-interface ResetPasswordModalProps {
-  forcedLang?: string | null;
-}
+interface ResetPasswordModalProps {}
 
 // 2. Esquema de Zod para el formulario
 const createResetSchema = (t: any) => z
@@ -33,13 +30,13 @@ const createResetSchema = (t: any) => z
 // Tipo inferido de Zod para el formulario
 type ResetFormData = z.infer<ReturnType<typeof createResetSchema>>;
 
-export function ResetPasswordModal({ forcedLang }: ResetPasswordModalProps) {
+export function ResetPasswordModal({}: ResetPasswordModalProps) {
   const { t } = useI18n()
-  void forcedLang
   const router = useRouter()
   const [isLoading, setIsLoading] = React.useState(false)
   const [isSuccess, setIsSuccess] = React.useState(false)
   const [showPassword, setShowPassword] = React.useState(false)
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null)
 
   // Memorizamos el esquema para que no se recree innecesariamente
   const resetSchema = React.useMemo(() => createResetSchema(t), [t]);
@@ -51,25 +48,20 @@ export function ResetPasswordModal({ forcedLang }: ResetPasswordModalProps) {
 
   async function onSubmit(values: ResetFormData) {
     setIsLoading(true)
-    
+    setErrorMessage(null)
+
     const { error } = await supabase.auth.updateUser({
       password: values.password
     })
-  
+
     if (error) {
-      alert(error.message)
+      setErrorMessage(error.message)
       setIsLoading(false)
     } else {
       setIsSuccess(true)
       setIsLoading(false)
-
-      const channel = new BroadcastChannel('fintracker_auth');
-      channel.postMessage('password_updated_successfully');
-      channel.close();
-  
       setTimeout(() => {
-        window.close();
-        router.push("/profile"); 
+        router.push("/profile");
       }, 1500)
     }
   }
@@ -143,8 +135,14 @@ export function ResetPasswordModal({ forcedLang }: ResetPasswordModalProps) {
                   )}
                 />
 
-                <Button 
-                  type="submit" 
+                {errorMessage && (
+                  <p className="text-sm text-red-500 text-center font-bold bg-red-500/10 p-2 rounded-lg border border-red-500/20">
+                    {errorMessage}
+                  </p>
+                )}
+
+                <Button
+                  type="submit"
                   disabled={isLoading}
                   className="w-full bg-white text-black hover:bg-zinc-200 rounded-xl font-bold py-6 mt-2 cursor-pointer transition-all active:scale-95"
                 >

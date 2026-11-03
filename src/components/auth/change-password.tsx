@@ -26,6 +26,8 @@ export function ChangePasswordModal() {
   const [isLoading, setIsLoading] = React.useState(false)
   const [showOld, setShowOld] = React.useState(false)
   const [showNew, setShowNew] = React.useState(false)
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null)
+  const [isSuccess, setIsSuccess] = React.useState(false)
 
 
   const passwordSchema = React.useMemo(
@@ -54,6 +56,7 @@ export function ChangePasswordModal() {
 
   async function onSubmit(values: PasswordFormValues) {
     setIsLoading(true);
+    setErrorMessage(null);
     
     try {
       // 1. Obtener el correo del usuario actual para la re-autenticación
@@ -84,19 +87,20 @@ export function ChangePasswordModal() {
       });
   
       if (updateError) {
-        alert(updateError.message);
+        setErrorMessage(updateError.message);
         return;
       }
-  
-      // 4. Éxito total
-      setOpen(false);
+
+      setIsSuccess(true);
       form.reset();
-      // Aquí puedes añadir un toast de éxito si lo tienes configurado
-      console.log(t("changePassword.successLog"));
-  
+      setTimeout(() => {
+        setOpen(false);
+        setIsSuccess(false);
+      }, 1500);
+
     } catch (error) {
-      console.error("Error inesperado:", error);
-      alert(t("changePassword.validation.unexpectedError"));
+      const msg = error instanceof Error ? error.message : t("changePassword.validation.unexpectedError");
+      setErrorMessage(msg);
     } finally {
       setIsLoading(false);
     }
@@ -213,10 +217,22 @@ export function ChangePasswordModal() {
               )}
             />
 
+            {errorMessage && (
+              <p className="text-sm text-red-500 text-center font-bold bg-red-500/10 p-2 rounded-lg border border-red-500/20">
+                {errorMessage}
+              </p>
+            )}
+
+            {isSuccess && (
+              <p className="text-sm text-emerald-500 text-center font-bold bg-emerald-500/10 p-2 rounded-lg border border-emerald-500/20">
+                {t("changePassword.successLog")}
+              </p>
+            )}
+
             <DialogFooter className="pt-4">
-              <Button 
-                type="submit" 
-                disabled={isLoading}
+              <Button
+                type="submit"
+                disabled={isLoading || isSuccess}
                 className="w-full bg-white text-black hover:bg-zinc-200 rounded-xl font-bold py-6 cursor-pointer"
               >
                 {isLoading ? (

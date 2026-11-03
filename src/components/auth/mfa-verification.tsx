@@ -89,7 +89,7 @@ export function MfaVerification() {
       </form>
       
       <button 
-        onClick={() => window.location.reload()} 
+        onClick={() => router.push("/login")}
         className="flex items-center justify-center gap-2 w-full text-zinc-500 text-xs hover:text-white transition-colors"
       >
         <ArrowLeft size={14} />

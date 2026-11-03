@@ -12,25 +12,30 @@ export function ForgotPasswordModal() {
   const { t, locale } = useI18n()
   const [isLoading, setIsLoading] = React.useState(false)
   const [isSent, setIsSent] = React.useState(false)
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null)
 
   async function handleSendReset() {
     setIsLoading(true)
-    
-    // Obtenemos el usuario actual para saber a qué email enviar
+    setErrorMessage(null)
+
     const { data: { user } } = await supabase.auth.getUser()
 
-    if (user?.email) {
-      const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-        redirectTo: `${window.location.origin}/auth/reset-password?lang=${locale}`,
-      })
-
-      if (error) {
-        alert(error.message)
-      } else {
-        setIsSent(true)
-      }
+    if (!user?.email) {
+      setErrorMessage("No user session found.")
+      setIsLoading(false)
+      return
     }
-    
+
+    const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+      redirectTo: `${window.location.origin}/auth/reset-password?lang=${locale}`,
+    })
+
+    if (error) {
+      setErrorMessage(error.message)
+    } else {
+      setIsSent(true)
+    }
+
     setIsLoading(false)
   }
 
@@ -58,8 +63,14 @@ export function ForgotPasswordModal() {
               </DialogDescription>
             </div>
 
+            {errorMessage && (
+              <p className="text-sm text-red-500 text-center font-bold bg-red-500/10 p-2 rounded-lg border border-red-500/20">
+                {errorMessage}
+              </p>
+            )}
+
             <div className="flex flex-col gap-3 pt-2">
-              <Button 
+              <Button
                 onClick={handleSendReset}
                 disabled={isLoading}
                 className="w-full bg-white text-black hover:bg-zinc-200 rounded-xl font-bold py-6 cursor-pointer"

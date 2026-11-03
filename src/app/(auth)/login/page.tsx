@@ -71,7 +71,7 @@ export default function LoginPage() {
   // Si el login fue exitoso pero requiere código, mostramos la vista de verificación
   if (showMfa) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen bg-black p-4">
+      <div className="flex flex-col items-center justify-center h-screen p-4">
         <MfaVerification />
       </div>
     );
