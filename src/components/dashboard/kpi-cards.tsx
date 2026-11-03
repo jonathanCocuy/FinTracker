@@ -120,15 +120,15 @@ export function KpiCard({ item }: { item: KpiItem }) {
   const { label, value, previousValue, subtitle, prefix = "$", suffix = "", color = "default", currencyCode } = item
 
   return (
-    <div className="bg-muted/50 rounded-lg px-4 py-3.5 flex flex-col gap-1.5">
-      <p className="text-[11px] text-muted-foreground">{label}</p>
-      <p className={`text-lg font-medium leading-tight ${colorMap[color]}`}>
+    <div className="bg-muted/50 rounded-lg px-4 py-4 flex flex-col gap-2">
+      <p className="text-xs sm:text-sm font-aeonik-light text-muted-foreground">{label}</p>
+      <p className={`text-2xl sm:text-3xl font-aeonik-bold leading-tight ${colorMap[color]}`}>
         <AnimatedValue value={value} prefix={prefix} color={color} currencyCode={currencyCode} />
         {suffix}
       </p>
       <div className="flex items-center justify-between gap-2 min-h-[18px]">
         {subtitle && (
-          <p className="text-[9px] text-muted-foreground/60">{subtitle}</p>
+          <p className="text-[10px] sm:text-xs font-aeonik-light text-muted-foreground/60">{subtitle}</p>
         )}
         {previousValue !== undefined && (
           <TrendBadge value={value} prev={previousValue} />

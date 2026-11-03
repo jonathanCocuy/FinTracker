@@ -84,22 +84,22 @@ export default function LoginPage() {
       <div className="absolute top-4 right-4">
         <LanguageSwitcher />
       </div>
-      <div className="flex items-center gap-2 font-bold text-2xl md:text-3xl tracking-tighter">
+      <div className="flex items-center gap-2 text-2xl md:text-3xl tracking-tighter">
         <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center shrink-0">
           <PiggyBank className="h-6 w-6 text-black" fill="black" />
         </div>
-        <span>FinTracker</span>
+        <span className="font-aeonik-bold">FinTracker</span>
       </div>
       
       <Card className="w-full min-w-sm max-w-sm">
         <CardHeader>
-          <CardTitle className="text-xl font-bold">{t("auth.login.title")}</CardTitle>
-          <CardDescription className="text-sm text-muted-foreground">{t("auth.login.subtitle")}</CardDescription>
+          <CardTitle className="text-xl font-aeonik-bold">{t("auth.login.title")}</CardTitle>
+          <CardDescription className="text-sm font-aeonik-light text-muted-foreground">{t("auth.login.subtitle")}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-2">
             <div className="flex flex-col">
-              <Label htmlFor="email" className="text-sm pb-1 cursor-pointer">{t("common.email")}</Label>
+              <Label htmlFor="email" className="text-sm pb-1 cursor-pointer font-aeonik">{t("common.email")}</Label>
               {form.formState.errors.email?.message && <p className="text-sm text-red-500 pl-2 pb-1">{form.formState.errors.email?.message}</p>}
               <Input
                 id="email"
@@ -112,7 +112,7 @@ export default function LoginPage() {
             
             <div className="flex flex-col">
               <div className="flex justify-between pb-1">
-                <Label htmlFor="password" className="text-md cursor-pointer">{t("common.password")}</Label>
+                <Label htmlFor="password" className="text-md cursor-pointer font-aeonik">{t("common.password")}</Label>
                 <Button type="button" variant="link" size="lg" onClick={() => router.push("/forgot-password")} className="text-sm p-0 m-0 cursor-pointer">{t("auth.login.forgotPassword")}</Button>
               </div>
               {form.formState.errors.password?.message && <p className="text-sm text-red-500 pl-2 pb-1">{form.formState.errors.password?.message?.toString()}</p>}

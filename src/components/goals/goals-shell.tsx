@@ -50,8 +50,8 @@ export function GoalsShell({
 
       <div className="w-full flex items-start justify-between px-2">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-bold">{t("goals.title")}</h1>
-          <p className="text-sm text-muted-foreground">{t("goals.subtitle")}</p>
+          <h1 className="text-2xl font-aeonik-bold">{t("goals.title")}</h1>
+          <p className="text-sm font-aeonik-light text-muted-foreground">{t("goals.subtitle")}</p>
         </div>
         <Button
           onClick={() => setGoalModalOpen(true)}
@@ -69,8 +69,8 @@ export function GoalsShell({
             <Target size={28} className="text-muted-foreground" />
           </div>
           <div className="flex flex-col gap-1">
-            <p className="text-base font-bold">{t("goals.empty")}</p>
-            <p className="text-sm text-muted-foreground max-w-sm">{t("goals.emptyDescription")}</p>
+            <p className="text-base font-aeonik-bold">{t("goals.empty")}</p>
+            <p className="text-sm font-aeonik-light text-muted-foreground max-w-sm">{t("goals.emptyDescription")}</p>
           </div>
           <Button
             onClick={() => setGoalModalOpen(true)}

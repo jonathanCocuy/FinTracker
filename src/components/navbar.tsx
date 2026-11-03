@@ -44,11 +44,11 @@ export function Navbar() {
             <MobileNav />
           </div>
 
-          <Link href="/" className="flex items-center gap-2 font-bold text-lg md:text-xl tracking-tighter">
+          <Link href="/" className="flex items-center gap-2 text-lg md:text-xl tracking-tighter">
             <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center shrink-0">
               <PiggyBank className="h-4 w-4 text-black" fill="black" />
             </div>
-            <span className="hidden md:block">FinTracker</span>
+            <span className="hidden md:block font-aeonik-bold">FinTracker</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -128,8 +128,8 @@ export function Navbar() {
             <DropdownMenuContent align="end" className="w-56 mt-2 bg-background/95 backdrop-blur-xl border-border/40 rounded-xl shadow-xl">
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-bold leading-none">{profile?.full_name}</p>
-                  <p className="text-xs leading-none text-muted-foreground">{profile?.email}</p>
+                  <p className="text-sm font-bold leading-none font-aeonik-bold">{profile?.full_name}</p>
+                  <p className="text-xs leading-none text-muted-foreground font-aeonik-light">{profile?.email}</p>
                 </div>
               </DropdownMenuLabel>
               
@@ -187,7 +187,7 @@ function MobileNav() {
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white border border-border/50 shadow-sm">
               <PiggyBank className="h-4 w-4 text-black" fill="currentColor" />
             </div>
-            <span className="tracking-tighter font-bold text-xl">FinTracker</span>
+            <span className="tracking-tighter font-aeonik-bold text-xl">FinTracker</span>
           </SheetTitle>
         </div>
 
@@ -212,7 +212,7 @@ function MobileNav() {
                   )}>
                     <Icon size={18} />
                   </div>
-                  <span className="font-semibold text-sm">{label}</span>
+                  <span className="font-aeonik text-sm font-medium">{label}</span>
                 </Link>
               )
             })}
@@ -223,7 +223,7 @@ function MobileNav() {
           <div className="flex items-center justify-between bg-background/50 p-3 rounded-2xl border border-border/50">
             <div className="flex items-center gap-2">
               <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/70">
+              <span className="text-xs font-aeonik-bold uppercase tracking-wider text-muted-foreground/70">
                 {t("navbar.language")}
               </span>
             </div>

@@ -85,8 +85,8 @@ function RecurringCard({
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
-            <p className="font-semibold text-sm truncate">{template.description}</p>
-            <span className={`text-sm font-black shrink-0 tabular-nums ${
+            <p className="font-aeonik text-sm truncate">{template.description}</p>
+            <span className={`text-sm font-aeonik-bold shrink-0 tabular-nums ${
               template.type === "income" ? "text-emerald-400" : "text-rose-400"
             }`}>
               {template.type === "income" ? "+" : "−"} {formatted}
@@ -95,8 +95,8 @@ function RecurringCard({
 
           <div className="flex items-center justify-between mt-1 gap-2">
             <div className="min-w-0">
-              <p className="text-[11px] text-muted-foreground truncate">{intervalLabel(template)}</p>
-              <p className="text-[10px] text-muted-foreground/60 truncate">
+              <p className="text-[11px] font-aeonik-light text-muted-foreground truncate">{intervalLabel(template)}</p>
+              <p className="text-[10px] font-aeonik-light text-muted-foreground/60 truncate">
                 {accountName} · próxima {nextOccurrence(template)}
               </p>
             </div>
@@ -139,8 +139,8 @@ export function RecurringShell({ templates, accounts, categories }: RecurringPag
       {/* Header */}
       <div className="w-full flex items-start justify-between px-2">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-bold">{t("recurring.title")}</h1>
-          <p className="text-sm text-muted-foreground">{t("recurring.subtitle")}</p>
+          <h1 className="text-2xl font-aeonik-bold">{t("recurring.title")}</h1>
+          <p className="text-sm font-aeonik-light text-muted-foreground">{t("recurring.subtitle")}</p>
         </div>
         <Button
           onClick={() => setModalOpen(true)}
@@ -159,8 +159,8 @@ export function RecurringShell({ templates, accounts, categories }: RecurringPag
             <Repeat size={28} className="text-muted-foreground" />
           </div>
           <div className="flex flex-col gap-1">
-            <p className="text-base font-bold">{t("recurring.empty")}</p>
-            <p className="text-sm text-muted-foreground max-w-sm">{t("recurring.emptyDescription")}</p>
+            <p className="text-base font-aeonik-bold">{t("recurring.empty")}</p>
+            <p className="text-sm font-aeonik-light text-muted-foreground max-w-sm">{t("recurring.emptyDescription")}</p>
           </div>
           <Button onClick={() => setModalOpen(true)} size="sm" className="mt-2 rounded-xl">
             {t("recurring.addTemplate")}

@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/src/components/ui/dialog"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/src/components/ui/form"
-import { Input } from "@/src/components/ui/input"
+import { AmountInput } from "@/src/components/ui/amount-input"
 import { Button } from "@/src/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/select"
 import { upsertBudget } from "@/src/lib/actions"
@@ -141,11 +141,9 @@ export function BudgetModal({ open, onOpenChange, existingBudget, usedCategories
                     {t("budgets.limitLabel")}
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      type="number"
-                      min="1"
-                      step="1"
+                    <AmountInput
+                      value={field.value}
+                      onChange={field.onChange}
                       placeholder={t("budgets.limitPlaceholder")}
                       className="rounded-xl border-border/40 bg-muted/30 text-sm h-9"
                     />

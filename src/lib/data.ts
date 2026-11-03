@@ -49,6 +49,7 @@ export type DashboardAccount = {
   id: string
   name: string
   balance: number
+  initial_balance: number
   color: string
 }
 
@@ -154,7 +155,7 @@ export async function getTransactionsData(): Promise<TransactionsPageData> {
       .order('date', { ascending: false }),
     supabase
       .from('accounts')
-      .select('id, name, balance, color')
+      .select('id, name, balance, initial_balance, color')
       .eq('user_id', user.id),
   ])
 
@@ -221,7 +222,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       .single(),
     supabase
       .from('accounts')
-      .select('id, name, balance, color')
+      .select('id, name, balance, initial_balance, color')
       .eq('user_id', user.id),
     supabase
       .from('transactions')
@@ -565,7 +566,7 @@ export async function getRecurringData(): Promise<RecurringPageData> {
       .order('created_at', { ascending: false }),
     supabase
       .from('accounts')
-      .select('id, name, balance, color')
+      .select('id, name, balance, initial_balance, color')
       .eq('user_id', user.id),
     supabase
       .from('categories')

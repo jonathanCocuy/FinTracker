@@ -194,11 +194,13 @@ export async function createAccount(
   if (!user) return { error: 'Not authenticated' }
 
   const { name, balance, color } = parsed.data
+  const balanceNum = parseFloat(balance)
 
   const { error } = await supabase.from('accounts').insert({
     user_id: user.id,
     name,
-    balance: parseFloat(balance),
+    balance: balanceNum,
+    initial_balance: balanceNum,
     color,
   })
 
@@ -212,7 +214,7 @@ export async function createAccount(
 
 const updateAccountSchema = z.object({
   name: z.string().min(2),
-  balance: z.string().min(1),
+  initial_balance: z.string().min(1),
   color: z.string().min(1),
 })
 
@@ -227,9 +229,28 @@ export async function updateAccount(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
 
+  // Fetch current account to recalculate balance preserving net transactions
+  const { data: current, error: fetchError } = await supabase
+    .from('accounts')
+    .select('balance, initial_balance')
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .single()
+
+  if (fetchError || !current) return { error: 'Account not found' }
+
+  const newInitial = parseFloat(parsed.data.initial_balance)
+  const netTransactions = (current.balance ?? 0) - (current.initial_balance ?? 0)
+  const newBalance = newInitial + netTransactions
+
   const { error } = await supabase
     .from('accounts')
-    .update({ name: parsed.data.name, balance: parseFloat(parsed.data.balance), color: parsed.data.color })
+    .update({
+      name: parsed.data.name,
+      color: parsed.data.color,
+      initial_balance: newInitial,
+      balance: newBalance,
+    })
     .eq('id', id)
     .eq('user_id', user.id)
 

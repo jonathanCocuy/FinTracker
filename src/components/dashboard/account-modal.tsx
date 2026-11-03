@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { useI18n } from "@/src/lib/i18n"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -24,6 +24,7 @@ import {
   FormMessage,
 } from "@/src/components/ui/form"
 import { Input } from "@/src/components/ui/input"
+import { AmountInput } from "@/src/components/ui/amount-input"
 import { createAccount, updateAccount, deleteAccount } from "@/src/lib/actions"
 
 // ─── Color palette (class stored in DB, hex used only for display) ────────────
@@ -40,66 +41,12 @@ const ACCOUNT_COLORS = [
   { class: "bg-cyan-500",    hex: "#06b6d4" },
 ]
 
-// ─── Formatted amount input (es-CO: 1.000.000) ────────────────────────────────
-const amountFormatter = new Intl.NumberFormat("es-CO", {
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 2,
-})
-
-function AmountInput({
-  value,
-  onChange,
-  ...props
-}: {
-  value: string
-  onChange: (v: string) => void
-} & Omit<React.ComponentProps<"input">, "value" | "onChange" | "type">) {
-  const [raw, setRaw] = useState(value)
-  const [isFocused, setIsFocused] = useState(false)
-
-  React.useEffect(() => {
-    if (!isFocused) setRaw(value)
-  }, [value, isFocused])
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = e.target.value.replace(/[^\d.,]/g, "")
-    setRaw(v)
-    const numStr = v.replace(/\./g, "").replace(",", ".")
-    onChange(numStr || "")
-  }
-
-  const handleBlur = () => {
-    setIsFocused(false)
-    if (raw) {
-      const num = parseFloat(raw.replace(/\./g, "").replace(",", ".")) || 0
-      onChange(String(num))
-    }
-  }
-
-  const displayValue = isFocused
-    ? raw
-    : value
-      ? amountFormatter.format(parseFloat(value) || 0)
-      : ""
-
-  return (
-    <Input
-      type="text"
-      inputMode="decimal"
-      value={displayValue}
-      onChange={handleChange}
-      onFocus={() => setIsFocused(true)}
-      onBlur={handleBlur}
-      {...props}
-    />
-  )
-}
-
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface AccountData {
   id: string
   name: string
   balance: number
+  initial_balance: number
   color: string
 }
 
@@ -165,7 +112,7 @@ export function AccountModal({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: account?.name ?? "",
-      balance: account ? String(account.balance) : "",
+      balance: account ? String(account.initial_balance) : "",
       color: account?.color ?? "",
     },
   })
@@ -175,7 +122,7 @@ export function AccountModal({
     if (open) {
       form.reset({
         name: account?.name ?? "",
-        balance: account ? String(account.balance) : "",
+        balance: account ? String(account.initial_balance) : "",
         color: account?.color ?? "",
       })
     }
@@ -186,7 +133,7 @@ export function AccountModal({
     clearSubmitError()
 
     const result = isEditMode && account
-      ? await updateAccount(account.id, values)
+      ? await updateAccount(account.id, { name: values.name, initial_balance: values.balance, color: values.color })
       : await createAccount(values)
 
     setIsSubmitting(false)

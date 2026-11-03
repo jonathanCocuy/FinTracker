@@ -31,8 +31,8 @@ export function CategoriesShell({ categories }: { categories: UserCategory[] }) 
       <div className="flex flex-col gap-6 w-full">
         <div className="flex items-start justify-between px-2">
           <div className="flex flex-col gap-1">
-            <h1 className="text-2xl font-bold">{t("categoriesPage.title")}</h1>
-            <p className="text-sm text-muted-foreground">{t("categoriesPage.subtitle")}</p>
+            <h1 className="text-2xl font-aeonik-bold">{t("categoriesPage.title")}</h1>
+            <p className="text-sm font-aeonik-light text-muted-foreground">{t("categoriesPage.subtitle")}</p>
           </div>
           <Button onClick={openCreate} size="sm" className="rounded-xl gap-1.5 shrink-0 mt-1">
             <Plus size={14} />
@@ -46,8 +46,8 @@ export function CategoriesShell({ categories }: { categories: UserCategory[] }) 
               <Tag size={28} className="text-muted-foreground" />
             </div>
             <div className="flex flex-col gap-1">
-              <p className="text-base font-bold">{t("categoriesPage.empty")}</p>
-              <p className="text-sm text-muted-foreground max-w-sm">{t("categoriesPage.emptyDescription")}</p>
+              <p className="text-base font-aeonik-bold">{t("categoriesPage.empty")}</p>
+              <p className="text-sm font-aeonik-light text-muted-foreground max-w-sm">{t("categoriesPage.emptyDescription")}</p>
             </div>
             <Button onClick={openCreate} className="mt-2 rounded-xl px-6 font-semibold">
               <Plus size={14} className="mr-1.5" />

@@ -1,12 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { useForm } from "react-hook-form"
+import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/src/components/ui/dialog"
 import { Button } from "@/src/components/ui/button"
-import { Input } from "@/src/components/ui/input"
+import { AmountInput } from "@/src/components/ui/amount-input"
 import { Label } from "@/src/components/ui/label"
 import { Switch } from "@/src/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/select"
@@ -43,6 +43,7 @@ export function ContributeModal({
     watch,
     setValue,
     reset,
+    control,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(contributeSchema),
@@ -95,13 +96,18 @@ export function ContributeModal({
             <Label htmlFor="amount">{t("common.amount")}</Label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
-              <Input
-                id="amount"
-                type="number"
-                step="0.01"
-                placeholder="0.00"
-                {...register("amount")}
-                className="pl-7 rounded-xl bg-muted/50 font-medium text-lg h-12"
+              <Controller
+                name="amount"
+                control={control}
+                render={({ field }) => (
+                  <AmountInput
+                    id="amount"
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="0"
+                    className="pl-7 rounded-xl bg-muted/50 font-medium text-lg h-12"
+                  />
+                )}
               />
             </div>
             {errors.amount && <span className="text-xs text-rose-500">{t(errors.amount.message as Parameters<typeof t>[0])}</span>}

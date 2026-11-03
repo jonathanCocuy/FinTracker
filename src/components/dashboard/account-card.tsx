@@ -45,6 +45,7 @@ interface Account {
   id: string
   name: string
   balance: number
+  initial_balance: number
   color: string
 }
 

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { useI18n } from "@/src/lib/i18n"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -41,51 +41,7 @@ import { IconPicker } from "@/src/components/ui/icon-picker"
 import { Trash2, Plus, Loader2 } from "lucide-react"
 import type { RecurringTemplate } from "@/src/lib/data"
 import { SUPPORTED_CURRENCIES, getExchangeRate, getFlagUrl } from "@/src/lib/currency"
-
-// ─── Amount input (same locale logic as transaction modal) ────────────────────
-const amountFormatter = new Intl.NumberFormat("es-CO", {
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 2,
-})
-
-function AmountInput({
-  value,
-  onChange,
-  ...props
-}: {
-  value: string
-  onChange: (v: string) => void
-} & Omit<React.ComponentProps<"input">, "value" | "onChange" | "type">) {
-  const [raw, setRaw] = useState(value)
-  const [focused, setFocused] = useState(false)
-
-  useEffect(() => { if (!focused) setRaw(value) }, [value, focused])
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = e.target.value.replace(/[^\d.,]/g, "")
-    setRaw(v)
-    onChange(v.replace(/\./g, "").replace(",", ".") || "")
-  }
-  const handleBlur = () => {
-    setFocused(false)
-    if (raw) {
-      const n = parseFloat(raw.replace(/\./g, "").replace(",", ".")) || 0
-      onChange(String(n))
-    }
-  }
-
-  return (
-    <Input
-      type="text"
-      inputMode="decimal"
-      value={focused ? raw : value ? amountFormatter.format(parseFloat(value) || 0) : ""}
-      onChange={handleChange}
-      onFocus={() => setFocused(true)}
-      onBlur={handleBlur}
-      {...props}
-    />
-  )
-}
+import { AmountInput } from "@/src/components/ui/amount-input"
 
 // ─── Week-day pill config (Mon-first display, JS day value) ───────────────────
 const WEEKDAYS = [

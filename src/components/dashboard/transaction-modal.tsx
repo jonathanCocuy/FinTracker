@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { useI18n } from "@/src/lib/i18n"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -48,62 +48,7 @@ import {
 import { IconPicker } from "@/src/components/ui/icon-picker"
 import { Trash2 } from "lucide-react"
 import type { DashboardTransaction } from "@/src/lib/data"
-
-
-// ─── Formatted number input (es-CO: 1.000.000) ────────────────────────────────
-const amountFormatter = new Intl.NumberFormat("es-CO", {
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 2,
-})
-
-function AmountInput({
-  value,
-  onChange,
-  ...props
-}: {
-  value: string
-  onChange: (v: string) => void
-} & Omit<React.ComponentProps<"input">, "value" | "onChange" | "type">) {
-  const [raw, setRaw] = useState(value)
-  const [isFocused, setIsFocused] = useState(false)
-
-  React.useEffect(() => {
-    if (!isFocused) setRaw(value)
-  }, [value, isFocused])
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = e.target.value.replace(/[^\d.,]/g, "")
-    setRaw(v)
-    const numStr = v.replace(/\./g, "").replace(",", ".")
-    onChange(numStr || "")
-  }
-
-  const handleBlur = () => {
-    setIsFocused(false)
-    if (raw) {
-      const num = parseFloat(raw.replace(/\./g, "").replace(",", ".")) || 0
-      onChange(String(num))
-    }
-  }
-
-  const displayValue = isFocused
-    ? raw
-    : value
-      ? amountFormatter.format(parseFloat(value) || 0)
-      : ""
-
-  return (
-    <Input
-      type="text"
-      inputMode="decimal"
-      value={displayValue}
-      onChange={handleChange}
-      onFocus={() => setIsFocused(true)}
-      onBlur={handleBlur}
-      {...props}
-    />
-  )
-}
+import { AmountInput } from "@/src/components/ui/amount-input"
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 interface TransactionModalProps {

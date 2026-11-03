@@ -66,7 +66,7 @@ export function TransactionsShell({ data }: { data: TransactionsPageData }) {
 
       <div className="flex flex-col gap-6 w-full">
         <div className="flex items-center justify-between px-2">
-          <h1 className="text-2xl font-bold">{t("history.title")}</h1>
+          <h1 className="text-2xl font-aeonik-bold">{t("history.title")}</h1>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"

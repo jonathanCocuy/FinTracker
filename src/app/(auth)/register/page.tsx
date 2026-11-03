@@ -94,19 +94,19 @@ export default function RegisterPage() {
         <div className="absolute top-4 right-4">
           <LanguageSwitcher />
         </div>
-        <div className="flex items-center gap-2 font-bold text-2xl md:text-3xl tracking-tighter">
+        <div className="flex items-center gap-2 text-2xl md:text-3xl tracking-tighter">
           <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center shrink-0">
             <PiggyBank className="h-6 w-6 text-black" fill="black" />
           </div>
-          <span>FinTracker</span>
+          <span className="font-aeonik-bold">FinTracker</span>
         </div>
         <Card className="w-full min-w-sm max-w-sm">
           <CardHeader>
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10 mb-2">
               <CheckCircle2 className="text-emerald-500" size={26} />
             </div>
-            <CardTitle className="text-xl font-bold">{t("auth.register.successTitle") || "Check your inbox"}</CardTitle>
-            <CardDescription>{t("auth.register.successDescription") || "We sent a confirmation link to your email. Click it to activate your account."}</CardDescription>
+            <CardTitle className="text-xl font-aeonik-bold">{t("auth.register.successTitle") || "Check your inbox"}</CardTitle>
+            <CardDescription className="font-aeonik-light">{t("auth.register.successDescription") || "We sent a confirmation link to your email. Click it to activate your account."}</CardDescription>
           </CardHeader>
           <CardContent>
             <Button variant="outline" size="lg" className="w-full cursor-pointer" onClick={() => router.push("/login")}>
@@ -123,16 +123,16 @@ export default function RegisterPage() {
       <div className="absolute top-4 right-4">
         <LanguageSwitcher />
       </div>
-      <div className="flex items-center gap-2 font-bold text-2xl md:text-3xl tracking-tighter">
+      <div className="flex items-center gap-2 text-2xl md:text-3xl tracking-tighter">
         <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center shrink-0">
           <PiggyBank className="h-6 w-6 text-black" fill="black" />
         </div>
-        <span>FinTracker</span>
+        <span className="font-aeonik-bold">FinTracker</span>
       </div>
       <Card className="w-full min-w-sm max-w-sm">
         <CardHeader>
-          <CardTitle className="text-xl font-bold">{t("auth.register.title")}</CardTitle>
-          <CardDescription className="text-sm text-muted-foreground">{t("auth.register.subtitle")}</CardDescription>
+          <CardTitle className="text-xl font-aeonik-bold">{t("auth.register.title")}</CardTitle>
+          <CardDescription className="text-sm font-aeonik-light text-muted-foreground">{t("auth.register.subtitle")}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-2">

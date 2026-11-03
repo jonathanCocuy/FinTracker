@@ -73,8 +73,8 @@ function BudgetCard({
             <CategoryIconDynamic cat={catInfo} size={16} overBudget={budget.isOverBudget} />
           </div>
           <div className="flex flex-col">
-            <span className="text-sm font-bold">{catInfo?.label ?? t(`categories.${budget.category}`)}</span>
-            <span className="text-xs text-muted-foreground">
+            <span className="text-sm font-aeonik-bold">{catInfo?.label ?? t(`categories.${budget.category}`)}</span>
+            <span className="text-xs font-aeonik-light text-muted-foreground">
               {fmtCurrency(budget.spent)} {t("budgets.spentOf")} {fmtCurrency(budget.monthly_limit)}
             </span>
           </div>
@@ -172,8 +172,8 @@ export function BudgetsShell({ data }: { data: BudgetsPageData }) {
         {/* Header */}
         <div className="flex items-start justify-between px-2">
           <div className="flex flex-col gap-1">
-            <h1 className="text-2xl font-bold">{t("budgets.title")}</h1>
-            <p className="text-sm text-muted-foreground">{t("budgets.subtitle")}</p>
+            <h1 className="text-2xl font-aeonik-bold">{t("budgets.title")}</h1>
+            <p className="text-sm font-aeonik-light text-muted-foreground">{t("budgets.subtitle")}</p>
           </div>
           {canAddMore && (
             <Button
@@ -194,8 +194,8 @@ export function BudgetsShell({ data }: { data: BudgetsPageData }) {
               <Target size={28} className="text-muted-foreground" />
             </div>
             <div className="flex flex-col gap-1">
-              <p className="text-base font-bold">{t("budgets.empty")}</p>
-              <p className="text-sm text-muted-foreground max-w-sm">{t("budgets.emptyDescription")}</p>
+              <p className="text-base font-aeonik-bold">{t("budgets.empty")}</p>
+              <p className="text-sm font-aeonik-light text-muted-foreground max-w-sm">{t("budgets.emptyDescription")}</p>
             </div>
             <Button
               onClick={() => setCreateOpen(true)}

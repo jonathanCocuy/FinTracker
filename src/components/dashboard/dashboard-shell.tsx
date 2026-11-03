@@ -94,13 +94,13 @@ export function DashboardShell({ data }: { data: DashboardData }) {
       <Navbar />
       <div className="flex items-end justify-between w-full px-2 pt-2">
         <div className="flex flex-col gap-0.5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/50">
+          <p className="text-[11px] font-aeonik-light uppercase tracking-[0.2em] text-muted-foreground/50">
             {t("dashboard.welcome")}
           </p>
-          <h1 className="text-4xl font-black leading-none tracking-tight bg-gradient-to-r from-[#6366f1] via-[#8b5cf6] to-[#a78bfa] bg-clip-text text-transparent">
+          <h1 className="text-4xl font-black leading-none tracking-tight bg-gradient-to-r from-[#6366f1] via-[#8b5cf6] to-[#a78bfa] bg-clip-text text-transparent font-aeonik-bold">
             {firstName}
           </h1>
-          <p className="text-[11px] text-muted-foreground/50 capitalize mt-1">
+          <p className="text-[11px] font-aeonik-light text-muted-foreground/50 capitalize mt-1">
             {formattedDate}
           </p>
         </div>
@@ -124,8 +124,8 @@ export function DashboardShell({ data }: { data: DashboardData }) {
               <Wallet size={28} className="text-muted-foreground" />
             </div>
             <div className="flex flex-col gap-1">
-              <p className="text-base font-bold">{t("dashboard.noAccountsTitle")}</p>
-              <p className="text-sm text-muted-foreground max-w-sm">{t("dashboard.noAccountsDescription")}</p>
+              <p className="text-base font-bold font-aeonik-bold">{t("dashboard.noAccountsTitle")}</p>
+              <p className="text-sm text-muted-foreground max-w-sm font-aeonik">{t("dashboard.noAccountsDescription")}</p>
             </div>
             <button
               onClick={() => setCreateAccountOpen(true)}
@@ -146,7 +146,7 @@ export function DashboardShell({ data }: { data: DashboardData }) {
           {/* Historical Trends */}
           <div className="w-full flex flex-col gap-4">
             <div className="w-full flex flex-col gap-2 mt-4 px-2">
-              <p className="text-[14px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
+              <p className="text-[14px] font-aeonik-bold uppercase tracking-[0.2em] text-muted-foreground/50">
                 {t("trends.title")}
               </p>
               <div className="h-1 w-full bg-linear-to-r from-border/50 via-border to-transparent" />
@@ -158,7 +158,7 @@ export function DashboardShell({ data }: { data: DashboardData }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
             <div className="flex flex-col gap-4 w-full min-w-0">
               <div className="w-full flex flex-col gap-2 mt-4 px-2">
-                <p className="text-[14px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
+                <p className="text-[14px] font-aeonik-bold uppercase tracking-[0.2em] text-muted-foreground/50">
                   {t("dashboard.categoryChart")}
                 </p>
                 <div className="h-1 w-full bg-linear-to-r from-border/50 via-border to-transparent" />
@@ -170,7 +170,7 @@ export function DashboardShell({ data }: { data: DashboardData }) {
 
             <div className="flex flex-col gap-4 w-full min-w-0">
               <div className="w-full flex flex-col gap-2 mt-4 px-2">
-                <p className="text-[14px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
+                <p className="text-[14px] font-aeonik-bold uppercase tracking-[0.2em] text-muted-foreground/50">
                   {t("dashboard.monthStats")}
                 </p>
                 <div className="h-1 w-full bg-linear-to-r from-border/50 via-border to-transparent" />
@@ -184,7 +184,7 @@ export function DashboardShell({ data }: { data: DashboardData }) {
             {/* Budget Widget */}
               <div className="flex flex-col gap-4 w-full">
                 <div className="w-full flex flex-col gap-2 mt-4 px-2">
-                  <p className="text-[14px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
+                  <p className="text-[14px] font-aeonik-bold uppercase tracking-[0.2em] text-muted-foreground/50">
                     {t("budgets.widget")}
                   </p>
                   <div className="h-1 w-full bg-linear-to-r from-border/50 via-border to-transparent" />
@@ -251,7 +251,7 @@ export function DashboardShell({ data }: { data: DashboardData }) {
             {data.topGoals.length > 0 ? (
               <div className="flex flex-col gap-4 w-full">
                 <div className="w-full flex flex-col gap-2 mt-4 px-2">
-                  <p className="text-[14px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
+                  <p className="text-[14px] font-aeonik-bold uppercase tracking-[0.2em] text-muted-foreground/50">
                     {t("goals.title")}
                   </p>
                   <div className="h-1 w-full bg-linear-to-r from-border/50 via-border to-transparent" />
@@ -311,7 +311,7 @@ export function DashboardShell({ data }: { data: DashboardData }) {
             <div className="w-full flex flex-col gap-4 overflow-x-auto">
               <div className="flex flex-row justify-between items-center w-full pr-2">
                 <div className="w-full flex flex-col gap-2 mt-4 px-2">
-                  <p className="text-[14px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
+                  <p className="text-[14px] font-aeonik-bold uppercase tracking-[0.2em] text-muted-foreground/50">
                     {t("dashboard.transactionsTitle")}
                   </p>
                   <div className="h-1 w-full bg-linear-to-r from-border/50 via-border to-transparent" />

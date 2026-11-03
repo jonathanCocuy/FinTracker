@@ -1,13 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useForm } from "react-hook-form"
+import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/src/components/ui/dialog"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/src/components/ui/alert-dialog"
 import { Button } from "@/src/components/ui/button"
 import { Input } from "@/src/components/ui/input"
+import { AmountInput } from "@/src/components/ui/amount-input"
 import { Label } from "@/src/components/ui/label"
 import { useI18n } from "@/src/lib/i18n"
 import { createGoal, updateGoal, deleteGoal } from "@/src/lib/actions"
@@ -51,6 +52,7 @@ export function GoalModal({
     handleSubmit,
     reset,
     setValue,
+    control,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(goalSchema),
@@ -150,13 +152,18 @@ export function GoalModal({
               <Label htmlFor="target_amount">{t("goals.targetLabel")}</Label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
-                <Input
-                  id="target_amount"
-                  type="number"
-                  step="0.01"
-                  placeholder="0.00"
-                  {...register("target_amount")}
-                  className="pl-7 rounded-xl bg-muted/50 font-medium"
+                <Controller
+                  name="target_amount"
+                  control={control}
+                  render={({ field }) => (
+                    <AmountInput
+                      id="target_amount"
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="0"
+                      className="pl-7 rounded-xl bg-muted/50 font-medium"
+                    />
+                  )}
                 />
               </div>
               {errors.target_amount && <span className="text-xs text-rose-500">{errors.target_amount.message}</span>}
