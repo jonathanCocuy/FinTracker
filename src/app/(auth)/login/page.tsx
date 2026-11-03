@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/src/lib/utils";
 import { Label } from "@/src/components/ui/label";
 import { PiggyBank, Loader2, Eye, EyeOff } from "lucide-react"; // Añadimos Loader2 para feedback
+import { LanguageSwitcher } from "@/src/components/language-switcher";
 import { supabase } from "@/src/lib/supabase";
 import { MfaVerification } from "@/src/components/auth/mfa-verification"; // Importamos el nuevo componente
 
@@ -79,7 +80,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center gap-8 h-screen">
+    <div className="relative flex flex-col items-center justify-center gap-8 h-screen w-full">
+      <div className="absolute top-4 right-4">
+        <LanguageSwitcher />
+      </div>
       <div className="flex items-center gap-2 font-bold text-2xl md:text-3xl tracking-tighter">
         <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center shrink-0">
           <PiggyBank className="h-6 w-6 text-black" fill="black" />

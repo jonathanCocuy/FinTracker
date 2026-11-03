@@ -9,6 +9,7 @@ import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/src/components/ui/card";
+import { LanguageSwitcher } from "@/src/components/language-switcher";
 
 export default function ForgotPasswordPage() {
   const { t } = useI18n();
@@ -39,7 +40,10 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center gap-8 h-screen">
+    <div className="relative flex flex-col items-center justify-center gap-8 h-screen w-full">
+      <div className="absolute top-4 right-4">
+        <LanguageSwitcher />
+      </div>
       <div className="flex items-center gap-2 font-bold text-2xl md:text-3xl tracking-tighter">
         <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center shrink-0">
           <PiggyBank className="h-6 w-6 text-black" fill="black" />

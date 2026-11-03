@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PiggyBank, Loader2, Eye, EyeOff } from "lucide-react";
+import { PiggyBank, Loader2, Eye, EyeOff, Camera, CheckCircle2 } from "lucide-react";
+import { LanguageSwitcher } from "@/src/components/language-switcher";
 
 import { useI18n } from "@/src/lib/i18n";
 import { createRegisterSchema, type RegisterSchema } from "@/src/lib/validations";
@@ -15,7 +16,6 @@ import { Input } from "@/src/components/ui/input";
 import { Button } from "@/src/components/ui/button";
 import { Label } from "@/src/components/ui/label";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/src/components/ui/card";
-import { Camera, CheckCircle2 } from "lucide-react";
 import Image from "next/image";
 
 export default function RegisterPage() {
@@ -30,18 +30,6 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!avatarFile) {
-      setPreviewUrl(null);
-      return;
-    }
-  
-    const objectUrl = URL.createObjectURL(avatarFile);
-    setPreviewUrl(objectUrl);
-  
-    return () => URL.revokeObjectURL(objectUrl);
-  }, [avatarFile]);
 
   const form = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
@@ -62,7 +50,7 @@ export default function RegisterPage() {
       if (avatarFile) {
         setLoadingStep("uploading");
         const fileExt = avatarFile.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
+        const fileName = `${crypto.randomUUID()}.${fileExt}`;
         const filePath = `${fileName}`;
 
         const { error: uploadError } = await supabase.storage
@@ -102,7 +90,10 @@ export default function RegisterPage() {
 
   if (isRegistered) {
     return (
-      <div className="flex flex-col items-center justify-center gap-8 h-screen">
+      <div className="relative flex flex-col items-center justify-center gap-8 h-screen w-full">
+        <div className="absolute top-4 right-4">
+          <LanguageSwitcher />
+        </div>
         <div className="flex items-center gap-2 font-bold text-2xl md:text-3xl tracking-tighter">
           <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center shrink-0">
             <PiggyBank className="h-6 w-6 text-black" fill="black" />
@@ -128,7 +119,10 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center gap-8 h-screen">
+    <div className="relative flex flex-col items-center justify-center gap-8 h-screen w-full">
+      <div className="absolute top-4 right-4">
+        <LanguageSwitcher />
+      </div>
       <div className="flex items-center gap-2 font-bold text-2xl md:text-3xl tracking-tighter">
         <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center shrink-0">
           <PiggyBank className="h-6 w-6 text-black" fill="black" />
@@ -157,7 +151,14 @@ export default function RegisterPage() {
                     type="file" 
                     accept="image/*" 
                     className="hidden" 
-                    onChange={(e) => setAvatarFile(e.target.files?.[0] || null)} 
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      setAvatarFile(file);
+                      setPreviewUrl(prev => {
+                        if (prev) URL.revokeObjectURL(prev);
+                        return file ? URL.createObjectURL(file) : null;
+                      });
+                    }}
                   />
                </Label>
                <span className="text-[10px] text-muted-foreground mt-2 text-center">{t("auth.register.avatarHint")}</span>
