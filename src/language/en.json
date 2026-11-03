@@ -21,7 +21,8 @@
     "account": "Account",
     "pickDate": "Pick a date",
     "today": "Today",
-    "yesterday": "Yesterday"
+    "yesterday": "Yesterday",
+    "back": "Back"
   },
   "home": {
     "hello": "Hello World"
@@ -47,7 +48,11 @@
       "avatarHint": "Upload your profile photo (optional)",
       "submit": "Register",
       "hasAccount": "Don't have an account?",
-      "goToLogin": "Login"
+      "goToLogin": "Login",
+      "uploadingAvatar": "Uploading photo…",
+      "creatingAccount": "Creating account…",
+      "successTitle": "Check your inbox",
+      "successDescription": "We sent a confirmation link to your email. Click it to activate your account."
     }
   },
   "validation": {

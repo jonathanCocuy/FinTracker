@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PiggyBank, Loader2 } from "lucide-react";
+import { PiggyBank, Loader2, Eye, EyeOff } from "lucide-react";
 
 import { useI18n } from "@/src/lib/i18n";
 import { createRegisterSchema, type RegisterSchema } from "@/src/lib/validations";
@@ -26,6 +26,8 @@ export default function RegisterPage() {
   const [loadingStep, setLoadingStep] = useState<"uploading" | "creating" | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isRegistered, setIsRegistered] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
@@ -160,15 +162,15 @@ export default function RegisterPage() {
                </Label>
                <span className="text-[10px] text-muted-foreground mt-2 text-center">{t("auth.register.avatarHint")}</span>
               <Label htmlFor="full_name" className="text-sm pb-1 cursor-pointer">{t("common.fullName")}</Label>
+              {form.formState.errors.full_name?.message && <p className="text-sm text-red-500 pl-2 pb-1">{form.formState.errors.full_name?.message}</p>}
               <Input id="full_name" type="text" placeholder={t("auth.register.fullNamePlaceholder")} {...form.register("full_name")} className={cn(form.formState.errors.full_name?.message && "border-red-500")} />
-              {form.formState.errors.full_name?.message && <p className="text-sm text-red-500 pl-2 pt-1">{form.formState.errors.full_name?.message}</p>}
             </div>
             
             {/* Email */}
             <div className="flex flex-col">
               <Label htmlFor="email" className="text-sm pb-1 cursor-pointer">{t("common.email")}</Label>
+              {form.formState.errors.email?.message && <p className="text-sm text-red-500 pl-2 pb-1">{form.formState.errors.email?.message}</p>}
               <Input id="email" type="email" placeholder={t("auth.register.emailPlaceholder")} {...form.register("email")} className={cn(form.formState.errors.email?.message && "border-red-500")} />
-              {form.formState.errors.email?.message && <p className="text-sm text-red-500 pl-2 pt-1">{form.formState.errors.email?.message}</p>}
             </div>
 
             {/* Password */}
@@ -176,8 +178,18 @@ export default function RegisterPage() {
               <div className="flex justify-between pb-1">
                 <Label htmlFor="password" className="text-md cursor-pointer">{t("common.password")}</Label>
               </div>
-              <Input id="password" type="password" placeholder={t("auth.register.passwordPlaceholder")} {...form.register("password")} className={cn(form.formState.errors.password?.message && "border-red-500")} />
-              {form.formState.errors.password?.message && <p className="text-sm text-red-500 pl-2 pt-1">{form.formState.errors.password?.message?.toString()}</p>}
+              {form.formState.errors.password?.message && <p className="text-sm text-red-500 pl-2 pb-1">{form.formState.errors.password?.message?.toString()}</p>}
+              <div className="relative">
+                <Input id="password" type={showPassword ? "text" : "password"} placeholder={t("auth.register.passwordPlaceholder")} {...form.register("password")} className={cn("pr-10", form.formState.errors.password?.message && "border-red-500")} />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
 
             {/* Confirm Password */}
@@ -185,8 +197,18 @@ export default function RegisterPage() {
               <div className="flex justify-between pb-1">
                 <Label htmlFor="confirm_password" className="text-md cursor-pointer">{t("common.confirmPassword")}</Label>
               </div>
-              <Input id="confirm_password" type="password" placeholder={t("auth.register.passwordPlaceholder")} {...form.register("confirm_password")} className={cn(form.formState.errors.confirm_password?.message && "border-red-500")} />
-              {form.formState.errors.confirm_password?.message && <p className="text-sm text-red-500 pl-2 pt-1">{form.formState.errors.confirm_password?.message}</p>}
+              {form.formState.errors.confirm_password?.message && <p className="text-sm text-red-500 pl-2 pb-1">{form.formState.errors.confirm_password?.message}</p>}
+              <div className="relative">
+                <Input id="confirm_password" type={showConfirmPassword ? "text" : "password"} placeholder={t("auth.register.passwordPlaceholder")} {...form.register("confirm_password")} className={cn("pr-10", form.formState.errors.confirm_password?.message && "border-red-500")} />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  tabIndex={-1}
+                >
+                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
 
             {errorMessage && (

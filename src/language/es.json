@@ -21,7 +21,8 @@
     "account": "Cuenta",
     "pickDate": "Elegir fecha",
     "today": "Hoy",
-    "yesterday": "Ayer"
+    "yesterday": "Ayer",
+    "back": "Volver"
   },
   "home": {
     "hello": "Hola Mundo"
@@ -47,7 +48,11 @@
       "avatarHint": "Sube tu foto de perfil (opcional)",
       "submit": "Registrarse",
       "hasAccount": "¿Ya tienes cuenta?",
-      "goToLogin": "Iniciar sesión"
+      "goToLogin": "Iniciar sesión",
+      "uploadingAvatar": "Subiendo foto…",
+      "creatingAccount": "Creando cuenta…",
+      "successTitle": "Revisa tu correo",
+      "successDescription": "Te enviamos un enlace de confirmación. Haz clic en él para activar tu cuenta."
     }
   },
   "validation": {

@@ -11,7 +11,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter }
 import { useRouter } from "next/navigation";
 import { cn } from "@/src/lib/utils";
 import { Label } from "@/src/components/ui/label";
-import { PiggyBank, Loader2 } from "lucide-react"; // Añadimos Loader2 para feedback
+import { PiggyBank, Loader2, Eye, EyeOff } from "lucide-react"; // Añadimos Loader2 para feedback
 import { supabase } from "@/src/lib/supabase";
 import { MfaVerification } from "@/src/components/auth/mfa-verification"; // Importamos el nuevo componente
 
@@ -23,6 +23,7 @@ export default function LoginPage() {
   const [showMfa, setShowMfa] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const loginSchema = createLoginSchema(t);
   const form = useForm<LoginSchema>({
@@ -95,14 +96,14 @@ export default function LoginPage() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-2">
             <div className="flex flex-col">
               <Label htmlFor="email" className="text-sm pb-1 cursor-pointer">{t("common.email")}</Label>
-              <Input 
-                id="email" 
-                type="email" 
-                placeholder={t("auth.login.emailPlaceholder")} 
-                {...form.register("email")} 
-                className={cn(form.formState.errors.email?.message && "border-red-500")} 
+              {form.formState.errors.email?.message && <p className="text-sm text-red-500 pl-2 pb-1">{form.formState.errors.email?.message}</p>}
+              <Input
+                id="email"
+                type="email"
+                placeholder={t("auth.login.emailPlaceholder")}
+                {...form.register("email")}
+                className={cn(form.formState.errors.email?.message && "border-red-500")}
               />
-              {form.formState.errors.email?.message && <p className="text-sm text-red-500 pl-2 pt-1">{form.formState.errors.email?.message}</p>}
             </div>
             
             <div className="flex flex-col">
@@ -110,14 +111,24 @@ export default function LoginPage() {
                 <Label htmlFor="password" className="text-md cursor-pointer">{t("common.password")}</Label>
                 <Button type="button" variant="link" size="lg" onClick={() => router.push("/forgot-password")} className="text-sm p-0 m-0 cursor-pointer">{t("auth.login.forgotPassword")}</Button>
               </div>
-              <Input 
-                id="password" 
-                type="password" 
-                placeholder={t("auth.login.passwordPlaceholder")} 
-                {...form.register("password")} 
-                className={cn(form.formState.errors.password?.message && "border-red-500")} 
-              />
-              {form.formState.errors.password?.message && <p className="text-sm text-red-500 pl-2 pt-1">{form.formState.errors.password?.message?.toString()}</p>}
+              {form.formState.errors.password?.message && <p className="text-sm text-red-500 pl-2 pb-1">{form.formState.errors.password?.message?.toString()}</p>}
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder={t("auth.login.passwordPlaceholder")}
+                  {...form.register("password")}
+                  className={cn("pr-10", form.formState.errors.password?.message && "border-red-500")}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
 
             {/* Mostramos el error de Supabase si existe */}
