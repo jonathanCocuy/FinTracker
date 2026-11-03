@@ -5,11 +5,14 @@ import { useEffect, useRef } from "react"
 import { useInView, useMotionValue, useSpring } from "framer-motion"
 import { cn } from "@/src/lib/utils"
 import { CURRENCY_INFO, type SupportedCurrency } from "@/src/lib/currency"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/src/components/ui/tooltip"
+import { Info, Eye, EyeOff } from "lucide-react"
 
 export type KpiColor = "income" | "expense" | "savings" | "default"
 
 export type KpiItem = {
   label: string
+  tooltip?: string
   value: number
   previousValue?: number
   subtitle?: string
@@ -42,7 +45,11 @@ function AnimatedValue({
   const isInView = useInView(ref, { once: true })
 
   const formatDisplay = (val: number) => {
-    const sign = color === "income" ? "+" : color === "expense" ? "-" : ""
+    const fixedSign = color === "income" ? "+" : color === "expense" ? "-" : ""
+    // income/expense are always stored positive — force abs and prepend fixed sign.
+    // savings/default can be negative — let Intl handle the sign naturally.
+    const useAbs = color === "income" || color === "expense"
+    const numVal = useAbs ? Math.abs(val) : val
     if (currencyCode) {
       const info = CURRENCY_INFO[currencyCode as SupportedCurrency]
       const formatted = new Intl.NumberFormat(info?.locale ?? 'en-US', {
@@ -50,13 +57,13 @@ function AnimatedValue({
         currency: currencyCode,
         maximumFractionDigits: info?.decimals ?? 2,
         minimumFractionDigits: 0,
-      }).format(Math.abs(Number(val.toFixed(info?.decimals ?? 2))))
-      return `${sign}${formatted}`
+      }).format(Number(numVal.toFixed(info?.decimals ?? 2)))
+      return `${fixedSign}${formatted}`
     }
     const formatted = new Intl.NumberFormat("es-CO", {
       maximumFractionDigits: 0,
-    }).format(Number(val.toFixed(0)))
-    return `${sign}${prefix}${formatted}`
+    }).format(Number(numVal.toFixed(0)))
+    return `${fixedSign}${prefix}${formatted}`
   }
 
   useEffect(() => {
@@ -114,27 +121,100 @@ function TrendBadge({ value, prev }: { value: number; prev: number }) {
   )
 }
 
-// ─── KpiCard (Mismo tamaño y diseño) ─────────────────────────────────────────
+// ─── Tooltip label reutilizable ──────────────────────────────────────────────
 
-export function KpiCard({ item }: { item: KpiItem }) {
-  const { label, value, previousValue, subtitle, prefix = "$", suffix = "", color = "default", currencyCode } = item
+function KpiLabel({ label, tooltip }: { label: string; tooltip?: string }) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <p className="text-base font-aeonik-light text-muted-foreground">{label}</p>
+      {tooltip && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Info size={11} className="text-muted-foreground/35 hover:text-muted-foreground cursor-help shrink-0 transition-colors" />
+          </TooltipTrigger>
+          <TooltipContent side="top">
+            {tooltip.split("\n").map((line, i) => (
+              <p key={i} className={i > 0 ? "mt-1 text-muted-foreground/70" : "font-medium"}>{line}</p>
+            ))}
+          </TooltipContent>
+        </Tooltip>
+      )}
+    </div>
+  )
+}
+
+// ─── Valor oculto ────────────────────────────────────────────────────────────
+
+function HiddenValue() {
+  return <span className="tracking-[0.15em] text-muted-foreground/40">••••••</span>
+}
+
+// ─── KpiCard — tarjeta vertical estándar (mensuales) ─────────────────────────
+
+export function KpiCard({ item, visible = true, className }: { item: KpiItem; visible?: boolean; className?: string }) {
+  const { label, tooltip, value, previousValue, subtitle, prefix = "$", suffix = "", color = "default", currencyCode } = item
+  const resolvedColor: KpiColor = color === "savings" && value < 0 ? "expense" : color
 
   return (
-    <div className="bg-muted/50 rounded-lg px-4 py-4 flex flex-col gap-2">
-      <p className="text-xs sm:text-sm font-aeonik-light text-muted-foreground">{label}</p>
-      <p className={`text-2xl sm:text-3xl font-aeonik-bold leading-tight ${colorMap[color]}`}>
-        <AnimatedValue value={value} prefix={prefix} color={color} currencyCode={currencyCode} />
-        {suffix}
-      </p>
-      <div className="flex items-center justify-between gap-2 min-h-[18px]">
-        {subtitle && (
-          <p className="text-[10px] sm:text-xs font-aeonik-light text-muted-foreground/60">{subtitle}</p>
-        )}
-        {previousValue !== undefined && (
-          <TrendBadge value={value} prev={previousValue} />
-        )}
+    <TooltipProvider delayDuration={300}>
+      <div className={cn("bg-muted/50 rounded-xl px-4 py-4 flex flex-col gap-2", className)}>
+        <KpiLabel label={label} tooltip={tooltip} />
+        <p className={cn("text-3xl font-aeonik-bold leading-tight", colorMap[resolvedColor])}>
+          {visible
+            ? <><AnimatedValue value={value} prefix={prefix} color={resolvedColor} currencyCode={currencyCode} />{suffix}</>
+            : <HiddenValue />}
+        </p>
+        <div className="flex items-center justify-between gap-2 min-h-[18px]">
+          {subtitle && (
+            <p className="text-sm font-aeonik-light text-muted-foreground/50">{subtitle}</p>
+          )}
+          {previousValue !== undefined && visible && (
+            <TrendBadge value={value} prev={previousValue} />
+          )}
+        </div>
       </div>
-    </div>
+    </TooltipProvider>
+  )
+}
+
+// ─── KpiHeroCard — tarjeta horizontal grande (Balance Total) ─────────────────
+
+export function KpiHeroCard({ item, visible = true, onToggleVisible }: { item: KpiItem; visible?: boolean; onToggleVisible?: () => void }) {
+  const { label, tooltip, value, previousValue, subtitle, prefix = "$", suffix = "", color = "default", currencyCode } = item
+  const resolvedColor: KpiColor = color === "savings" && value < 0 ? "expense" : color
+
+  return (
+    <TooltipProvider delayDuration={300}>
+      <div className="w-full bg-card border border-border/50 rounded-2xl px-6 py-5 flex items-center justify-between gap-6">
+        <div className="flex flex-col gap-1.5 min-w-0">
+          <KpiLabel label={label} tooltip={tooltip} />
+          <div className="flex items-center gap-2 flex-wrap">
+            {subtitle && (
+              <p className="text-sm font-aeonik-light text-muted-foreground/50">{subtitle}</p>
+            )}
+            {previousValue !== undefined && visible && (
+              <TrendBadge value={value} prev={previousValue} />
+            )}
+          </div>
+        </div>
+        <div className="flex items-center gap-3 shrink-0">
+          <p className={cn("text-4xl sm:text-5xl font-aeonik-bold leading-none", colorMap[resolvedColor])}>
+            {visible
+              ? <><AnimatedValue value={value} prefix={prefix} color={resolvedColor} currencyCode={currencyCode} />{suffix}</>
+              : <HiddenValue />}
+          </p>
+          {onToggleVisible && (
+            <button
+              onClick={onToggleVisible}
+              className="text-muted-foreground/30 hover:text-muted-foreground transition-colors"
+              aria-label={visible ? "Ocultar saldos" : "Mostrar saldos"}
+            >
+              {visible ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          )}
+        </div>
+      </div>
+    </TooltipProvider>
   )
 }
 

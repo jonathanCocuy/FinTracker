@@ -105,10 +105,18 @@
   },
   "kpis": {
     "balanceTotal": "Total Balance",
-    "incomeMonth": "Monthly Income",
-    "expensesMonth": "Monthly Expenses",
-    "savingsGoal": "Savings Goal",
-    "noKpis": "No KPIs."
+    "thisMonth": "This Month",
+    "incomeMonth": "Income",
+    "expensesMonth": "Expenses",
+    "savingsGoal": "Net Savings",
+    "savingsSubtitle": "Income − Expenses",
+    "noKpis": "No KPIs.",
+    "tooltips": {
+      "balanceTotal": "Sum of the current balance across all your accounts.\nEx: Checking $1,800,000 + Savings $200,000 = $2,000,000",
+      "incomeMonth": "Total money received this month (salary, sales, etc.).\nEx: you received $3,000,000 in salary.",
+      "expensesMonth": "Total money spent this month.\nEx: $500,000 on transport and $200,000 on food.",
+      "savingsGoal": "What is left after subtracting expenses from income this month.\nEx: income $3,000,000 − expenses $700,000 = $2,300,000 saved. If negative, you spent more than you earned."
+    }
   },
   "accountsCard": {
     "addAccount": "Add Account",

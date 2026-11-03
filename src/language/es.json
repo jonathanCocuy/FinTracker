@@ -105,10 +105,18 @@
   },
   "kpis": {
     "balanceTotal": "Balance Total",
-    "incomeMonth": "Ingresos del Mes",
-    "expensesMonth": "Gastos del Mes",
-    "savingsGoal": "Meta de Ahorro",
-    "noKpis": "No hay KPIs."
+    "thisMonth": "Este Mes",
+    "incomeMonth": "Ingresos",
+    "expensesMonth": "Gastos",
+    "savingsGoal": "Ahorro Neto",
+    "savingsSubtitle": "Ingresos − Gastos",
+    "noKpis": "No hay KPIs.",
+    "tooltips": {
+      "balanceTotal": "Suma del saldo actual de todas tus cuentas.\nEj: Bancolombia $1.800.000 + Nequi $200.000 = $2.000.000",
+      "incomeMonth": "Total de dinero que entró este mes (sueldos, ventas, etc.).\nEj: recibiste $3.000.000 de salario.",
+      "expensesMonth": "Total de dinero que salió este mes en gastos.\nEj: pagaste $500.000 en transporte y $200.000 en comida.",
+      "savingsGoal": "Lo que te queda al restar gastos a ingresos este mes.\nEj: ingresos $3.000.000 − gastos $700.000 = $2.300.000 ahorrados. Si es negativo, gastaste más de lo que ganaste."
+    }
   },
   "accountsCard": {
     "addAccount": "Añadir cuenta",

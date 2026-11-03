@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useI18n } from "@/src/lib/i18n"
-import { KpiGrid, type KpiItem } from "./kpi-cards"
+import { KpiCard, KpiHeroCard, type KpiItem } from "./kpi-cards"
 import { CategoryDonut } from "./category-donut"
 import { MonthStats } from "./month-stats"
 import { createColumns } from "./columns"
@@ -27,6 +27,7 @@ export function DashboardShell({ data }: { data: DashboardData }) {
   const [hoveredAccountId, setHoveredAccountId] = useState<string | null>(null)
   const [editingTransaction, setEditingTransaction] = useState<DashboardTransaction | null>(null)
   const [createAccountOpen, setCreateAccountOpen] = useState(false)
+  const [balancesVisible, setBalancesVisible] = useState(true)
 
   const categoryColorMap: Record<string, string> = Object.fromEntries(
     data.categories.map(c => [c.name, c.color])
@@ -46,6 +47,7 @@ export function DashboardShell({ data }: { data: DashboardData }) {
   const kpis: KpiItem[] = [
     {
       label: t("kpis.balanceTotal"),
+      tooltip: t("kpis.tooltips.balanceTotal"),
       value: data.totalBalance,
       previousValue: data.prevTotalBalance,
       subtitle: t("dashboard.vsPreviousMonth"),
@@ -54,6 +56,7 @@ export function DashboardShell({ data }: { data: DashboardData }) {
     },
     {
       label: t("kpis.incomeMonth"),
+      tooltip: t("kpis.tooltips.incomeMonth"),
       value: data.currentMonthIncome,
       previousValue: data.prevMonthIncome,
       subtitle: t("dashboard.vsPreviousMonth"),
@@ -62,6 +65,7 @@ export function DashboardShell({ data }: { data: DashboardData }) {
     },
     {
       label: t("kpis.expensesMonth"),
+      tooltip: t("kpis.tooltips.expensesMonth"),
       value: data.currentMonthExpenses,
       previousValue: data.prevMonthExpenses,
       subtitle: t("dashboard.vsPreviousMonth"),
@@ -70,9 +74,10 @@ export function DashboardShell({ data }: { data: DashboardData }) {
     },
     {
       label: t("kpis.savingsGoal"),
+      tooltip: t("kpis.tooltips.savingsGoal"),
       value: data.currentMonthIncome - data.currentMonthExpenses,
       previousValue: data.prevMonthIncome - data.prevMonthExpenses,
-      subtitle: t("dashboard.vsPreviousMonth"),
+      subtitle: t("kpis.savingsSubtitle"),
       color: "savings",
       currencyCode: baseCurrency,
     },
@@ -107,7 +112,26 @@ export function DashboardShell({ data }: { data: DashboardData }) {
         <TrmBadge baseCurrency={baseCurrency} />
       </div>
 
-      <KpiGrid data={kpis} className="grid grid-cols-2 md:grid-cols-4 w-full gap-4" />
+      {/* KPI Layout */}
+      <div className="w-full flex flex-col gap-3">
+        {/* Balance Total — hero card */}
+        <KpiHeroCard item={kpis[0]} visible={balancesVisible} onToggleVisible={() => setBalancesVisible(v => !v)} />
+
+        {/* Separador de sección mensual */}
+        <div className="flex flex-col gap-2 mt-1 px-1">
+          <p className="text-[11px] font-aeonik-bold uppercase tracking-[0.2em] text-muted-foreground/40">
+            {t("kpis.thisMonth")}
+          </p>
+          <div className="h-px w-full bg-linear-to-r from-border/50 via-border to-transparent" />
+        </div>
+
+        {/* Tarjetas mensuales */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <KpiCard item={kpis[1]} visible={balancesVisible} />
+          <KpiCard item={kpis[2]} visible={balancesVisible} />
+          <KpiCard item={kpis[3]} visible={balancesVisible} />
+        </div>
+      </div>
 
       <AccountGrid
         accounts={data.accounts}
