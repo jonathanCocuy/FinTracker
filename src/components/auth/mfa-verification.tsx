@@ -47,27 +47,27 @@ export function MfaVerification() {
   }
 
   return (
-    <div className="w-full max-w-sm space-y-6 p-8 bg-zinc-900/50 border border-white/5 rounded-[32px] backdrop-blur-xl animate-in fade-in zoom-in duration-300">
+    <div className="w-full max-w-sm space-y-6 p-8 bg-card border border-border/50 rounded-[32px] backdrop-blur-xl animate-in fade-in zoom-in duration-300">
       <div className="flex flex-col items-center text-center space-y-3">
         <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
           <ShieldCheck className="text-primary" size={24} />
         </div>
         <div className="space-y-1">
-          <h2 className="text-xl font-black text-white tracking-tight">{t("mfa.verify.title")}</h2>
-          <p className="text-zinc-500 text-xs">{t("mfa.verify.description")}</p>
+          <h2 className="text-xl font-black text-foreground tracking-tight">{t("mfa.verify.title")}</h2>
+          <p className="text-muted-foreground text-xs">{t("mfa.verify.description")}</p>
         </div>
       </div>
 
       <form onSubmit={handleVerify} className="space-y-4">
         <div className="space-y-2">
-          <Label className="text-zinc-400 text-[10px] uppercase font-bold tracking-widest px-1">{t("mfa.verify.codeLabel")}</Label>
+          <Label className="text-muted-foreground text-[10px] uppercase font-bold tracking-widest px-1">{t("mfa.verify.codeLabel")}</Label>
           <Input
             type="text"
             placeholder="000000"
             maxLength={6}
             value={code}
             onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-            className="bg-zinc-950 border-white/5 rounded-2xl h-14 text-center text-2xl font-mono tracking-[0.3em] text-white focus:border-primary/50 transition-all"
+            className="bg-background border-border/50 rounded-2xl h-14 text-center text-2xl font-mono tracking-[0.3em] text-foreground focus:border-primary/50 transition-all"
             required
             autoFocus
           />
@@ -82,7 +82,7 @@ export function MfaVerification() {
         <Button 
           type="submit" 
           disabled={isLoading || code.length < 6}
-          className="w-full bg-white text-black hover:bg-zinc-200 rounded-2xl font-bold py-6 transition-all"
+          className="w-full rounded-2xl font-bold py-6 transition-all"
         >
           {isLoading ? <Loader2 className="animate-spin" /> : t("mfa.verify.submit")}
         </Button>
@@ -90,7 +90,7 @@ export function MfaVerification() {
       
       <button 
         onClick={() => router.push("/login")}
-        className="flex items-center justify-center gap-2 w-full text-zinc-500 text-xs hover:text-white transition-colors"
+        className="flex items-center justify-center gap-2 w-full text-muted-foreground text-xs hover:text-foreground transition-colors"
       >
         <ArrowLeft size={14} />
         {t("mfa.verify.backToLogin")}

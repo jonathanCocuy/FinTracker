@@ -129,7 +129,7 @@ export default function ProfilePage() {
 
   if (!hasMounted || profileLoading) {
     return (
-      <div className="h-screen w-full flex items-center justify-center bg-black">
+      <div className="h-screen w-full flex items-center justify-center bg-background">
         <Loader2 className="animate-spin text-primary" size={40} />
       </div>
     );
@@ -155,7 +155,7 @@ export default function ProfilePage() {
       />
       
       <main className="container max-w-5xl mx-auto p-4 md:p-8 space-y-8">
-        <section className="relative overflow-hidden rounded-[32px] border border-white/5 bg-zinc-900/50 p-8 md:p-12 backdrop-blur-md">
+        <section className="relative overflow-hidden rounded-[32px] border border-border/50 bg-card p-8 md:p-12 backdrop-blur-md">
           {/* Decorative background glows */}
           <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[#6366f1]/10 blur-3xl pointer-events-none" />
           <div className="absolute -bottom-12 right-1/4 w-56 h-56 rounded-full bg-[#a78bfa]/8 blur-3xl pointer-events-none" />
@@ -176,7 +176,7 @@ export default function ProfilePage() {
                   className="relative block rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
                   aria-label={t("profile.personalInfo.changePhoto")}
                 >
-                  <Avatar className="h-28 w-28 border-2 border-zinc-900">
+                  <Avatar className="h-28 w-28 border-2 border-background">
                     <AvatarImage src={avatarUrl ?? profile?.avatar_url ?? ""} />
                     <AvatarFallback className="bg-linear-to-br from-[#6366f1] to-[#a78bfa] text-3xl font-black text-white">
                       {getInitials(profile?.full_name || "")}
@@ -207,14 +207,14 @@ export default function ProfilePage() {
 
             {/* Name & info */}
             <div className="flex flex-col text-center md:text-left gap-0.5">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
                 {profile?.email}
               </p>
               <h1 className="text-4xl font-black leading-none tracking-tight bg-linear-to-r from-[#6366f1] via-[#8b5cf6] to-[#a78bfa] bg-clip-text text-transparent mt-1">
                 {profile?.full_name}
               </h1>
               {profile?.created_at && (
-                <p className="text-sm text-zinc-500 mt-2">
+                <p className="text-sm text-muted-foreground mt-2">
                   {t("profile.memberSince")}{" "}
                   {new Date(profile.created_at).toLocaleDateString(
                     locale === "en" ? "en-US" : "es-CO",
@@ -227,9 +227,9 @@ export default function ProfilePage() {
         </section>
 
         <div className="space-y-6">
-          <Card className="border-white/5 bg-zinc-900/30 rounded-[28px]">
+          <Card className="border-border/50 bg-card rounded-[28px]">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg text-white font-black">
+              <CardTitle className="flex items-center gap-2 text-lg text-foreground font-black">
                 <User size={18} className="text-primary" />
                 {t("profile.personalInfo.title")}
               </CardTitle>
@@ -238,19 +238,19 @@ export default function ProfilePage() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-zinc-400 px-1">{t("common.fullName")}</Label>
-                  <Input defaultValue={profile?.full_name} className="bg-zinc-950 border-white/5 rounded-2xl h-12" />
+                  <Label className="text-muted-foreground px-1">{t("common.fullName")}</Label>
+                  <Input defaultValue={profile?.full_name} className="bg-background border-border/50 rounded-2xl h-12" />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-zinc-400 px-1">{t("common.email")}</Label>
-                  <Input disabled defaultValue={profile?.email} className="bg-zinc-950/50 border-white/5 opacity-50 rounded-2xl h-12" />
+                  <Label className="text-muted-foreground px-1">{t("common.email")}</Label>
+                  <Input disabled defaultValue={profile?.email} className="bg-background/50 border-border/50 opacity-50 rounded-2xl h-12" />
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                 <div className="space-y-2">
-                  <Label className="text-zinc-400 px-1">{t("currency.baseCurrency")}</Label>
+                  <Label className="text-muted-foreground px-1">{t("currency.baseCurrency")}</Label>
                   <Select value={baseCurrency} onValueChange={handleBaseCurrencyChange}>
-                    <SelectTrigger className="bg-zinc-950 border-white/5 rounded-2xl h-12">
+                    <SelectTrigger className="bg-background border-border/50 rounded-2xl h-12">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -270,9 +270,9 @@ export default function ProfilePage() {
           </Card>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="border-white/5 bg-zinc-900/30 rounded-[28px]">
+            <Card className="border-border/50 bg-card rounded-[28px]">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg text-white font-black">
+                <CardTitle className="flex items-center gap-2 text-lg text-foreground font-black">
                   <ShieldCheck size={18} className="text-primary" />
                   {t("profile.security.title")}
                 </CardTitle>
@@ -282,41 +282,41 @@ export default function ProfilePage() {
                   <ChangePasswordModal />
                   <ForgotPasswordModal />
                 </div>
-                <Separator className="bg-white/5" />
-                <div className="flex items-center justify-between p-5 rounded-3xl bg-white/5 border border-white/5">
+                <Separator className="bg-border/50" />
+                <div className="flex items-center justify-between p-5 rounded-3xl bg-muted/30 border border-border/50">
                   <div className="space-y-1">
-                    <p className="text-sm font-bold text-white">{t("profile.security.twoFactorTitle")}</p>
-                    <p className="text-[11px] text-zinc-500">{t("profile.security.twoFactorDescription")}</p>
+                    <p className="text-sm font-bold text-foreground">{t("profile.security.twoFactorTitle")}</p>
+                    <p className="text-[11px] text-muted-foreground">{t("profile.security.twoFactorDescription")}</p>
                   </div>
                   <Switch checked={is2FAEnabled} onCheckedChange={handleToggle2FA} />
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-white/5 bg-zinc-900/30 rounded-[28px]">
+            <Card className="border-border/50 bg-card rounded-[28px]">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg text-white font-black">
+                <CardTitle className="flex items-center gap-2 text-lg text-foreground font-black">
                   <Bell size={18} className="text-primary" />
                   {t("profile.notifications.title")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-5 rounded-3xl bg-white/5 border border-white/5">
+                <div className="flex items-center justify-between p-5 rounded-3xl bg-muted/30 border border-border/50">
                   <div className="space-y-1">
-                    <p className="text-sm font-bold text-white">{t("profile.notifications.emailAlertsTitle")}</p>
+                    <p className="text-sm font-bold text-foreground">{t("profile.notifications.emailAlertsTitle")}</p>
                   </div>
                   <Switch checked={emailNotifications} onCheckedChange={handleToggleEmailNotifications} />
                 </div>
                 <div className="px-1 space-y-2">
-                  <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wide">{t("profile.notifications.triggersTitle")}</p>
+                  <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">{t("profile.notifications.triggersTitle")}</p>
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-2.5">
                       <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
-                      <span className="text-[12px] text-zinc-400">{t("profile.notifications.trigger80")}</span>
+                      <span className="text-[12px] text-muted-foreground">{t("profile.notifications.trigger80")}</span>
                     </div>
                     <div className="flex items-center gap-2.5">
                       <span className="h-2 w-2 rounded-full bg-rose-500 shrink-0" />
-                      <span className="text-[12px] text-zinc-400">{t("profile.notifications.trigger100")}</span>
+                      <span className="text-[12px] text-muted-foreground">{t("profile.notifications.trigger100")}</span>
                     </div>
                   </div>
                 </div>

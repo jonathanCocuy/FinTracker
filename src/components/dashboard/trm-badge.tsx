@@ -17,7 +17,7 @@ export function TrmBadge({ baseCurrency }: { baseCurrency: string }) {
   const formatted = new Intl.NumberFormat('en-US', { maximumFractionDigits: decimals }).format(rate)
 
   return (
-    <span className="text-[11px] text-zinc-500 bg-zinc-900/50 border border-white/5 rounded-full px-2.5 py-1 tabular-nums">
+    <span className="text-[11px] text-muted-foreground bg-muted/60 border border-border/50 rounded-full px-2.5 py-1 tabular-nums">
       1 USD = {formatted} {baseCurrency}
     </span>
   )

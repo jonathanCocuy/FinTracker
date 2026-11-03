@@ -47,7 +47,7 @@ export function ForgotPasswordModal() {
         </Button>
       </DialogTrigger>
       
-      <DialogContent className="sm:max-w-[380px] rounded-2xl border-white/10 bg-zinc-950 p-6">
+      <DialogContent className="sm:max-w-[380px] rounded-2xl border-border bg-card p-6">
         {!isSent ? (
           <div className="space-y-6">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
@@ -58,7 +58,7 @@ export function ForgotPasswordModal() {
               <DialogTitle className="text-xl font-bold tracking-tight">
                 {t("forgotPassword.title")}
               </DialogTitle>
-              <DialogDescription className="text-zinc-400 text-sm leading-relaxed">
+              <DialogDescription className="text-muted-foreground text-sm leading-relaxed">
                 {t("forgotPassword.description")}
               </DialogDescription>
             </div>
@@ -73,7 +73,7 @@ export function ForgotPasswordModal() {
               <Button
                 onClick={handleSendReset}
                 disabled={isLoading}
-                className="w-full bg-white text-black hover:bg-zinc-200 rounded-xl font-bold py-6 cursor-pointer"
+                className="w-full rounded-xl font-bold py-6 cursor-pointer"
               >
                 {isLoading ? <Loader2 className="animate-spin" /> : t("forgotPassword.sendButton")}
               </Button>
@@ -86,7 +86,7 @@ export function ForgotPasswordModal() {
             </div>
             <div className="space-y-1">
               <h3 className="text-lg font-bold">{t("forgotPassword.successTitle")}</h3>
-              <p className="text-xs text-zinc-400">{t("forgotPassword.successDescription")}</p>
+              <p className="text-xs text-muted-foreground">{t("forgotPassword.successDescription")}</p>
             </div>
           </div>
         )}

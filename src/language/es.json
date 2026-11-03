@@ -168,6 +168,11 @@
     "openMenu": "Abrir menú",
     "language": "Idioma"
   },
+  "theme": {
+    "light": "Claro",
+    "dark": "Oscuro",
+    "system": "Sistema"
+  },
   "categoriesPage": {
     "title": "Categorías",
     "subtitle": "Personaliza tus categorías de gastos e ingresos.",

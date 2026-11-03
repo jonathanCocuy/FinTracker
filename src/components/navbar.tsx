@@ -5,6 +5,7 @@ import { PiggyBank, UserIcon, Menu, LayoutDashboard, History, Wallet, Target, Ta
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"
 import { LanguageSwitcher } from "./language-switcher"
+import { ThemeToggle } from "./theme-toggle"
 import { TransactionModal } from "./dashboard/transaction-modal"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/src/components/ui/sheet"
 import { Button } from "@/src/components/ui/button"
@@ -46,7 +47,7 @@ export function Navbar() {
 
           <Link href="/" className="flex items-center gap-2 text-lg md:text-xl tracking-tighter">
             <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center shrink-0">
-              <PiggyBank className="h-4 w-4 text-black" fill="black" />
+              <PiggyBank className="h-4 w-4 text-primary-foreground" fill="currentColor" />
             </div>
             <span className="hidden md:block font-aeonik-bold">FinTracker</span>
           </Link>
@@ -104,7 +105,8 @@ export function Navbar() {
         <div className="flex items-center gap-2 md:gap-4">
           <TransactionModal />
           
-          <div className="hidden sm:block">
+          <div className="hidden sm:flex items-center gap-1">
+            <ThemeToggle />
             <LanguageSwitcher />
           </div>
           
@@ -184,8 +186,8 @@ function MobileNav() {
       >
         <div className="p-6 pb-2">
           <SheetTitle className="text-left flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white border border-border/50 shadow-sm">
-              <PiggyBank className="h-4 w-4 text-black" fill="currentColor" />
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary border border-primary/20 shadow-sm">
+              <PiggyBank className="h-4 w-4 text-primary-foreground" fill="currentColor" />
             </div>
             <span className="tracking-tighter font-aeonik-bold text-xl">FinTracker</span>
           </SheetTitle>
@@ -219,7 +221,7 @@ function MobileNav() {
           </nav>
         </div>
 
-        <div className="p-6 mt-auto border-t border-border/40 bg-accent/5">
+        <div className="p-6 mt-auto border-t border-border/40 bg-accent/5 flex flex-col gap-2">
           <div className="flex items-center justify-between bg-background/50 p-3 rounded-2xl border border-border/50">
             <div className="flex items-center gap-2">
               <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -228,6 +230,12 @@ function MobileNav() {
               </span>
             </div>
             <LanguageSwitcher />
+          </div>
+          <div className="flex items-center justify-between bg-background/50 p-3 rounded-2xl border border-border/50">
+            <span className="text-xs font-aeonik-bold uppercase tracking-wider text-muted-foreground/70 pl-1">
+              {t("theme.light")} / {t("theme.dark")}
+            </span>
+            <ThemeToggle />
           </div>
         </div>
       </SheetContent>

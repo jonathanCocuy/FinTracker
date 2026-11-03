@@ -69,7 +69,7 @@ export function ResetPasswordModal({}: ResetPasswordModalProps) {
   return (
     <Dialog open={true}>
       <DialogContent 
-        className="sm:max-w-[400px] rounded-3xl border-white/10 bg-zinc-950 p-6 shadow-2xl"
+        className="sm:max-w-[400px] rounded-3xl border-border bg-card p-6 shadow-2xl"
         onPointerDownOutside={(e) => e.preventDefault()}
       >
         {!isSuccess ? (
@@ -79,7 +79,7 @@ export function ResetPasswordModal({}: ResetPasswordModalProps) {
                 <Lock className="text-primary" size={24} />
               </div>
               <DialogTitle className="text-2xl font-black tracking-tight">{t("resetPassword.title")}</DialogTitle>
-              <DialogDescription className="text-zinc-400">
+              <DialogDescription className="text-muted-foreground">
                 {t("resetPassword.description")}
               </DialogDescription>
             </DialogHeader>
@@ -98,13 +98,13 @@ export function ResetPasswordModal({}: ResetPasswordModalProps) {
                         <div className="relative">
                           <Input 
                             type={showPassword ? "text" : "password"} 
-                            className="bg-zinc-900 border-white/5 rounded-xl pr-10" 
+                            className="bg-background border-border/50 rounded-xl pr-10"
                             {...field} 
                           />
                           <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                           >
                             {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                           </button>
@@ -126,7 +126,7 @@ export function ResetPasswordModal({}: ResetPasswordModalProps) {
                       <FormControl>
                         <Input 
                           type="password" 
-                          className="bg-zinc-900 border-white/5 rounded-xl" 
+                          className="bg-background border-border/50 rounded-xl"
                           {...field} 
                         />
                       </FormControl>
@@ -144,7 +144,7 @@ export function ResetPasswordModal({}: ResetPasswordModalProps) {
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-white text-black hover:bg-zinc-200 rounded-xl font-bold py-6 mt-2 cursor-pointer transition-all active:scale-95"
+                  className="w-full rounded-xl font-bold py-6 mt-2 cursor-pointer transition-all active:scale-95"
                 >
                   {isLoading ? <Loader2 className="animate-spin" /> : t("resetPassword.submit")}
                 </Button>
@@ -158,7 +158,7 @@ export function ResetPasswordModal({}: ResetPasswordModalProps) {
             </div>
             <div className="space-y-2">
               <h3 className="text-xl font-bold">{t("resetPassword.successTitle")}</h3>
-              <p className="text-sm text-zinc-400 leading-relaxed">
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 {t("resetPassword.successDescription")}
               </p>
             </div>

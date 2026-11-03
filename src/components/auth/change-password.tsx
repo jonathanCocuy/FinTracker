@@ -114,10 +114,10 @@ export function ChangePasswordModal() {
           {t("changePassword.trigger")}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[400px] rounded-2xl border-white/10 bg-zinc-950">
+      <DialogContent className="sm:max-w-[400px] rounded-2xl border-border bg-card">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold tracking-tight">{t("changePassword.title")}</DialogTitle>
-          <DialogDescription className="text-zinc-400">
+          <DialogDescription className="text-muted-foreground">
             {t("changePassword.description")}
           </DialogDescription>
         </DialogHeader>
@@ -139,7 +139,7 @@ export function ChangePasswordModal() {
                       <Input 
                         type={showOld ? "text" : "password"} 
                         className={cn(
-                          "bg-zinc-900 border-white/5 rounded-xl pr-10",
+                          "bg-background border-border/50 rounded-xl pr-10",
                           form.formState.errors.oldPassword && "border-red-500/50 focus-visible:ring-red-500/50"
                         )} 
                         {...field} 
@@ -147,7 +147,7 @@ export function ChangePasswordModal() {
                       <button
                         type="button"
                         onClick={() => setShowOld(!showOld)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                       >
                         {showOld ? <EyeOff size={16} /> : <Eye size={16} />}
                       </button>
@@ -158,7 +158,7 @@ export function ChangePasswordModal() {
               )}
             />
 
-            <div className="h-px w-full bg-white/5 my-2" />
+            <div className="h-px w-full bg-border/50 my-2" />
 
             {/* Nueva Contraseña */}
             <FormField
@@ -174,7 +174,7 @@ export function ChangePasswordModal() {
                       <Input 
                         type={showNew ? "text" : "password"} 
                         className={cn(
-                          "bg-zinc-900 border-white/5 rounded-xl pr-10",
+                          "bg-background border-border/50 rounded-xl pr-10",
                           form.formState.errors.newPassword && "border-red-500/50"
                         )} 
                         {...field} 
@@ -182,7 +182,7 @@ export function ChangePasswordModal() {
                       <button
                         type="button"
                         onClick={() => setShowNew(!showNew)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                       >
                         {showNew ? <EyeOff size={16} /> : <Eye size={16} />}
                       </button>
@@ -206,7 +206,7 @@ export function ChangePasswordModal() {
                     <Input 
                       type="password" 
                       className={cn(
-                        "bg-zinc-900 border-white/5 rounded-xl",
+                        "bg-background border-border/50 rounded-xl",
                         form.formState.errors.confirmPassword && "border-red-500/50"
                       )} 
                       {...field} 
@@ -233,7 +233,7 @@ export function ChangePasswordModal() {
               <Button
                 type="submit"
                 disabled={isLoading || isSuccess}
-                className="w-full bg-white text-black hover:bg-zinc-200 rounded-xl font-bold py-6 cursor-pointer"
+                className="w-full rounded-xl font-bold py-6 cursor-pointer"
               >
                 {isLoading ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -168,6 +168,11 @@
     "openMenu": "Open menu",
     "language": "Language"
   },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
   "recurring": {
     "title": "Recurring",
     "subtitle": "Automate subscriptions, rent, and salaries.",
