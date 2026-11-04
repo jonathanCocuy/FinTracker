@@ -195,7 +195,8 @@
     "weekly": "Weekly",
     "dayOfMonthLabel": "Day of month",
     "dayOfWeekLabel": "Day of week",
-    "everyMonthDay": "Day {{day}} of every month",
+    "everyMonthDay": "Monthly · day {{day}} of every month",
+    "next": "next",
     "empty": "No recurring transactions",
     "emptyDescription": "Schedule subscriptions, rent, or your salary and the app will record them automatically.",
     "descriptionPlaceholder": "e.g. Netflix, Rent, Salary..."
@@ -434,13 +435,13 @@
     "sheetName": "Transactions"
   },
   "weekdays": {
+    "sunday": "Sunday",
     "monday": "Monday",
     "tuesday": "Tuesday",
     "wednesday": "Wednesday",
     "thursday": "Thursday",
     "friday": "Friday",
-    "saturday": "Saturday",
-    "sunday": "Sunday"
+    "saturday": "Saturday"
   },
   "trends": {
     "title": "Trends",

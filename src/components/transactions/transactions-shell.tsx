@@ -52,7 +52,7 @@ export function TransactionsShell({ data }: { data: TransactionsPageData }) {
     })
   }, [data.transactions, searchQuery, typeFilter, monthFilter, accountFilter])
 
-  const columns = useMemo(() => createColumns(t, data.accounts, locale), [t, data.accounts, locale])
+  const columns = useMemo(() => createColumns(t, data.accounts, locale, data.categories), [t, data.accounts, locale, data.categories])
 
   const typeButtons: { key: "all" | "income" | "expense"; label: string }[] = [
     { key: "all", label: t("history.filterAll") },

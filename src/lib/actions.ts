@@ -51,6 +51,7 @@ export async function createTransaction(
   if (error) return { error: error.message }
 
   revalidatePath('/dashboard')
+  revalidatePath('/transactions')
   return { success: true }
 }
 

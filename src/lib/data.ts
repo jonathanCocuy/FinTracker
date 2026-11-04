@@ -115,6 +115,7 @@ export type DashboardData = {
 export type TransactionsPageData = {
   transactions: DashboardTransaction[]
   accounts: DashboardAccount[]
+  categories: UserCategory[]
 }
 
 export type Budget = {
@@ -146,9 +147,9 @@ export type BudgetAlert = {
 export async function getTransactionsData(): Promise<TransactionsPageData> {
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { transactions: [], accounts: [] }
+  if (!user) return { transactions: [], accounts: [], categories: [] }
 
-  const [txRes, accountsRes] = await Promise.all([
+  const [txRes, accountsRes, catRes] = await Promise.all([
     supabase
       .from('transactions')
       .select('id, description, amount, currency, exchange_rate, category, type, date, account_id, destination_account_id, icon')
@@ -158,6 +159,11 @@ export async function getTransactionsData(): Promise<TransactionsPageData> {
       .from('accounts')
       .select('id, name, balance, initial_balance, color')
       .eq('user_id', user.id),
+    supabase
+      .from('categories')
+      .select('id, name, label, color, icon')
+      .eq('user_id', user.id)
+      .order('created_at'),
   ])
 
   const transactions: DashboardTransaction[] = (txRes.data ?? []).map(tx => ({
@@ -175,7 +181,7 @@ export async function getTransactionsData(): Promise<TransactionsPageData> {
     exchange_rate: tx.exchange_rate ?? 1,
   }))
 
-  return { transactions, accounts: accountsRes.data ?? [] }
+  return { transactions, accounts: accountsRes.data ?? [], categories: (catRes.data ?? []) as UserCategory[] }
 }
 
 export async function getDashboardData(): Promise<DashboardData> {

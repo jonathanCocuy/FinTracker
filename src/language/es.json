@@ -416,13 +416,13 @@
     "sheetName": "Transacciones"
   },
   "weekdays": {
+    "sunday": "Domingo",
     "monday": "Lunes",
     "tuesday": "Martes",
     "wednesday": "Miércoles",
     "thursday": "Jueves",
     "friday": "Viernes",
-    "saturday": "Sábado",
-    "sunday": "Domingo"
+    "saturday": "Sábado"
   },
   "recurring": {
     "title": "Recurrentes",
@@ -437,7 +437,8 @@
     "weekly": "Semanal",
     "dayOfMonthLabel": "Día del mes",
     "dayOfWeekLabel": "Día de la semana",
-    "everyMonthDay": "El día {{day}} de cada mes",
+    "everyMonthDay": "Mensual · el día {{day}} de cada mes",
+    "next": "próxima",
     "empty": "Sin transacciones recurrentes",
     "emptyDescription": "Programa suscripciones, el arriendo o tu salario y la app los registrará automáticamente.",
     "descriptionPlaceholder": "Ej. Netflix, Arriendo, Salario..."

@@ -14,31 +14,19 @@ import { formatCurrency } from "@/src/lib/currency"
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const DAY_NAMES_ES = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"]
-
-function intervalLabel(t: RecurringTemplate): string {
-  if (t.interval === "monthly") {
-    return `Mensual · el ${t.day_of_month} de cada mes`
-  }
-  return `Semanal · cada ${DAY_NAMES_ES[t.day_of_week ?? 0]}`
-}
-
-function nextOccurrence(t: RecurringTemplate): string {
+function computeNextOccurrence(t: RecurringTemplate): Date {
   const today = new Date()
-  let next: Date
-
   if (t.interval === "monthly") {
     const day = t.day_of_month ?? 1
-    next = new Date(today.getFullYear(), today.getMonth(), day)
+    const next = new Date(today.getFullYear(), today.getMonth(), day)
     if (next <= today) next.setMonth(next.getMonth() + 1)
-  } else {
-    const target = t.day_of_week ?? 1
-    const diff = (target - today.getDay() + 7) % 7 || 7
-    next = new Date(today)
-    next.setDate(today.getDate() + diff)
+    return next
   }
-
-  return next.toLocaleDateString("es-CO", { day: "numeric", month: "short" })
+  const target = t.day_of_week ?? 1
+  const diff = (target - today.getDay() + 7) % 7 || 7
+  const next = new Date(today)
+  next.setDate(today.getDate() + diff)
+  return next
 }
 
 // ─── Card ─────────────────────────────────────────────────────────────────────
@@ -47,23 +35,40 @@ function RecurringCard({
   template,
   accounts,
   onEdit,
+  t,
+  locale,
 }: {
   template: RecurringTemplate
   accounts: DashboardAccount[]
   onEdit: (t: RecurringTemplate) => void
+  t: (key: string) => string
+  locale: string
 }) {
   const [active, setActive] = useState(template.is_active)
 
   const IconComp = (LucideIcons as unknown as Record<string, React.ComponentType<{ size?: number; className?: string }>>)[template.icon] ?? Repeat
 
   const accountName = accounts.find(a => a.id === template.account_id)?.name ?? "—"
-
   const formatted = formatCurrency(template.amount, template.currency ?? "COP")
+  const dateLocale = locale === "en" ? "en-US" : "es-CO"
+
+  function intervalLabel(): string {
+    if (template.interval === "monthly") {
+      return t("recurring.everyMonthDay").replace("{{day}}", String(template.day_of_month ?? 1))
+    }
+    const dayKey = ["weekdays.sunday","weekdays.monday","weekdays.tuesday","weekdays.wednesday","weekdays.thursday","weekdays.friday","weekdays.saturday"][template.day_of_week ?? 1]
+    return `${t("recurring.weekly")} · ${t(dayKey)}`
+  }
+
+  function nextOccurrenceLabel(): string {
+    const next = computeNextOccurrence(template)
+    return next.toLocaleDateString(dateLocale, { day: "numeric", month: "short" })
+  }
 
   async function handleToggle(checked: boolean) {
     setActive(checked)
     const result = await toggleRecurringTemplate(template.id, checked)
-    if (result.error) setActive(!checked) // revert on error
+    if (result.error) setActive(!checked)
   }
 
   return (
@@ -71,18 +76,15 @@ function RecurringCard({
       onClick={() => onEdit(template)}
       className="group relative cursor-pointer rounded-2xl border border-border/50 bg-card p-4 hover:bg-muted/20 transition-all duration-200"
     >
-      {/* Left accent bar colored by type */}
       <div className={`absolute left-0 top-4 bottom-4 w-0.5 rounded-full ${
         template.type === "income" ? "bg-emerald-500/60" : "bg-rose-500/60"
       }`} />
 
       <div className="flex items-center gap-3 pl-3">
-        {/* Icon */}
         <div className="w-9 h-9 rounded-xl bg-muted/60 flex items-center justify-center shrink-0">
           <IconComp size={16} className="text-muted-foreground" />
         </div>
 
-        {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
             <p className="font-aeonik text-sm truncate">{template.description}</p>
@@ -95,12 +97,11 @@ function RecurringCard({
 
           <div className="flex items-center justify-between mt-1 gap-2">
             <div className="min-w-0">
-              <p className="text-[11px] font-aeonik-light text-muted-foreground truncate">{intervalLabel(template)}</p>
+              <p className="text-[11px] font-aeonik-light text-muted-foreground truncate">{intervalLabel()}</p>
               <p className="text-[10px] font-aeonik-light text-muted-foreground/60 truncate">
-                {accountName} · próxima {nextOccurrence(template)}
+                {accountName} · {t("recurring.next")} {nextOccurrenceLabel()}
               </p>
             </div>
-            {/* Switch: stop propagation so click doesn't open edit modal */}
             <div onClick={(e) => e.stopPropagation()}>
               <Switch
                 checked={active}
@@ -118,7 +119,7 @@ function RecurringCard({
 // ─── Shell ────────────────────────────────────────────────────────────────────
 
 export function RecurringShell({ templates, accounts, categories }: RecurringPageData) {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const [modalOpen, setModalOpen] = useState(false)
   const [editingTemplate, setEditingTemplate] = useState<RecurringTemplate | undefined>()
 
@@ -168,12 +169,14 @@ export function RecurringShell({ templates, accounts, categories }: RecurringPag
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full">
-          {templates.map(t => (
+          {templates.map(tmpl => (
             <RecurringCard
-              key={t.id}
-              template={t}
+              key={tmpl.id}
+              template={tmpl}
               accounts={accounts}
               onEdit={handleEdit}
+              t={t}
+              locale={locale}
             />
           ))}
         </div>
