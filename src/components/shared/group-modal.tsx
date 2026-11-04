@@ -11,7 +11,7 @@ import { Input } from "@/src/components/ui/input"
 import { Label } from "@/src/components/ui/label"
 import { useI18n } from "@/src/lib/i18n"
 import { createSharedGroup, updateSharedGroup, deleteSharedGroup } from "@/src/lib/shared-actions"
-import { Plus, Trash2, Loader2, Users } from "lucide-react"
+import { Plus, Trash2, Loader2, Users, Mail, Clock } from "lucide-react"
 import type { SharedGroup } from "@/src/lib/shared-data"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/src/components/ui/alert-dialog"
 
@@ -24,6 +24,7 @@ const schema = z.object({
     share_pct: z.number().min(1).max(100),
     is_me: z.boolean(),
     color: z.string(),
+    invited_email: z.string().email().optional().nullable(),
   })).min(2),
 })
 
@@ -48,7 +49,7 @@ export function GroupModal({
   const { register, handleSubmit, control, watch, setValue, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: group
-      ? { name: group.name, members: group.members.map(m => ({ name: m.name, share_pct: m.share_pct, is_me: m.is_me, color: m.color })) }
+      ? { name: group.name, members: group.members.map(m => ({ name: m.name, share_pct: m.share_pct, is_me: m.is_me, color: m.color, invited_email: m.invited_email })) }
       : {
           name: '',
           members: [
@@ -125,46 +126,70 @@ export function GroupModal({
               </div>
 
               <div className="flex flex-col gap-2">
-                {fields.map((field, i) => (
-                  <div key={field.id} className="flex items-center gap-2 p-3 rounded-xl bg-muted/40 border border-border/30">
-                    <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                    <Input
-                      {...register(`members.${i}.name`)}
-                      placeholder={t('shared.memberName')}
-                      className="flex-1 h-8 text-sm rounded-lg bg-background/60 border-border/40"
-                    />
-                    <input type="hidden" {...register(`members.${i}.color`)} value={COLORS[i % COLORS.length]} />
-                    <div className="flex items-center gap-1">
-                      <Input
-                        type="number"
-                        {...register(`members.${i}.share_pct`, { valueAsNumber: true })}
-                        className="w-16 h-8 text-sm rounded-lg bg-background/60 border-border/40 text-center"
-                        min={1}
-                        max={99}
-                      />
-                      <span className="text-sm text-muted-foreground">%</span>
+                {fields.map((field, i) => {
+                  const isMe = members[i]?.is_me
+                  const memberData = group?.members[i]
+                  const isPending = !isMe && memberData?.invited_email && !memberData?.member_user_id
+                  return (
+                    <div key={field.id} className="flex flex-col gap-1.5 p-3 rounded-xl bg-muted/40 border border-border/30">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                        <Input
+                          {...register(`members.${i}.name`)}
+                          placeholder={t('shared.memberName')}
+                          className="flex-1 h-8 text-sm rounded-lg bg-background/60 border-border/40"
+                        />
+                        <input type="hidden" {...register(`members.${i}.color`)} value={COLORS[i % COLORS.length]} />
+                        <div className="flex items-center gap-1">
+                          <Input
+                            type="number"
+                            {...register(`members.${i}.share_pct`, { valueAsNumber: true })}
+                            className="w-16 h-8 text-sm rounded-lg bg-background/60 border-border/40 text-center"
+                            min={1}
+                            max={99}
+                          />
+                          <span className="text-sm text-muted-foreground">%</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              fields.forEach((_, j) => {
+                                setValue(`members.${j}.is_me`, j === i)
+                              })
+                            }}
+                            className={`text-xs px-2 py-0.5 rounded-full border transition-colors ${isMe ? 'bg-primary text-primary-foreground border-primary' : 'border-border/50 text-muted-foreground hover:border-primary/50'}`}
+                            title={t('shared.isMe')}
+                          >
+                            {t('shared.isMe')}
+                          </button>
+                        </div>
+                        {fields.length > 2 && (
+                          <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-rose-500" onClick={() => remove(i)}>
+                            <Trash2 size={13} />
+                          </Button>
+                        )}
+                      </div>
+                      {!isMe && (
+                        <div className="flex items-center gap-2 pl-5">
+                          <Mail size={12} className="text-muted-foreground shrink-0" />
+                          <Input
+                            {...register(`members.${i}.invited_email`)}
+                            type="email"
+                            placeholder={t('shared.inviteByEmail')}
+                            className="h-7 text-xs rounded-lg bg-background/60 border-border/40"
+                          />
+                          {isPending && (
+                            <span className="flex items-center gap-1 text-xs text-amber-500 shrink-0">
+                              <Clock size={11} />
+                              {t('shared.pendingInvite')}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          fields.forEach((_, j) => {
-                            setValue(`members.${j}.is_me`, j === i)
-                          })
-                        }}
-                        className={`text-xs px-2 py-0.5 rounded-full border transition-colors ${members[i]?.is_me ? 'bg-primary text-primary-foreground border-primary' : 'border-border/50 text-muted-foreground hover:border-primary/50'}`}
-                        title={t('shared.isMe')}
-                      >
-                        {t('shared.isMe')}
-                      </button>
-                    </div>
-                    {fields.length > 2 && (
-                      <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-rose-500" onClick={() => remove(i)}>
-                        <Trash2 size={13} />
-                      </Button>
-                    )}
-                  </div>
-                ))}
+                  )
+                })}
               </div>
 
               {fields.length < 6 && (

@@ -4,6 +4,49 @@ import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
 import { createSupabaseServer } from './supabase-server'
 
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+type MemberInput = {
+  name: string
+  share_pct: number
+  is_me: boolean
+  color: string
+  invited_email?: string | null
+}
+
+async function resolveMemberUserIds(
+  supabase: Awaited<ReturnType<typeof createSupabaseServer>>,
+  currentUserId: string,
+  members: MemberInput[],
+  groupId: string,
+) {
+  const rows = await Promise.all(members.map(async (m) => {
+    if (m.is_me) {
+      return { ...m, group_id: groupId, member_user_id: currentUserId, invited_email: null }
+    }
+    if (m.invited_email) {
+      const { data: uid } = await supabase.rpc('get_user_id_by_email', { p_email: m.invited_email })
+      return {
+        ...m,
+        group_id: groupId,
+        member_user_id: uid ?? null,
+        invited_email: uid ? null : m.invited_email.toLowerCase(),
+      }
+    }
+    return { ...m, group_id: groupId, member_user_id: null, invited_email: null }
+  }))
+  return rows
+}
+
+// ─── Claim invitations ────────────────────────────────────────────────────────
+
+export async function claimPendingInvitations(): Promise<void> {
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+  await supabase.rpc('claim_pending_invitations')
+}
+
 // ─── Groups ──────────────────────────────────────────────────────────────────
 
 const memberSchema = z.object({
@@ -11,6 +54,7 @@ const memberSchema = z.object({
   share_pct: z.number().min(1).max(100),
   is_me: z.boolean(),
   color: z.string().min(1),
+  invited_email: z.string().email().optional().nullable(),
 })
 
 const groupSchema = z.object({
@@ -39,9 +83,8 @@ export async function createSharedGroup(
 
   if (gErr || !group) return { error: gErr?.message ?? 'Failed to create group' }
 
-  const { error: mErr } = await supabase.from('shared_members').insert(
-    parsed.data.members.map(m => ({ ...m, group_id: group.id }))
-  )
+  const membersToInsert = await resolveMemberUserIds(supabase, user.id, parsed.data.members, group.id)
+  const { error: mErr } = await supabase.from('shared_members').insert(membersToInsert)
   if (mErr) return { error: mErr.message }
 
   revalidatePath('/shared')
@@ -70,9 +113,8 @@ export async function updateSharedGroup(
   if (gErr) return { error: gErr.message }
 
   await supabase.from('shared_members').delete().eq('group_id', id)
-  const { error: mErr } = await supabase.from('shared_members').insert(
-    parsed.data.members.map(m => ({ ...m, group_id: id }))
-  )
+  const membersToInsert = await resolveMemberUserIds(supabase, user.id, parsed.data.members, id)
+  const { error: mErr } = await supabase.from('shared_members').insert(membersToInsert)
   if (mErr) return { error: mErr.message }
 
   revalidatePath('/shared')

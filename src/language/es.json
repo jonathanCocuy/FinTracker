@@ -592,6 +592,8 @@
     "remaining": "restante",
     "addEntry": "Agregar entrada",
     "add": "Agregar",
-    "storeNamePlaceholder": "Tienda / lugar"
+    "storeNamePlaceholder": "Tienda / lugar",
+    "inviteByEmail": "Invitar por email (opcional)",
+    "pendingInvite": "Pendiente"
   }
 }

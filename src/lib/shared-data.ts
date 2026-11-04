@@ -8,6 +8,8 @@ export type SharedMember = {
   share_pct: number
   is_me: boolean
   color: string
+  member_user_id: string | null
+  invited_email: string | null
 }
 
 export type SharedGroup = {
@@ -60,10 +62,10 @@ export async function getSharedGroups(): Promise<SharedGroup[]> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return []
 
+  // RLS returns groups where user is owner or invited member
   const { data: groups } = await supabase
     .from('shared_groups')
     .select('id, name, created_at')
-    .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
   if (!groups?.length) return []
@@ -71,13 +73,15 @@ export async function getSharedGroups(): Promise<SharedGroup[]> {
   const groupIds = groups.map(g => g.id)
   const { data: members } = await supabase
     .from('shared_members')
-    .select('id, group_id, name, share_pct, is_me, color')
+    .select('id, group_id, name, share_pct, is_me, color, member_user_id, invited_email')
     .in('group_id', groupIds)
     .order('created_at')
 
   return groups.map(g => ({
     ...g,
-    members: (members ?? []).filter(m => m.group_id === g.id),
+    members: (members ?? [])
+      .filter(m => m.group_id === g.id)
+      .map(m => ({ ...m, is_me: m.member_user_id === user.id || m.is_me })),
   }))
 }
 
@@ -87,8 +91,8 @@ export async function getSharedGroupDetail(id: string): Promise<SharedGroupDetai
   if (!user) return null
 
   const [groupRes, membersRes, expensesRes, budgetsRes, entriesRes, accountsRes] = await Promise.all([
-    supabase.from('shared_groups').select('id, name, created_at').eq('id', id).eq('user_id', user.id).single(),
-    supabase.from('shared_members').select('id, group_id, name, share_pct, is_me, color').eq('group_id', id).order('created_at'),
+    supabase.from('shared_groups').select('id, name, created_at').eq('id', id).single(),
+    supabase.from('shared_members').select('id, group_id, name, share_pct, is_me, color, member_user_id, invited_email').eq('group_id', id).order('created_at'),
     supabase.from('shared_expenses').select('id, group_id, description, amount, category, date, paid_by_member_id, account_id, transaction_id, is_recurring, notes').eq('group_id', id).order('date', { ascending: false }),
     supabase.from('shared_budgets').select('id, group_id, name, total_amount, month').eq('group_id', id).order('month', { ascending: false }),
     supabase.from('shared_budget_entries').select('id, budget_id, store_name, amount_spent, date').order('created_at'),
@@ -102,8 +106,13 @@ export async function getSharedGroupDetail(id: string): Promise<SharedGroupDetai
     entries: (entriesRes.data ?? []).filter(e => e.budget_id === b.id),
   }))
 
+  const members = (membersRes.data ?? []).map(m => ({
+    ...m,
+    is_me: m.member_user_id === user.id || m.is_me,
+  }))
+
   return {
-    group: { ...groupRes.data, members: membersRes.data ?? [] },
+    group: { ...groupRes.data, members },
     expenses: expensesRes.data ?? [],
     budgets,
     accounts: accountsRes.data ?? [],

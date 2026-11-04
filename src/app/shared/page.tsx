@@ -1,9 +1,11 @@
 import { Suspense } from 'react'
 import { getSharedGroups } from '@/src/lib/shared-data'
+import { claimPendingInvitations } from '@/src/lib/shared-actions'
 import { GroupListShell } from '@/src/components/shared/group-list-shell'
 import SharedLoading from './loading'
 
 async function SharedContent() {
+  await claimPendingInvitations()
   const groups = await getSharedGroups()
   return <GroupListShell groups={groups} />
 }

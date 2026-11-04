@@ -592,6 +592,8 @@
     "remaining": "remaining",
     "addEntry": "Add entry",
     "add": "Add",
-    "storeNamePlaceholder": "Store / place"
+    "storeNamePlaceholder": "Store / place",
+    "inviteByEmail": "Invite by email (optional)",
+    "pendingInvite": "Pending"
   }
 }
