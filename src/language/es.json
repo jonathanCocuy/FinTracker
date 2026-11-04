@@ -595,5 +595,10 @@
     "storeNamePlaceholder": "Tienda / lugar",
     "inviteByEmail": "Invitar por email (opcional)",
     "pendingInvite": "Pendiente"
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "empty": "No tienes notificaciones",
+    "markAllRead": "Marcar todo leído"
   }
 }

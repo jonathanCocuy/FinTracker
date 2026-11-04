@@ -3,6 +3,7 @@
 import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
 import { createSupabaseServer } from './supabase-server'
+import { sendGroupInviteEmail } from './email'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -19,6 +20,8 @@ async function resolveMemberUserIds(
   currentUserId: string,
   members: MemberInput[],
   groupId: string,
+  groupName: string,
+  inviterName: string,
 ) {
   const rows = await Promise.all(members.map(async (m) => {
     if (m.is_me) {
@@ -26,11 +29,28 @@ async function resolveMemberUserIds(
     }
     if (m.invited_email) {
       const { data: uid } = await supabase.rpc('get_user_id_by_email', { p_email: m.invited_email })
+      if (uid) {
+        // User already exists: create in-app notification + send email
+        await supabase.rpc('create_notification', {
+          p_user_id: uid,
+          p_type: 'group_invite',
+          p_title: `Invitación a "${groupName}"`,
+          p_body: `${inviterName} te agregó al grupo compartido "${groupName}".`,
+          p_data: { group_id: groupId, group_name: groupName, inviter_name: inviterName },
+        })
+        sendGroupInviteEmail({
+          toEmail: m.invited_email,
+          toName: m.name,
+          inviterName,
+          groupName,
+        }).catch(console.error)
+        return { ...m, group_id: groupId, member_user_id: uid, invited_email: null }
+      }
       return {
         ...m,
         group_id: groupId,
-        member_user_id: uid ?? null,
-        invited_email: uid ? null : m.invited_email.toLowerCase(),
+        member_user_id: null,
+        invited_email: m.invited_email.toLowerCase(),
       }
     }
     return { ...m, group_id: groupId, member_user_id: null, invited_email: null }
@@ -75,6 +95,13 @@ export async function createSharedGroup(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
 
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('full_name')
+    .eq('id', user.id)
+    .single()
+  const inviterName = profile?.full_name ?? 'Alguien'
+
   const { data: group, error: gErr } = await supabase
     .from('shared_groups')
     .insert({ user_id: user.id, name: parsed.data.name })
@@ -83,7 +110,7 @@ export async function createSharedGroup(
 
   if (gErr || !group) return { error: gErr?.message ?? 'Failed to create group' }
 
-  const membersToInsert = await resolveMemberUserIds(supabase, user.id, parsed.data.members, group.id)
+  const membersToInsert = await resolveMemberUserIds(supabase, user.id, parsed.data.members, group.id, parsed.data.name, inviterName)
   const { error: mErr } = await supabase.from('shared_members').insert(membersToInsert)
   if (mErr) return { error: mErr.message }
 
@@ -105,6 +132,13 @@ export async function updateSharedGroup(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
 
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('full_name')
+    .eq('id', user.id)
+    .single()
+  const inviterName = profile?.full_name ?? 'Alguien'
+
   const { error: gErr } = await supabase
     .from('shared_groups')
     .update({ name: parsed.data.name })
@@ -113,7 +147,7 @@ export async function updateSharedGroup(
   if (gErr) return { error: gErr.message }
 
   await supabase.from('shared_members').delete().eq('group_id', id)
-  const membersToInsert = await resolveMemberUserIds(supabase, user.id, parsed.data.members, id)
+  const membersToInsert = await resolveMemberUserIds(supabase, user.id, parsed.data.members, id, parsed.data.name, inviterName)
   const { error: mErr } = await supabase.from('shared_members').insert(membersToInsert)
   if (mErr) return { error: mErr.message }
 

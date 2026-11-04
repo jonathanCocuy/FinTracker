@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"
 import { LanguageSwitcher } from "./language-switcher"
 import { ThemeToggle } from "./theme-toggle"
 import { TransactionModal } from "./dashboard/transaction-modal"
+import { NotificationBell } from "./notification-bell"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/src/components/ui/sheet"
 import { Button } from "@/src/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/src/components/ui/dropdown-menu"
@@ -39,21 +40,21 @@ export function Navbar() {
       <div className="container flex h-full items-center justify-between px-4">
         
         {/* Lado Izquierdo: Logo y Desktop Links */}
-        <div className="flex items-center gap-2 md:gap-8">
-          {/* Menu Hamburguesa - Solo visible en móvil */}
-          <div className="md:hidden">
+        <div className="flex items-center gap-2 lg:gap-8">
+          {/* Menu Hamburguesa - Solo visible en móvil/tablet */}
+          <div className="lg:hidden">
             <MobileNav showInvestments={showInvestments} />
           </div>
 
-          <Link href="/" className="flex items-center gap-2 text-lg md:text-xl tracking-tighter">
+          <Link href="/" className="flex items-center gap-2 text-lg lg:text-xl tracking-tighter">
             <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center shrink-0">
               <PiggyBank className="h-4 w-4 text-primary-foreground" fill="currentColor" />
             </div>
-            <span className="hidden md:block font-aeonik-bold">FlowX</span>
+            <span className="hidden lg:block font-aeonik-bold">FlowX</span>
           </Link>
 
           {/* Desktop Navigation */}
-          <NavigationMenu className="hidden md:flex">
+          <NavigationMenu className="hidden lg:flex">
             <NavigationMenuList>
               <NavigationMenuItem>
                 <NavigationMenuLink asChild data-active={pathname.startsWith("/dashboard") || undefined}>
@@ -118,17 +119,19 @@ export function Navbar() {
         </div>
 
         {/* Lado Derecho: Acciones y Usuario */}
-        <div className="flex items-center gap-2 md:gap-4">
+        <div className="flex items-center gap-2 lg:gap-4">
           <TransactionModal />
-          
-          <div className="hidden sm:flex items-center gap-1">
+
+          <NotificationBell />
+
+          <div className="hidden lg:flex items-center gap-1">
             <ThemeToggle />
             <LanguageSwitcher />
           </div>
-          
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-            <Avatar className="h-8 w-8 md:h-10 md:w-10 cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all shadow-sm">
+            <Avatar className="h-8 w-8 lg:h-10 lg:w-10 cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all shadow-sm">
           {/* Si profile tiene avatar_url, se muestra aquí */}
           <AvatarImage src={profile?.avatar_url || ""} alt={profile?.full_name} />
           
@@ -192,7 +195,7 @@ function MobileNav({ showInvestments }: { showInvestments: boolean }) {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="md:hidden hover:bg-accent/50 transition-colors">
+        <Button variant="ghost" size="icon" className="hover:bg-accent/50 transition-colors">
           <Menu className="h-5 w-5" />
           <span className="sr-only">{t("navbar.openMenu")}</span>
         </Button>
