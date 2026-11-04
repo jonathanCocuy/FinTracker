@@ -10,6 +10,7 @@ interface ProfileData {
   email: string;
   email_notifications: boolean;
   base_currency: string;
+  show_investments: boolean;
   created_at: string;
 }
 
@@ -33,7 +34,7 @@ export function useProfile() {
         // 2. Traemos los datos adicionales de la tabla pública 'profiles'
         const { data: dbProfile, error: dbError } = await supabase
           .from("profiles")
-          .select("full_name, avatar_url, email_notifications, base_currency")
+          .select("full_name, avatar_url, email_notifications, base_currency, show_investments")
           .eq("id", user.id)
           .single();
 
@@ -48,6 +49,7 @@ export function useProfile() {
           email: user.email || "",
           email_notifications: dbProfile?.email_notifications ?? true,
           base_currency: dbProfile?.base_currency ?? 'COP',
+          show_investments: dbProfile?.show_investments ?? false,
           created_at: user.created_at ?? "",
         });
 

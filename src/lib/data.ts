@@ -109,6 +109,7 @@ export type DashboardData = {
   budgetAlerts: BudgetAlert[]
   topGoals: SavingsGoal[]
   categories: UserCategory[]
+  topInvestments: InvestmentRecord[]
 }
 
 export type TransactionsPageData = {
@@ -199,6 +200,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     budgetAlerts: [],
     topGoals: [],
     categories: [],
+    topInvestments: [],
   }
 
   if (!user) return empty
@@ -214,7 +216,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   const sixMonthsAgoDate = new Date(now.getFullYear(), now.getMonth() - 5, 1)
   const sixMonthsAgo = `${sixMonthsAgoDate.getFullYear()}-${String(sixMonthsAgoDate.getMonth() + 1).padStart(2, '0')}-01`
 
-  const [profileRes, accountsRes, currentTxRes, prevTxRes, chartTxRes, budgetsRes, goalsRes, categoriesRes] = await Promise.all([
+  const [profileRes, accountsRes, currentTxRes, prevTxRes, chartTxRes, budgetsRes, goalsRes, categoriesRes, investmentsRes] = await Promise.all([
     supabase
       .from('profiles')
       .select('full_name, base_currency')
@@ -256,6 +258,12 @@ export async function getDashboardData(): Promise<DashboardData> {
       .select('id, name, label, color, icon')
       .eq('user_id', user.id)
       .order('created_at'),
+    supabase
+      .from('investment_records')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('date', { ascending: false })
+      .limit(4),
   ])
 
   let categories: UserCategory[] = categoriesRes.data ?? []
@@ -454,6 +462,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     budgetAlerts,
     topGoals,
     categories,
+    topInvestments: (investmentsRes.data ?? []) as InvestmentRecord[],
   }
 }
 
@@ -580,6 +589,34 @@ export async function getRecurringData(): Promise<RecurringPageData> {
     accounts: accountsRes.data ?? [],
     categories: categoriesRes.data ?? [],
   }
+}
+
+// ─── Investments ──────────────────────────────────────────────────────────────
+
+export type InvestmentRecord = {
+  id: string
+  user_id: string
+  name: string
+  type: 'etf' | 'stock' | 'crypto' | 'fund' | 'other'
+  amount: number
+  currency: 'COP' | 'USD'
+  date: string
+  notes: string | null
+  created_at: string
+}
+
+export async function getInvestmentsData(): Promise<InvestmentRecord[]> {
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+
+  const { data } = await supabase
+    .from('investment_records')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('date', { ascending: false })
+
+  return (data ?? []) as InvestmentRecord[]
 }
 
 export async function getGoalsData(): Promise<SavingsGoal[]> {

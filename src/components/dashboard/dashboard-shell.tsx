@@ -11,7 +11,7 @@ import { TransactionModal } from "./transaction-modal"
 import { AccountGrid } from "./account-card"
 import { EmptyState } from "@/src/components/ui/empty-state"
 import * as LucideIcons from "lucide-react"
-import { ArrowUpRight, Wallet, AlertTriangle, CheckCircle2, ChevronRight, Target } from "lucide-react"
+import { ArrowUpRight, Wallet, AlertTriangle, CheckCircle2, ChevronRight, Target, TrendingUp } from "lucide-react"
 import Link from "next/link"
 import { Navbar } from "@/src/components/navbar"
 import { AccountModal } from "@/src/components/dashboard/account-modal"
@@ -21,6 +21,7 @@ import { Progress } from "@/src/components/ui/progress"
 import type { DashboardData, DashboardTransaction } from "@/src/lib/data"
 import { cn } from "@/src/lib/utils"
 import { TrmBadge } from "@/src/components/dashboard/trm-badge"
+
 
 export function DashboardShell({ data }: { data: DashboardData }) {
   const { t, locale } = useI18n()
@@ -283,7 +284,52 @@ export function DashboardShell({ data }: { data: DashboardData }) {
                 </Link>
               </div>
             {/* Goals Widget */}
-            {data.topGoals.length > 0 ? (
+            {/* Investment Widget */}
+          {(() => {
+            const inv = data.topInvestments
+            if (inv.length === 0) return null
+            const totalCOP = inv.filter(r => r.currency === "COP").reduce((s, r) => s + r.amount, 0)
+            const totalUSD = inv.filter(r => r.currency === "USD").reduce((s, r) => s + r.amount, 0)
+            const fmtCOP = (v: number) => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(v)
+            const fmtUSD = (v: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(v)
+            return (
+              <div className="flex flex-col gap-4 w-full">
+                <div className="w-full flex flex-col gap-2 mt-4 px-2">
+                  <p className="text-[14px] font-aeonik-bold uppercase tracking-[0.2em] text-muted-foreground/50">{t("investments.widget")}</p>
+                  <div className="h-1 w-full bg-linear-to-r from-border/50 via-border to-transparent" />
+                </div>
+                <Link href="/investments" className="group w-full rounded-2xl border border-border/50 bg-card p-4 hover:border-primary/30 transition-all duration-200 flex flex-col flex-1">
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <TrendingUp size={15} className="text-primary" />
+                        <span className="text-sm font-semibold">{inv.length} {t("investments.widgetRecords")}</span>
+                      </div>
+                      <span className="flex items-center gap-0.5 text-xs font-semibold text-muted-foreground group-hover:text-primary transition-colors">
+                        {t("investments.widgetLink")}<ChevronRight size={13} />
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      {totalCOP > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-muted-foreground">COP</span>
+                          <span className="text-xs font-bold tabular-nums">{fmtCOP(totalCOP)}</span>
+                        </div>
+                      )}
+                      {totalUSD > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-muted-foreground">USD</span>
+                          <span className="text-xs font-bold tabular-nums">{fmtUSD(totalUSD)}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            )
+          })()}
+
+          {data.topGoals.length > 0 ? (
               <div className="flex flex-col gap-4 w-full">
                 <div className="w-full flex flex-col gap-2 mt-4 px-2">
                   <p className="text-[14px] font-aeonik-bold uppercase tracking-[0.2em] text-muted-foreground/50">

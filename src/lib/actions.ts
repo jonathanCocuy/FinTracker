@@ -277,6 +277,94 @@ export async function deleteAccount(
   return { success: true }
 }
 
+// ─── Investment Records ───────────────────────────────────────────────────────
+
+const investmentRecordSchema = z.object({
+  name:     z.string().min(1),
+  type:     z.enum(['etf', 'stock', 'crypto', 'fund', 'other']),
+  amount:   z.string().min(1),
+  currency: z.enum(['COP', 'USD']),
+  date:     z.string().min(1),
+  notes:    z.string().optional(),
+})
+
+export type InvestmentRecordInput = z.infer<typeof investmentRecordSchema>
+
+export async function createInvestmentRecord(
+  input: InvestmentRecordInput
+): Promise<{ success?: true; error?: string }> {
+  const parsed = investmentRecordSchema.safeParse(input)
+  if (!parsed.success) return { error: 'Invalid data' }
+
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { error } = await supabase.from('investment_records').insert({
+    user_id:  user.id,
+    name:     parsed.data.name,
+    type:     parsed.data.type,
+    amount:   parseFloat(parsed.data.amount),
+    currency: parsed.data.currency,
+    date:     parsed.data.date,
+    notes:    parsed.data.notes || null,
+  })
+
+  if (error) return { error: error.message }
+  revalidatePath('/investments')
+  revalidatePath('/dashboard')
+  return { success: true }
+}
+
+export async function updateInvestmentRecord(
+  id: string,
+  input: InvestmentRecordInput
+): Promise<{ success?: true; error?: string }> {
+  const parsed = investmentRecordSchema.safeParse(input)
+  if (!parsed.success) return { error: 'Invalid data' }
+
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { error } = await supabase
+    .from('investment_records')
+    .update({
+      name:     parsed.data.name,
+      type:     parsed.data.type,
+      amount:   parseFloat(parsed.data.amount),
+      currency: parsed.data.currency,
+      date:     parsed.data.date,
+      notes:    parsed.data.notes || null,
+    })
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) return { error: error.message }
+  revalidatePath('/investments')
+  revalidatePath('/dashboard')
+  return { success: true }
+}
+
+export async function deleteInvestmentRecord(
+  id: string
+): Promise<{ success?: true; error?: string }> {
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { error } = await supabase
+    .from('investment_records')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) return { error: error.message }
+  revalidatePath('/investments')
+  revalidatePath('/dashboard')
+  return { success: true }
+}
+
 // ─── updateTransaction ────────────────────────────────────────────────────────
 
 const updateTransactionSchema = z.object({

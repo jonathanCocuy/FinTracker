@@ -1,7 +1,7 @@
 "use client"
 
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, navigationMenuTriggerStyle } from "@/src/components/ui/navigation-menu"
-import { PiggyBank, UserIcon, Menu, LayoutDashboard, History, Wallet, Target, Tags, Repeat } from "lucide-react"
+import { PiggyBank, UserIcon, Menu, LayoutDashboard, History, Wallet, Target, Tags, Repeat, TrendingUp } from "lucide-react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"
 import { LanguageSwitcher } from "./language-switcher"
@@ -42,7 +42,7 @@ export function Navbar() {
         <div className="flex items-center gap-2 md:gap-8">
           {/* Menu Hamburguesa - Solo visible en móvil */}
           <div className="md:hidden">
-            <MobileNav />
+            <MobileNav showInvestments={profile?.show_investments ?? false} />
           </div>
 
           <Link href="/" className="flex items-center gap-2 text-lg md:text-xl tracking-tighter">
@@ -97,6 +97,15 @@ export function Navbar() {
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
+              {profile?.show_investments && (
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild data-active={pathname.startsWith("/investments") || undefined}>
+                    <Link href="/investments" className={navigationMenuTriggerStyle()}>
+                      {t("navbar.investments")}
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              )}
             </NavigationMenuList>
           </NavigationMenu>
         </div>
@@ -158,7 +167,7 @@ export function Navbar() {
   )
 }
 
-function MobileNav() {
+function MobileNav({ showInvestments }: { showInvestments: boolean }) {
   const { t } = useI18n()
   const pathname = usePathname()
 
@@ -168,7 +177,8 @@ function MobileNav() {
     { href: "/goals", label: t("navbar.goals"), Icon: Target },
     { href: "/transactions", label: t("navbar.history"), Icon: History },
     { href: "/categories", label: t("navbar.categories"), Icon: Tags },
-    { href: "/recurring",  label: t("navbar.recurring"),  Icon: Repeat },
+    { href: "/recurring",    label: t("navbar.recurring"),    Icon: Repeat },
+    ...(showInvestments ? [{ href: "/investments", label: t("navbar.investments"), Icon: TrendingUp }] : []),
   ]
 
   return (

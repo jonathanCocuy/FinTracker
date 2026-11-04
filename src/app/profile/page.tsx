@@ -10,7 +10,7 @@ import { Label } from "@/src/components/ui/label"
 import { Switch } from "@/src/components/ui/switch"
 import { Separator } from "@/src/components/ui/separator"
 import { ChangePasswordModal } from "@/src/components/auth/change-password"
-import { User, ShieldCheck, Crown, Loader2, Camera, Bell, Pencil, Check } from "lucide-react"
+import { User, ShieldCheck, Crown, Loader2, Camera, Bell, Pencil, Check, TrendingUp } from "lucide-react"
 import { useI18n } from "@/src/lib/i18n"
 import { ForgotPasswordModal } from "@/src/components/auth/forgot-password"
 import { supabase } from "@/src/lib/supabase"
@@ -49,6 +49,8 @@ export default function ProfilePage() {
   const [uploading, setUploading] = useState(false);
   const [emailNotificationsOverride, setEmailNotificationsOverride] = useState<boolean | null>(null);
   const emailNotifications = emailNotificationsOverride !== null ? emailNotificationsOverride : (profile?.email_notifications ?? true);
+  const [showInvestmentsOverride, setShowInvestmentsOverride] = useState<boolean | null>(null);
+  const showInvestments = showInvestmentsOverride !== null ? showInvestmentsOverride : (profile?.show_investments ?? false);
   const [baseCurrencyOverride, setBaseCurrencyOverride] = useState<string | null>(null);
   const baseCurrency = baseCurrencyOverride !== null ? baseCurrencyOverride : (profile?.base_currency ?? 'COP');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -95,6 +97,13 @@ export default function ProfilePage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     await supabase.from('profiles').update({ email_notifications: checked }).eq('id', user.id);
+  };
+
+  const handleToggleShowInvestments = async (checked: boolean) => {
+    setShowInvestmentsOverride(checked);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    await supabase.from('profiles').update({ show_investments: checked }).eq('id', user.id);
   };
 
   const handleBaseCurrencyChange = async (currency: string) => {
@@ -359,6 +368,16 @@ export default function ProfilePage() {
                     <p className="text-sm font-bold text-foreground">{t("profile.notifications.emailAlertsTitle")}</p>
                   </div>
                   <Switch checked={emailNotifications} onCheckedChange={handleToggleEmailNotifications} />
+                </div>
+                <div className="flex items-center justify-between p-5 rounded-3xl bg-muted/30 border border-border/50">
+                  <div className="flex items-center gap-3">
+                    <TrendingUp size={16} className="text-primary shrink-0" />
+                    <div className="space-y-0.5">
+                      <p className="text-sm font-bold text-foreground">{t("investments.showInvestments")}</p>
+                      <p className="text-[11px] text-muted-foreground">{t("investments.showInvestmentsDesc")}</p>
+                    </div>
+                  </div>
+                  <Switch checked={showInvestments} onCheckedChange={handleToggleShowInvestments} />
                 </div>
                 <div className="px-1 space-y-2">
                   <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">{t("profile.notifications.triggersTitle")}</p>
