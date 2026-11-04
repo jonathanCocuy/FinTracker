@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useI18n } from "@/src/lib/i18n"
 import { KpiCard, KpiHeroCard, type KpiItem } from "./kpi-cards"
 import { CategoryDonut } from "./category-donut"
@@ -29,13 +29,24 @@ export function DashboardShell({ data }: { data: DashboardData }) {
   const [createAccountOpen, setCreateAccountOpen] = useState(false)
   const [balancesVisible, setBalancesVisible] = useState(true)
 
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("flowx-balances-visible")
+      if (stored !== null) setBalancesVisible(stored === "true")
+    } catch {}
+  }, [])
+
+  useEffect(() => {
+    try { localStorage.setItem("flowx-balances-visible", String(balancesVisible)) } catch {}
+  }, [balancesVisible])
+
   const categoryColorMap: Record<string, string> = Object.fromEntries(
     data.categories.map(c => [c.name, c.color])
   )
 
   const hasAccounts = data.accounts.length > 0
 
-  const firstName = data.profile?.full_name?.split(" ")[0] || "..."
+  const firstName = data.profile?.full_name || "..."
   const baseCurrency = data.profile?.base_currency ?? 'COP'
   const dateLocale = locale === "en" ? "en-US" : "es-CO"
   const formattedDate = new Date().toLocaleDateString(dateLocale, {
@@ -97,15 +108,15 @@ export function DashboardShell({ data }: { data: DashboardData }) {
   return (
     <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">
       <Navbar />
-      <div className="flex items-end justify-between w-full px-2 pt-2">
-        <div className="flex flex-col gap-0.5">
-          <p className="text-[11px] font-aeonik-light uppercase tracking-[0.2em] text-muted-foreground/50">
+      <div className="flex items-center justify-between w-full px-2 pt-2">
+        <div className="flex flex-col gap-1">
+          <p className="text-xs font-medium text-muted-foreground/50 tracking-wide">
             {t("dashboard.welcome")}
           </p>
-          <h1 className="text-4xl font-black leading-none tracking-tight bg-gradient-to-r from-[#6366f1] via-[#8b5cf6] to-[#a78bfa] bg-clip-text text-transparent font-aeonik-bold">
+          <h1 className="text-3xl font-semibold tracking-tight text-foreground leading-none">
             {firstName}
           </h1>
-          <p className="text-[11px] font-aeonik-light text-muted-foreground/50 capitalize mt-1">
+          <p className="text-sm text-muted-foreground capitalize">
             {formattedDate}
           </p>
         </div>

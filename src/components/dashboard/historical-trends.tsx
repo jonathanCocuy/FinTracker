@@ -193,10 +193,10 @@ function StatPill({
     <div className="rounded-xl bg-card border border-border/50 p-3 flex flex-col gap-0.5">
       <span className="text-[11px] text-muted-foreground">{label}</span>
       <div className={`flex items-center gap-1 leading-tight ${colorClass}`}>
-        <Icon size={14} />
+        {Math.abs(value) >= 0.05 && <Icon size={14} />}
         <span className="text-xl font-bold tabular-nums">
           {value > 0 ? "+" : ""}
-          {value.toFixed(1)}%
+          {Math.abs(value) < 0.05 ? "0.0" : value.toFixed(1)}%
         </span>
       </div>
       <span className="text-[10px] text-muted-foreground/50">{vsLabel}</span>

@@ -48,7 +48,7 @@ export default function ForgotPasswordPage() {
         <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center shrink-0">
           <PiggyBank className="h-6 w-6 text-primary-foreground" fill="currentColor" />
         </div>
-        <span>FinTracker</span>
+        <span>FlowX</span>
       </div>
 
       <Card className="w-full min-w-sm max-w-sm">

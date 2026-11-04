@@ -8,7 +8,7 @@ import es from "@/src/language/es.json"
 const translations = { en, es } as const
 export type Locale = keyof typeof translations
 
-const STORAGE_KEY = "fin-tracker-locale"
+const STORAGE_KEY = "flowx-locale"
 
 function parseLocale(value: string | null): Locale {
   return value === "en" || value === "es" ? value : "es"

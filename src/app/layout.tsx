@@ -9,7 +9,7 @@ import { AuthListener } from "@/src/components/auth/auth-listener";
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
 export const metadata: Metadata = {
-  title: 'FinTracker',
+  title: 'FlowX',
   description: 'Track your finances',
 };
 

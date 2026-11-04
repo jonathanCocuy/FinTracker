@@ -84,7 +84,7 @@ export function exportToExcel(transactions: DashboardTransaction[], labels: Expo
 
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, ws, labels.sheetName)
-  XLSX.writeFile(wb, `FinTracker_Reporte_${fileDate()}.xlsx`)
+  XLSX.writeFile(wb, `FlowX_Reporte_${fileDate()}.xlsx`)
 }
 
 export function exportToPdf(
@@ -117,7 +117,7 @@ export function exportToPdf(
   doc.setFontSize(22)
   doc.setFont('helvetica', 'bold')
   doc.setTextColor(255, 255, 255)
-  doc.text('FinTracker', 14, 18)
+  doc.text('FlowX', 14, 18)
 
   // Subtitle + date
   doc.setFontSize(9)
@@ -188,5 +188,5 @@ export function exportToPdf(
     tableLineWidth: 0.2,
   })
 
-  doc.save(`FinTracker_Reporte_${fileDate()}.pdf`)
+  doc.save(`FlowX_Reporte_${fileDate()}.pdf`)
 }

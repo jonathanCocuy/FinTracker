@@ -49,7 +49,7 @@ export function Navbar() {
             <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center shrink-0">
               <PiggyBank className="h-4 w-4 text-primary-foreground" fill="currentColor" />
             </div>
-            <span className="hidden md:block font-aeonik-bold">FinTracker</span>
+            <span className="hidden md:block font-aeonik-bold">FlowX</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -189,7 +189,7 @@ function MobileNav() {
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary border border-primary/20 shadow-sm">
               <PiggyBank className="h-4 w-4 text-primary-foreground" fill="currentColor" />
             </div>
-            <span className="tracking-tighter font-aeonik-bold text-xl">FinTracker</span>
+            <span className="tracking-tighter font-aeonik-bold text-xl">FlowX</span>
           </SheetTitle>
         </div>
 

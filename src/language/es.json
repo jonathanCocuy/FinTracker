@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Fin Tracker",
+    "appName": "FlowX",
     "appDescription": "Rastrea tus finanzas",
     "email": "Correo",
     "password": "Contraseña",
@@ -203,7 +203,7 @@
     "memberSince": "Miembro desde",
     "personalInfo": {
       "title": "Información Personal",
-      "description": "Gestiona tus datos básicos de FinTracker.",
+      "description": "Gestiona tus datos básicos de FlowX.",
       "saveChanges": "Guardar Cambios",
       "changePhoto": "Cambiar foto",
       "uploadingPhoto": "Subiendo..."
@@ -239,7 +239,7 @@
   "changePassword": {
     "trigger": "Cambiar contraseña",
     "title": "Seguridad",
-    "description": "Actualiza tu contraseña para mantener tu cuenta de FinTracker segura.",
+    "description": "Actualiza tu contraseña para mantener tu cuenta de FlowX segura.",
     "currentPasswordLabel": "Contraseña Actual",
     "newPasswordLabel": "Nueva Contraseña",
     "confirmNewPasswordLabel": "Confirmar Nueva Contraseña",
@@ -263,7 +263,7 @@
   },
   "resetPassword": {
     "title": "Nueva Contraseña",
-    "description": "Escribe tu nueva clave para recuperar el acceso a FinTracker.",
+    "description": "Escribe tu nueva clave para recuperar el acceso a FlowX.",
     "newPasswordLabel": "Nueva clave",
     "confirmPasswordLabel": "Confirmar clave",
     "submit": "Actualizar Contraseña",
@@ -288,7 +288,7 @@
     },
     "enroll": {
       "title": "Seguridad de Dos Pasos",
-      "description": "Añade una capa extra de protección a tu cuenta de FinTracker usando una app de autenticación.",
+      "description": "Añade una capa extra de protección a tu cuenta de FlowX usando una app de autenticación.",
       "scanTitle": "Escanea el Código",
       "scanDescription": "Usa Google Authenticator o Authy para escanear este código QR.",
       "start": "Comenzar Configuración",
@@ -313,7 +313,7 @@
     "startNow": "Empezar ahora",
     "steps": {
       "welcome": {
-        "title": "¡Bienvenido a FinTracker!",
+        "title": "¡Bienvenido a FlowX!",
         "description": "La herramienta definitiva para tomar el control total de tu dinero de forma sencilla."
       },
       "accounts": {

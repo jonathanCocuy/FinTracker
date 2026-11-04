@@ -10,7 +10,7 @@ import { Label } from "@/src/components/ui/label"
 import { Switch } from "@/src/components/ui/switch"
 import { Separator } from "@/src/components/ui/separator"
 import { ChangePasswordModal } from "@/src/components/auth/change-password"
-import { User, ShieldCheck, Crown, Loader2, Camera, Bell } from "lucide-react"
+import { User, ShieldCheck, Crown, Loader2, Camera, Bell, Pencil, Check } from "lucide-react"
 import { useI18n } from "@/src/lib/i18n"
 import { ForgotPasswordModal } from "@/src/components/auth/forgot-password"
 import { supabase } from "@/src/lib/supabase"
@@ -39,6 +39,9 @@ export default function ProfilePage() {
   const { profile, loading: profileLoading } = useProfile();
 
   const [hasMounted, setHasMounted] = useState(false);
+  const [editingName, setEditingName] = useState(false);
+  const [nameValue, setNameValue] = useState("");
+  const [savingName, setSavingName] = useState(false);
   const [isMfaEnrollOpen, setIsMfaEnrollOpen] = useState(false);
   const [isMfaUnenrollOpen, setIsMfaUnenrollOpen] = useState(false);
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
@@ -49,6 +52,27 @@ export default function ProfilePage() {
   const [baseCurrencyOverride, setBaseCurrencyOverride] = useState<string | null>(null);
   const baseCurrency = baseCurrencyOverride !== null ? baseCurrencyOverride : (profile?.base_currency ?? 'COP');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (profile?.full_name) setNameValue(profile.full_name);
+  }, [profile?.full_name]);
+
+  const handleSaveName = async () => {
+    if (!nameValue.trim()) return;
+    setSavingName(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('profiles').update({ full_name: nameValue.trim() }).eq('id', user.id);
+        await supabase.auth.updateUser({ data: { full_name: nameValue.trim() } });
+      }
+      setEditingName(false);
+    } catch (err) {
+      console.error('Error saving name:', err);
+    } finally {
+      setSavingName(false);
+    }
+  };
 
   useEffect(() => {
     setHasMounted(true);
@@ -211,7 +235,7 @@ export default function ProfilePage() {
                 {profile?.email}
               </p>
               <h1 className="text-4xl font-black leading-none tracking-tight bg-linear-to-r from-[#6366f1] via-[#8b5cf6] to-[#a78bfa] bg-clip-text text-transparent mt-1">
-                {profile?.full_name}
+                {nameValue || profile?.full_name}
               </h1>
               {profile?.created_at && (
                 <p className="text-sm text-muted-foreground mt-2">
@@ -239,7 +263,36 @@ export default function ProfilePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="text-muted-foreground px-1">{t("common.fullName")}</Label>
-                  <Input defaultValue={profile?.full_name} className="bg-background border-border/50 rounded-2xl h-12" />
+                  <div className="relative">
+                    <Input
+                      value={nameValue}
+                      onChange={(e) => setNameValue(e.target.value)}
+                      disabled={!editingName}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleSaveName();
+                        if (e.key === "Escape") setEditingName(false);
+                      }}
+                      className="bg-background border-border/50 rounded-2xl h-12 pr-10 disabled:opacity-70 disabled:cursor-default"
+                    />
+                    {!editingName ? (
+                      <button
+                        type="button"
+                        onClick={() => setEditingName(true)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleSaveName}
+                        disabled={savingName}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-primary hover:text-primary/80 transition-colors disabled:opacity-50"
+                      >
+                        {savingName ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label className="text-muted-foreground px-1">{t("common.email")}</Label>

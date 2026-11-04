@@ -239,16 +239,14 @@ export async function updateAccount(
 
   if (fetchError || !current) return { error: 'Account not found' }
 
-  const newInitial = parseFloat(parsed.data.initial_balance)
-  const netTransactions = (current.balance ?? 0) - (current.initial_balance ?? 0)
-  const newBalance = newInitial + netTransactions
+  const newBalance = parseFloat(parsed.data.initial_balance)
 
   const { error } = await supabase
     .from('accounts')
     .update({
       name: parsed.data.name,
       color: parsed.data.color,
-      initial_balance: newInitial,
+      initial_balance: newBalance,
       balance: newBalance,
     })
     .eq('id', id)

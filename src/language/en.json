@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Fin Tracker",
+    "appName": "FlowX",
     "appDescription": "Track your finances",
     "email": "Email",
     "password": "Password",
@@ -221,7 +221,7 @@
     "memberSince": "Member since",
     "personalInfo": {
       "title": "Personal Information",
-      "description": "Manage your basic FinTracker data.",
+      "description": "Manage your basic FlowX data.",
       "saveChanges": "Save Changes",
       "changePhoto": "Change photo",
       "uploadingPhoto": "Uploading..."
@@ -257,7 +257,7 @@
   "changePassword": {
     "trigger": "Change password",
     "title": "Security",
-    "description": "Update your password to keep your FinTracker account secure.",
+    "description": "Update your password to keep your FlowX account secure.",
     "currentPasswordLabel": "Current Password",
     "newPasswordLabel": "New Password",
     "confirmNewPasswordLabel": "Confirm New Password",
@@ -281,7 +281,7 @@
   },
   "resetPassword": {
     "title": "New Password",
-    "description": "Enter your new password to regain access to FinTracker.",
+    "description": "Enter your new password to regain access to FlowX.",
     "newPasswordLabel": "New password",
     "confirmPasswordLabel": "Confirm password",
     "submit": "Update Password",
@@ -306,7 +306,7 @@
     },
     "enroll": {
       "title": "Two-Step Security",
-      "description": "Add an extra protection layer to your FinTracker account using an authenticator app.",
+      "description": "Add an extra protection layer to your FlowX account using an authenticator app.",
       "scanTitle": "Scan the Code",
       "scanDescription": "Use Google Authenticator or Authy to scan this QR code.",
       "start": "Start Setup",
@@ -331,7 +331,7 @@
     "startNow": "Get started now",
     "steps": {
       "welcome": {
-        "title": "Welcome to FinTracker!",
+        "title": "Welcome to FlowX!",
         "description": "The ultimate tool to take full control of your money in a simple way."
       },
       "accounts": {
