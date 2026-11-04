@@ -10,8 +10,8 @@ import { Button } from "@/src/components/ui/button"
 import { Input } from "@/src/components/ui/input"
 import { Label } from "@/src/components/ui/label"
 import { useI18n } from "@/src/lib/i18n"
-import { createSharedGroup, updateSharedGroup, deleteSharedGroup } from "@/src/lib/shared-actions"
-import { Plus, Trash2, Loader2, Users, Mail, Clock } from "lucide-react"
+import { createSharedGroup, updateSharedGroup, deleteSharedGroup, checkEmailExists } from "@/src/lib/shared-actions"
+import { Plus, Trash2, Loader2, Users, Mail, Clock, CheckCircle2, AlertCircle } from "lucide-react"
 import type { SharedGroup } from "@/src/lib/shared-data"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/src/components/ui/alert-dialog"
 
@@ -47,6 +47,18 @@ export function GroupModal({
   const [deleting, setDeleting] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  // Per-member email check: 'found' | 'not_found' | 'checking' | null
+  const [emailStatus, setEmailStatus] = useState<Record<number, 'found' | 'not_found' | 'checking' | null>>({})
+
+  const handleEmailBlur = async (index: number, email: string) => {
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setEmailStatus(s => ({ ...s, [index]: null }))
+      return
+    }
+    setEmailStatus(s => ({ ...s, [index]: 'checking' }))
+    const exists = await checkEmailExists(email)
+    setEmailStatus(s => ({ ...s, [index]: exists ? 'found' : 'not_found' }))
+  }
 
   const { register, handleSubmit, control, watch, setValue, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -173,18 +185,39 @@ export function GroupModal({
                         )}
                       </div>
                       {!isMe && (
-                        <div className="flex items-center gap-2 pl-5">
-                          <Mail size={12} className="text-muted-foreground shrink-0" />
-                          <Input
-                            {...register(`members.${i}.invited_email`)}
-                            type="email"
-                            placeholder={t('shared.inviteByEmail')}
-                            className="h-7 text-xs rounded-lg bg-background/60 border-border/40"
-                          />
-                          {isPending && (
-                            <span className="flex items-center gap-1 text-xs text-amber-500 shrink-0">
-                              <Clock size={11} />
-                              {t('shared.pendingInvite')}
+                        <div className="flex flex-col gap-1 pl-5">
+                          <div className="flex items-center gap-2">
+                            <Mail size={12} className="text-muted-foreground shrink-0" />
+                            <Input
+                              {...register(`members.${i}.invited_email`)}
+                              type="email"
+                              placeholder={t('shared.inviteByEmail')}
+                              className="h-7 text-xs rounded-lg bg-background/60 border-border/40"
+                              onBlur={e => handleEmailBlur(i, e.target.value)}
+                            />
+                            {isPending && (
+                              <span className="flex items-center gap-1 text-xs text-amber-500 shrink-0">
+                                <Clock size={11} />
+                                {t('shared.pendingInvite')}
+                              </span>
+                            )}
+                          </div>
+                          {emailStatus[i] === 'checking' && (
+                            <span className="flex items-center gap-1 text-xs text-muted-foreground pl-4">
+                              <Loader2 size={11} className="animate-spin" />
+                              {t('shared.checkingEmail')}
+                            </span>
+                          )}
+                          {emailStatus[i] === 'found' && (
+                            <span className="flex items-center gap-1 text-xs text-emerald-500 pl-4">
+                              <CheckCircle2 size={11} />
+                              {t('shared.emailFound')}
+                            </span>
+                          )}
+                          {emailStatus[i] === 'not_found' && (
+                            <span className="flex items-center gap-1 text-xs text-amber-500 pl-4">
+                              <AlertCircle size={11} />
+                              {t('shared.emailNotFound')}
                             </span>
                           )}
                         </div>

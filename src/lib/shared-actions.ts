@@ -58,6 +58,14 @@ async function resolveMemberUserIds(
   return rows
 }
 
+// ─── Email lookup ────────────────────────────────────────────────────────────
+
+export async function checkEmailExists(email: string): Promise<boolean> {
+  const supabase = await createSupabaseServer()
+  const { data } = await supabase.rpc('get_user_id_by_email', { p_email: email.toLowerCase() })
+  return !!data
+}
+
 // ─── Claim invitations ────────────────────────────────────────────────────────
 
 export async function claimPendingInvitations(): Promise<void> {

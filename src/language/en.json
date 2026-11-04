@@ -594,7 +594,10 @@
     "add": "Add",
     "storeNamePlaceholder": "Store / place",
     "inviteByEmail": "Invite by email (optional)",
-    "pendingInvite": "Pending"
+    "pendingInvite": "Pending",
+    "checkingEmail": "Checking...",
+    "emailFound": "Account found",
+    "emailNotFound": "No account found with this email. Double-check the spelling, or they will be invited when they sign up."
   },
   "notifications": {
     "title": "Notifications",

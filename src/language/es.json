@@ -594,7 +594,10 @@
     "add": "Agregar",
     "storeNamePlaceholder": "Tienda / lugar",
     "inviteByEmail": "Invitar por email (opcional)",
-    "pendingInvite": "Pendiente"
+    "pendingInvite": "Pendiente",
+    "checkingEmail": "Verificando...",
+    "emailFound": "Cuenta encontrada",
+    "emailNotFound": "No se encontró ninguna cuenta con este correo. Verifica que esté bien escrito o se enviará invitación cuando se registre."
   },
   "notifications": {
     "title": "Notificaciones",
