@@ -14,7 +14,6 @@ import * as LucideIcons from "lucide-react"
 import { ArrowUpRight, Wallet, AlertTriangle, CheckCircle2, ChevronRight, Target, TrendingUp, TrendingDown } from "lucide-react"
 import { AreaChart, Area, ResponsiveContainer, Tooltip } from "recharts"
 import Link from "next/link"
-import { Navbar } from "@/src/components/navbar"
 import { AccountModal } from "@/src/components/dashboard/account-modal"
 import { ExportMenu } from "@/src/components/dashboard/export-menu"
 import { HistoricalTrends } from "@/src/components/dashboard/historical-trends"
@@ -108,8 +107,7 @@ export function DashboardShell({ data }: { data: DashboardData }) {
   const columns = createColumns(t, data.accounts, locale, data.categories)
 
   return (
-    <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">
-      <Navbar />
+    <div className="flex flex-col gap-6 w-full">
       <div className="flex items-center justify-between w-full px-2 pt-2">
         <div className="flex flex-col gap-1">
           <p className="text-xs font-medium text-muted-foreground/50 tracking-wide">

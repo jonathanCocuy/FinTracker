@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Navbar } from "@/src/components/navbar"
 import { Button } from "@/src/components/ui/button"
 import { useI18n } from "@/src/lib/i18n"
 import { GroupModal } from "./group-modal"
@@ -60,9 +59,7 @@ export function GroupShell({ detail }: { detail: SharedGroupDetail }) {
   const myBalance = memberTotals.find(m => m.member.is_me)
 
   return (
-    <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">
-      <Navbar />
-      <div className="w-full">
+    <div className="flex flex-col gap-6 w-full">
 
         {/* Header */}
         <div className="flex items-start justify-between mb-8">
@@ -216,7 +213,6 @@ export function GroupShell({ detail }: { detail: SharedGroupDetail }) {
           </div>
         )}
 
-      </div>
 
       <GroupModal open={groupModalOpen} onOpenChange={setGroupModalOpen} group={group} />
 

@@ -1,4 +1,3 @@
-import { NavbarSkeleton } from "@/src/components/dashboard/navbar-loading"
 import { Skeleton } from "@/src/components/ui/skeleton"
 import { KpiGridSkeleton } from "@/src/components/dashboard/kpi-loading"
 import { AccountGridSkeleton } from "@/src/components/dashboard/account-loading"
@@ -40,10 +39,8 @@ function WidgetSkeleton() {
 
 export default function DashboardLoading() {
   return (
-    <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">
-      <NavbarSkeleton />
-
-      <div className="flex flex-col gap-4 p-4 w-full max-w-7xl mx-auto">
+    <div className="flex flex-col gap-6 w-full">
+      <div className="flex flex-col gap-4 w-full">
         <Skeleton className="h-8 w-52" />
       </div>
 

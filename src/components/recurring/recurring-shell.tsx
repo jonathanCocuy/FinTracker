@@ -4,7 +4,6 @@ import { useState } from "react"
 import * as LucideIcons from "lucide-react"
 import { Repeat, Plus } from "lucide-react"
 import { useI18n } from "@/src/lib/i18n"
-import { Navbar } from "@/src/components/navbar"
 import { Button } from "@/src/components/ui/button"
 import { Switch } from "@/src/components/ui/switch"
 import { RecurringModal } from "@/src/components/recurring/recurring-modal"
@@ -134,8 +133,7 @@ export function RecurringShell({ templates, accounts, categories }: RecurringPag
   }
 
   return (
-    <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto pb-20">
-      <Navbar />
+    <div className="flex flex-col gap-6 w-full pb-20">
 
       {/* Header */}
       <div className="w-full flex items-start justify-between px-2">

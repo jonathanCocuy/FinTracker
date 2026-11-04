@@ -1,4 +1,3 @@
-import { NavbarSkeleton } from "@/src/components/dashboard/navbar-loading"
 import { Skeleton } from "@/src/components/ui/skeleton"
 
 function BudgetCardSkeleton() {
@@ -28,10 +27,7 @@ function BudgetCardSkeleton() {
 
 export default function BudgetsLoading() {
   return (
-    <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">
-      <NavbarSkeleton />
-
-      <div className="flex flex-col gap-6 w-full">
+    <div className="flex flex-col gap-6 w-full">
         <div className="flex items-start justify-between px-2">
           <div className="flex flex-col gap-2">
             <Skeleton className="h-8 w-32" />
@@ -45,7 +41,6 @@ export default function BudgetsLoading() {
             <BudgetCardSkeleton key={i} />
           ))}
         </div>
-      </div>
     </div>
   )
 }

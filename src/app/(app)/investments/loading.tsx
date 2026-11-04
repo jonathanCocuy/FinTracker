@@ -1,4 +1,3 @@
-import { NavbarSkeleton } from "@/src/components/dashboard/navbar-loading"
 import { Skeleton } from "@/src/components/ui/skeleton"
 
 function InvestmentRowSkeleton() {
@@ -22,8 +21,7 @@ function InvestmentRowSkeleton() {
 
 export default function InvestmentsLoading() {
   return (
-    <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">
-      <NavbarSkeleton />
+    <div className="flex flex-col gap-6 w-full">
 
       <div className="flex items-center justify-between w-full px-2 pt-2">
         <div className="flex flex-col gap-2">

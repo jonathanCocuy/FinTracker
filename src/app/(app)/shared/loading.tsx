@@ -1,10 +1,8 @@
 import { Skeleton } from '@/src/components/ui/skeleton'
-import { Navbar } from '@/src/components/navbar'
 
 export default function SharedLoading() {
   return (
-    <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">
-      <Navbar />
+    <div className="flex flex-col gap-6 w-full">
       <div className="w-full space-y-6">
         <div className="flex items-center justify-between">
           <div className="space-y-1">

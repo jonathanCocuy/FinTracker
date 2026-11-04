@@ -4,7 +4,6 @@ import { useState } from "react"
 import { TrendingUp, Plus, BarChart2, Zap, Landmark, Package2 } from "lucide-react"
 import { useI18n } from "@/src/lib/i18n"
 import { cn } from "@/src/lib/utils"
-import { Navbar } from "@/src/components/navbar"
 import { InvestmentModal } from "./investment-modal"
 import type { InvestmentRecord } from "@/src/lib/data"
 
@@ -56,8 +55,7 @@ export function InvestmentsShell({ records }: InvestmentsShellProps) {
   const totalUSD = records.filter(r => r.currency === "USD").reduce((s, r) => s + r.amount, 0)
 
   return (
-    <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">
-      <Navbar />
+    <div className="flex flex-col gap-6 w-full">
 
       {/* Header */}
       <div className="flex items-center justify-between w-full px-2 pt-2">

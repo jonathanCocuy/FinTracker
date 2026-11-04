@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from "react"
 import { useI18n } from "@/src/lib/i18n"
-import { Navbar } from "@/src/components/navbar"
 import { TransactionTable } from "@/src/components/dashboard/transaction-table"
 import { TransactionModal } from "@/src/components/dashboard/transaction-modal"
 import { createColumns } from "@/src/components/dashboard/columns"
@@ -61,8 +60,7 @@ export function TransactionsShell({ data }: { data: TransactionsPageData }) {
   ]
 
   return (
-    <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">
-      <Navbar />
+    <div className="flex flex-col gap-6 w-full">
 
       <div className="flex flex-col gap-6 w-full">
         <div className="flex items-center justify-between px-2">

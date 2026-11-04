@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Navbar } from "@/src/components/navbar"
 import { Button } from "@/src/components/ui/button"
 import { useI18n } from "@/src/lib/i18n"
 import { GroupModal } from "./group-modal"
@@ -14,9 +13,7 @@ export function GroupListShell({ groups, myFullName }: { groups: SharedGroup[]; 
   const [modalOpen, setModalOpen] = useState(false)
 
   return (
-    <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">
-      <Navbar />
-      <div className="w-full">
+    <div className="flex flex-col gap-6 w-full">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">{t('shared.title')}</h1>
@@ -81,7 +78,6 @@ export function GroupListShell({ groups, myFullName }: { groups: SharedGroup[]; 
             })}
           </div>
         )}
-      </div>
 
       <GroupModal open={modalOpen} onOpenChange={setModalOpen} myFullName={myFullName} />
     </div>

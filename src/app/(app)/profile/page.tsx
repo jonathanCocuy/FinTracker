@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Navbar } from "@/src/components/navbar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
 import { Badge } from "@/src/components/ui/badge"
@@ -169,9 +168,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">
-      <Navbar />
-
+    <div className="flex flex-col gap-6 w-full">
       {/* Modal de Activación */}
       <MfaEnrollComponent 
         isOpen={isMfaEnrollOpen} 

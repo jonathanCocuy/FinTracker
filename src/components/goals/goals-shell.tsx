@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { useI18n } from "@/src/lib/i18n"
-import { Navbar } from "@/src/components/navbar"
 import { GoalCard } from "@/src/components/goals/goal-card"
 import { GoalModal } from "@/src/components/goals/goal-modal"
 import { ContributeModal } from "@/src/components/goals/contribute-modal"
@@ -45,8 +44,7 @@ export function GoalsShell({
   }
 
   return (
-    <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto pb-20">
-      <Navbar />
+    <div className="flex flex-col gap-6 w-full pb-20">
 
       <div className="w-full flex items-start justify-between px-2">
         <div className="flex flex-col gap-1">

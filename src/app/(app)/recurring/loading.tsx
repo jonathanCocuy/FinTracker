@@ -1,4 +1,3 @@
-import { NavbarSkeleton } from "@/src/components/dashboard/navbar-loading"
 import { Skeleton } from "@/src/components/ui/skeleton"
 
 function TemplateSkeleton() {
@@ -23,8 +22,7 @@ function TemplateSkeleton() {
 
 export default function RecurringLoading() {
   return (
-    <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto pb-20">
-      <NavbarSkeleton />
+    <div className="flex flex-col gap-6 w-full pb-20">
 
       <div className="w-full flex items-start justify-between px-2">
         <div className="flex flex-col gap-2">

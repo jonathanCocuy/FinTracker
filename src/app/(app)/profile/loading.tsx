@@ -1,10 +1,8 @@
-import { NavbarSkeleton } from "@/src/components/dashboard/navbar-loading"
 import { Skeleton } from "@/src/components/ui/skeleton"
 
 export default function ProfileLoading() {
   return (
-    <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">
-      <NavbarSkeleton />
+    <div className="flex flex-col gap-6 w-full">
 
       <main className="container max-w-5xl mx-auto p-4 md:p-8 space-y-8 w-full">
         <section className="relative overflow-hidden rounded-[32px] border border-border/50 bg-card p-8 md:p-12">
