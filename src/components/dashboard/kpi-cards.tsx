@@ -7,6 +7,7 @@ import { cn } from "@/src/lib/utils"
 import { CURRENCY_INFO, type SupportedCurrency } from "@/src/lib/currency"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/src/components/ui/tooltip"
 import { Info, Eye, EyeOff } from "lucide-react"
+import { useI18n } from "@/src/lib/i18n"
 
 export type KpiColor = "income" | "expense" | "savings" | "default"
 
@@ -35,6 +36,8 @@ function AnimatedValue({
   color: KpiColor;
   currencyCode?: string;
 }) {
+  const { locale } = useI18n()
+  const numLocale = locale === "en" ? "en-US" : "es-CO"
   const ref = useRef<HTMLSpanElement>(null)
   const motionValue = useMotionValue(0)
   const springValue = useSpring(motionValue, {
@@ -60,7 +63,7 @@ function AnimatedValue({
       }).format(Number(numVal.toFixed(info?.decimals ?? 2)))
       return `${fixedSign}${formatted}`
     }
-    const formatted = new Intl.NumberFormat("es-CO", {
+    const formatted = new Intl.NumberFormat(numLocale, {
       maximumFractionDigits: 0,
     }).format(Number(numVal.toFixed(0)))
     return `${fixedSign}${prefix}${formatted}`

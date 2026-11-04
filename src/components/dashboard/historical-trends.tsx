@@ -25,9 +25,6 @@ const formatYAxis = (value: number) => {
   return value.toString()
 }
 
-const fmtN = (v: number) =>
-  new Intl.NumberFormat("es-CO", { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(v)
-
 const tooltipStyle = {
   contentStyle: {
     backgroundColor: "var(--color-background)",
@@ -44,6 +41,8 @@ const tooltipStyle = {
 export function HistoricalTrends({ data }: HistoricalTrendsProps) {
   const { t, locale } = useI18n()
   const dateLocale = locale === "en" ? "en-US" : "es-CO"
+  const fmtN = (v: number) =>
+    new Intl.NumberFormat(dateLocale, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(v)
 
   const chartData = data.map(({ period, ingresos, gastos }) => ({
     label: new Date(period + "T00:00:00Z").toLocaleDateString(dateLocale, {

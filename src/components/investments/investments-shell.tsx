@@ -28,17 +28,19 @@ const TYPE_COLORS: Record<string, string> = {
   other:  "#6b7280",
 }
 
-function fmtAmount(value: number, currency: string) {
-  return new Intl.NumberFormat("es-CO", {
+function fmtAmount(value: number, currency: string, locale: string) {
+  const loc = locale === "en" ? "en-US" : "es-CO"
+  return new Intl.NumberFormat(loc, {
     style: "currency",
     currency,
     maximumFractionDigits: currency === "COP" ? 0 : 2,
   }).format(value)
 }
 
-function fmtDate(dateStr: string) {
+function fmtDate(dateStr: string, locale: string) {
+  const loc = locale === "en" ? "en-US" : "es-CO"
   const [y, m, d] = dateStr.split("-").map(Number)
-  return new Date(y, m - 1, d).toLocaleDateString("es-CO", {
+  return new Date(y, m - 1, d).toLocaleDateString(loc, {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -46,7 +48,7 @@ function fmtDate(dateStr: string) {
 }
 
 export function InvestmentsShell({ records }: InvestmentsShellProps) {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const [addOpen, setAddOpen] = useState(false)
   const [editing, setEditing] = useState<InvestmentRecord | null>(null)
 
@@ -84,13 +86,13 @@ export function InvestmentsShell({ records }: InvestmentsShellProps) {
           {totalCOP > 0 && (
             <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 flex flex-col gap-1">
               <span className="text-[11px] text-muted-foreground">{t("investments.totalCOP")}</span>
-              <span className="text-lg font-bold tabular-nums leading-tight">{fmtAmount(totalCOP, "COP")}</span>
+              <span className="text-lg font-bold tabular-nums leading-tight">{fmtAmount(totalCOP, "COP", locale)}</span>
             </div>
           )}
           {totalUSD > 0 && (
             <div className="rounded-2xl border border-border/50 bg-card p-4 flex flex-col gap-1">
               <span className="text-[11px] text-muted-foreground">{t("investments.totalUSD")}</span>
-              <span className="text-lg font-bold tabular-nums leading-tight">{fmtAmount(totalUSD, "USD")}</span>
+              <span className="text-lg font-bold tabular-nums leading-tight">{fmtAmount(totalUSD, "USD", locale)}</span>
             </div>
           )}
         </div>
@@ -137,7 +139,7 @@ export function InvestmentsShell({ records }: InvestmentsShellProps) {
                       {t(`investments.types.${r.type}`)}
                     </span>
                     <span className="text-[11px] text-muted-foreground/50">·</span>
-                    <span className="text-[11px] text-muted-foreground/70">{fmtDate(r.date)}</span>
+                    <span className="text-[11px] text-muted-foreground/70">{fmtDate(r.date, locale)}</span>
                   </div>
                   {r.notes && (
                     <p className="text-[11px] text-muted-foreground/60 truncate mt-0.5">{r.notes}</p>
@@ -146,7 +148,7 @@ export function InvestmentsShell({ records }: InvestmentsShellProps) {
 
                 {/* Amount */}
                 <div className="text-right shrink-0">
-                  <p className="text-sm font-bold tabular-nums">{fmtAmount(r.amount, r.currency)}</p>
+                  <p className="text-sm font-bold tabular-nums">{fmtAmount(r.amount, r.currency, locale)}</p>
                   <p className="text-[11px] text-muted-foreground/60">{r.currency}</p>
                 </div>
               </button>

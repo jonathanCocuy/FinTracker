@@ -408,6 +408,7 @@ export async function updateTransaction(
 
   if (error) return { error: error.message }
   revalidatePath('/dashboard')
+  revalidatePath('/transactions')
   return { success: true }
 }
 
@@ -485,6 +486,7 @@ export async function deleteTransaction(
 
   if (error) return { error: error.message }
   revalidatePath('/dashboard')
+  revalidatePath('/transactions')
   return { success: true }
 }
 
