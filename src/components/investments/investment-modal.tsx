@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/src/components/ui/dialog"
+import { ResponsiveModal } from "@/src/components/ui/responsive-modal"
 import {
   Form,
   FormControl,
@@ -111,14 +112,12 @@ export function InvestmentModal({ record, open, onOpenChange }: InvestmentModalP
   }
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { setSubmitError(null); onOpenChange(v) }}>
-      <DialogContent className="w-[95%] mx-auto sm:max-w-[440px] bg-card/95 backdrop-blur-md border-border shadow-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold tracking-tight">
-            {isEdit ? t("investments.editRecord") : t("investments.addRecord")}
-          </DialogTitle>
-        </DialogHeader>
-
+    <ResponsiveModal
+      open={open}
+      onOpenChange={(v) => { setSubmitError(null); onOpenChange(v) }}
+      title={isEdit ? t("investments.editRecord") : t("investments.addRecord")}
+      className="sm:max-w-[440px]"
+    >
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-1">
 
@@ -223,7 +222,6 @@ export function InvestmentModal({ record, open, onOpenChange }: InvestmentModalP
             )}
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+    </ResponsiveModal>
   )
 }

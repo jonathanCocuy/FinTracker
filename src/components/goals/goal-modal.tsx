@@ -5,6 +5,7 @@ import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/src/components/ui/dialog"
+import { ResponsiveModal } from "@/src/components/ui/responsive-modal"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/src/components/ui/alert-dialog"
 import { Button } from "@/src/components/ui/button"
 import { Input } from "@/src/components/ui/input"
@@ -46,6 +47,7 @@ export function GoalModal({
   const [deleting, setDeleting] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [icon, setIcon] = useState(goal?.icon || 'Target')
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const {
     register,
@@ -88,6 +90,7 @@ export function GoalModal({
 
   const onSubmit = async (data: FormData) => {
     setLoading(true)
+    setSubmitError(null)
     data.icon = icon
 
     const res = goal
@@ -97,7 +100,7 @@ export function GoalModal({
     setLoading(false)
 
     if (res.error) {
-      alert(res.error)
+      setSubmitError(res.error === 'rate_limited' ? t('rateLimit.tooManyRequests') : res.error)
     } else {
       onOpenChange(false)
     }
@@ -115,20 +118,18 @@ export function GoalModal({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] p-0 overflow-hidden bg-background/95 backdrop-blur-xl border-border/40 rounded-2xl">
-        <div className="px-6 pt-6 pb-4">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-primary/10 text-primary">
-                <ModalIcon icon={icon} />
-              </div>
-              {goal ? t("goals.editGoal") : t("goals.addGoal")}
-            </DialogTitle>
-          </DialogHeader>
-        </div>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="px-6 pb-6 flex flex-col gap-4">
+    <ResponsiveModal
+      open={open}
+      onOpenChange={(v) => { setSubmitError(null); onOpenChange(v) }}
+      title={
+        <span className="flex items-center gap-2">
+          <span className="p-1.5 rounded-lg bg-primary/10 text-primary"><ModalIcon icon={icon} /></span>
+          {goal ? t("goals.editGoal") : t("goals.addGoal")}
+        </span>
+      }
+      className="sm:max-w-[425px]"
+    >
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 pt-2">
           <div className="flex flex-col gap-4">
 
             <div className="flex gap-4 items-end">
@@ -180,6 +181,10 @@ export function GoalModal({
             </div>
           </div>
 
+          {submitError && (
+            <p className="text-xs text-rose-500 text-center">{submitError}</p>
+          )}
+
           <DialogFooter className="mt-6 flex sm:justify-between items-center gap-2 border-t border-border/40 pt-4">
             {goal ? (
               <>
@@ -224,7 +229,6 @@ export function GoalModal({
             </div>
           </DialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+    </ResponsiveModal>
   )
 }

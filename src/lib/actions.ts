@@ -3,6 +3,13 @@
 import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
 import { createSupabaseServer } from './supabase-server'
+import { rateLimit } from './rate-limit'
+
+function rl(userId: string, action: string) {
+  const result = rateLimit(userId, action, { limit: 15, windowMs: 60_000 })
+  if (!result.ok) throw new Error('rate_limited')
+  return result
+}
 
 const createTransactionSchema = z.object({
   icon: z.string().min(1),
@@ -27,6 +34,7 @@ export async function createTransaction(
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
+  try { rl(user.id, 'createTransaction') } catch { return { error: 'rate_limited' } }
 
   const { icon, description, amount, category, type, date, account_id, currency, exchange_rate } = parsed.data
 
@@ -300,6 +308,7 @@ export async function createInvestmentRecord(
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
+  try { rl(user.id, 'createInvestmentRecord') } catch { return { error: 'rate_limited' } }
 
   const { error } = await supabase.from('investment_records').insert({
     user_id:  user.id,
@@ -431,6 +440,8 @@ export async function upsertBudget(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
 
+  try { rl(user.id, 'upsertBudget') } catch { return { error: 'rate_limited' } }
+
   const { category, monthly_limit } = parsed.data
   const limit = parseFloat(monthly_limit)
   if (isNaN(limit) || limit <= 0) return { error: 'Invalid amount' }
@@ -508,6 +519,7 @@ export async function createGoal(
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
+  try { rl(user.id, 'createGoal') } catch { return { error: 'rate_limited' } }
 
   const { name, target_amount, deadline, icon } = parsed.data
 
@@ -845,6 +857,7 @@ export async function contributeToGoal(
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
+  try { rl(user.id, 'contributeToGoal') } catch { return { error: 'rate_limited' } }
 
   const { amount, create_transaction, account_id } = parsed.data
   const contributionAmount = parseFloat(amount)

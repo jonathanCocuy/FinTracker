@@ -7,6 +7,8 @@ import { Button } from "@/src/components/ui/button"
 import { useI18n } from "@/src/lib/i18n"
 import { useProfile } from "@/src/hooks/useProfile"
 import { deleteBudget } from "@/src/lib/actions"
+import { useEffect } from "react"
+import { toast } from "sonner"
 import { BudgetModal } from "./budget-modal"
 import type { BudgetsPageData, BudgetWithProgress, UserCategory } from "@/src/lib/data"
 import * as LucideIcons from "lucide-react"
@@ -169,6 +171,21 @@ export function BudgetsShell({ data }: { data: BudgetsPageData }) {
   const usedCategories = data.budgets.map(b => b.category)
   const canAddMore = usedCategories.length < data.categories.length
   const categoriesMap = Object.fromEntries(data.categories.map(c => [c.name, c]))
+
+  const overBudget = data.budgets.filter(b => b.isOverBudget)
+
+  useEffect(() => {
+    if (overBudget.length === 0) return
+    const names = overBudget
+      .map(b => categoriesMap[b.category]?.label ?? t(`categories.${b.category}`))
+      .join(", ")
+    toast.warning(t("budgets.alertToastTitle"), {
+      description: names,
+      duration: 6000,
+    })
+  // only on mount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">

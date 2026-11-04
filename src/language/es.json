@@ -373,7 +373,8 @@
     "onTrack": "En control",
     "widgetEmpty": "Sin presupuestos aún",
     "widgetEmptyDescription": "Crea presupuestos para controlar tus gastos por categoría.",
-    "widgetEmptyCta": "Crear presupuesto"
+    "widgetEmptyCta": "Crear presupuesto",
+    "alertToastTitle": "Límite superado en:"
   },
   "import": {
     "title": "Importar desde CSV",
@@ -523,6 +524,13 @@
     "noAccounts": "No tienes cuentas para descontar.",
     "contributionDescription": "Aporte a meta: {{name}}",
     "deleteGoal": "Eliminar meta",
-    "deleteGoalDesc": "Esta acción no se puede deshacer. La meta y todo su progreso serán eliminados permanentemente."
+    "deleteGoalDesc": "Esta acción no se puede deshacer. La meta y todo su progreso serán eliminados permanentemente.",
+    "timeProgress": "Tiempo transcurrido",
+    "daysLeft": "{{days}} días restantes",
+    "daysOverdue": "{{days}} días vencido",
+    "noDeadline": "Sin fecha límite"
+  },
+  "rateLimit": {
+    "tooManyRequests": "Demasiadas peticiones. Por favor espera un momento."
   }
 }

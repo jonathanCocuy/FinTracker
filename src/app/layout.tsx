@@ -4,7 +4,8 @@ import ThemeProvider from '@/src/components/theme-provider';
 import { Inter } from "next/font/google";
 import { cn } from "@/src/lib/utils";
 import { I18nProvider } from "@/src/lib/i18n";
-import { AuthListener } from "@/src/components/auth/auth-listener";
+import { AuthListener } from "@/src/components/auth/auth-listener"
+import { Toaster } from "@/src/components/ui/sonner";
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -23,6 +24,7 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
         <ThemeProvider>
           <I18nProvider>
             {children}
+            <Toaster richColors position="bottom-right" />
           </I18nProvider>
         </ThemeProvider>
       </body>

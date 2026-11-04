@@ -36,6 +36,7 @@ export function ContributeModal({
 }) {
   const { t } = useI18n()
   const [loading, setLoading] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const {
     register,
@@ -58,13 +59,14 @@ export function ContributeModal({
 
   const onSubmit = async (data: FormData) => {
     setLoading(true)
+    setSubmitError(null)
 
     const res = await contributeToGoal(goal.id, data)
 
     setLoading(false)
 
     if (res.error) {
-      alert(res.error)
+      setSubmitError(res.error === 'rate_limited' ? t('rateLimit.tooManyRequests') : res.error)
     } else {
       reset()
       onOpenChange(false)
@@ -73,7 +75,7 @@ export function ContributeModal({
 
   return (
     <Dialog open={open} onOpenChange={(open) => {
-      if (!open) reset()
+      if (!open) { reset(); setSubmitError(null) }
       onOpenChange(open)
     }}>
       <DialogContent className="sm:max-w-[425px] p-0 overflow-hidden bg-background/95 backdrop-blur-xl border-border/40 rounded-2xl">
@@ -151,6 +153,10 @@ export function ContributeModal({
             <div className="text-xs text-rose-500">
               {t("goals.noAccounts")}
             </div>
+          )}
+
+          {submitError && (
+            <p className="text-xs text-rose-500 text-center">{submitError}</p>
           )}
 
           <DialogFooter className="mt-4 pt-4 border-t border-border/40">

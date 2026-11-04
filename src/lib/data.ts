@@ -87,6 +87,7 @@ export type SavingsGoal = {
   current_amount: number
   deadline: string | null
   icon: string | null
+  created_at: string
 }
 
 export type DashboardData = {

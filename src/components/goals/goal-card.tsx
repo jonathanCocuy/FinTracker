@@ -32,6 +32,18 @@ export function GoalCard({
   const isAchieved = percentage >= 100
   const remaining = Math.max(goal.target_amount - goal.current_amount, 0)
 
+  // Time progress
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const startDate = new Date(goal.created_at)
+  startDate.setHours(0, 0, 0, 0)
+  const deadlineDate = goal.deadline ? new Date(goal.deadline + "T00:00:00") : null
+  const totalDays = deadlineDate ? Math.max(Math.round((deadlineDate.getTime() - startDate.getTime()) / 86400000), 1) : null
+  const elapsedDays = deadlineDate ? Math.round((today.getTime() - startDate.getTime()) / 86400000) : null
+  const daysLeft = deadlineDate ? Math.round((deadlineDate.getTime() - today.getTime()) / 86400000) : null
+  const timePercentage = (totalDays && elapsedDays !== null) ? Math.min(Math.round((elapsedDays / totalDays) * 100), 100) : null
+  const isOverdue = daysLeft !== null && daysLeft < 0
+
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat(locale === "en" ? "en-US" : "es-CO", {
       style: "currency",
@@ -89,7 +101,7 @@ export function GoalCard({
           </button>
         </div>
 
-        {/* Progress bar */}
+        {/* Amount progress bar */}
         <div className="flex flex-col gap-2">
           <div className="flex justify-between items-baseline">
             <span className="text-xs font-medium text-muted-foreground">
@@ -128,6 +140,32 @@ export function GoalCard({
             </span>
           </div>
         </div>
+
+        {/* Time progress bar */}
+        {timePercentage !== null && (
+          <div className="flex flex-col gap-1.5">
+            <div className="flex justify-between items-center">
+              <span className="text-[11px] text-muted-foreground/70">{t("goals.timeProgress")}</span>
+              <span className={cn(
+                "text-[11px] font-semibold",
+                isOverdue ? "text-rose-500" : "text-muted-foreground/70"
+              )}>
+                {isOverdue
+                  ? t("goals.daysOverdue").replace("{{days}}", String(Math.abs(daysLeft!)))
+                  : t("goals.daysLeft").replace("{{days}}", String(daysLeft!))}
+              </span>
+            </div>
+            <div className="h-1.5 w-full bg-muted/50 rounded-full overflow-hidden">
+              <div
+                className={cn(
+                  "h-full rounded-full transition-all duration-700",
+                  isOverdue ? "bg-rose-500" : timePercentage >= 80 ? "bg-amber-400" : "bg-indigo-400/60"
+                )}
+                style={{ width: `${timePercentage}%` }}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Contribute Button */}
         <button

@@ -11,7 +11,8 @@ import { TransactionModal } from "./transaction-modal"
 import { AccountGrid } from "./account-card"
 import { EmptyState } from "@/src/components/ui/empty-state"
 import * as LucideIcons from "lucide-react"
-import { ArrowUpRight, Wallet, AlertTriangle, CheckCircle2, ChevronRight, Target, TrendingUp } from "lucide-react"
+import { ArrowUpRight, Wallet, AlertTriangle, CheckCircle2, ChevronRight, Target, TrendingUp, TrendingDown } from "lucide-react"
+import { AreaChart, Area, ResponsiveContainer, Tooltip } from "recharts"
 import Link from "next/link"
 import { Navbar } from "@/src/components/navbar"
 import { AccountModal } from "@/src/components/dashboard/account-modal"
@@ -288,10 +289,29 @@ export function DashboardShell({ data }: { data: DashboardData }) {
           {(() => {
             const inv = data.topInvestments
             if (inv.length === 0 || !data.profile?.show_investments) return null
-            const totalCOP = inv.filter(r => r.currency === "COP").reduce((s, r) => s + r.amount, 0)
-            const totalUSD = inv.filter(r => r.currency === "USD").reduce((s, r) => s + r.amount, 0)
-            const fmtCOP = (v: number) => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(v)
-            const fmtUSD = (v: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(v)
+            const currency = data.profile?.base_currency ?? "COP"
+            const isUSD = currency === "USD"
+            const fmtAmt = (v: number) => new Intl.NumberFormat(isUSD ? "en-US" : "es-CO", {
+              style: "currency", currency, maximumFractionDigits: 0,
+            }).format(v)
+            const relevantInv = inv.filter(r => r.currency === currency)
+            const totalMain = relevantInv.reduce((s, r) => s + r.amount, 0)
+
+            // Build monthly cumulative sparkline
+            const monthMap: Record<string, number> = {}
+            for (const r of [...relevantInv].sort((a, b) => a.date.localeCompare(b.date))) {
+              const key = r.date.substring(0, 7)
+              monthMap[key] = (monthMap[key] ?? 0) + r.amount
+            }
+            let cumulative = 0
+            const sparkData = Object.entries(monthMap).map(([month, val]) => {
+              cumulative += val
+              return { month, total: cumulative }
+            })
+            const sparkTrend = sparkData.length >= 2
+              ? sparkData[sparkData.length - 1].total - sparkData[sparkData.length - 2].total
+              : 0
+
             return (
               <div className="flex flex-col gap-4 w-full">
                 <div className="w-full flex flex-col gap-2 mt-4 px-2">
@@ -302,24 +322,53 @@ export function DashboardShell({ data }: { data: DashboardData }) {
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <TrendingUp size={15} className="text-primary" />
+                        {sparkTrend >= 0
+                          ? <TrendingUp size={15} className="text-emerald-500" />
+                          : <TrendingDown size={15} className="text-rose-500" />
+                        }
                         <span className="text-sm font-semibold">{inv.length} {t("investments.widgetRecords")}</span>
                       </div>
                       <span className="flex items-center gap-0.5 text-xs font-semibold text-muted-foreground group-hover:text-primary transition-colors">
                         {t("investments.widgetLink")}<ChevronRight size={13} />
                       </span>
                     </div>
-                    <div className="flex flex-col gap-1.5">
-                      {totalCOP > 0 && (
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-muted-foreground">COP</span>
-                          <span className="text-xs font-bold tabular-nums">{fmtCOP(totalCOP)}</span>
-                        </div>
-                      )}
-                      {totalUSD > 0 && (
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-muted-foreground">USD</span>
-                          <span className="text-xs font-bold tabular-nums">{fmtUSD(totalUSD)}</span>
+
+                    {/* Total + sparkline */}
+                    <div className="flex items-end justify-between gap-4">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-xs text-muted-foreground">{currency}</span>
+                        <span className="text-lg font-black tabular-nums leading-tight">{fmtAmt(totalMain)}</span>
+                        {sparkData.length >= 2 && (
+                          <span className={`text-[11px] font-semibold ${sparkTrend >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
+                            {sparkTrend >= 0 ? "+" : ""}{fmtAmt(sparkTrend)} {t("dashboard.vsPreviousMonth")}
+                          </span>
+                        )}
+                      </div>
+                      {sparkData.length >= 2 && (
+                        <div className="h-12 w-28 shrink-0">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={sparkData} margin={{ top: 2, right: 2, left: 2, bottom: 2 }}>
+                              <defs>
+                                <linearGradient id="invSparkGrad" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
+                                  <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                                </linearGradient>
+                              </defs>
+                              <Tooltip
+                                contentStyle={{ display: "none" }}
+                                cursor={false}
+                              />
+                              <Area
+                                type="monotone"
+                                dataKey="total"
+                                stroke="#6366f1"
+                                strokeWidth={2}
+                                fill="url(#invSparkGrad)"
+                                dot={false}
+                                isAnimationActive
+                              />
+                            </AreaChart>
+                          </ResponsiveContainer>
                         </div>
                       )}
                     </div>

@@ -392,7 +392,8 @@
     "onTrack": "On track",
     "widgetEmpty": "No budgets yet",
     "widgetEmptyDescription": "Create budgets to track your spending by category.",
-    "widgetEmptyCta": "Create budget"
+    "widgetEmptyCta": "Create budget",
+    "alertToastTitle": "Over budget in:"
   },
   "import": {
     "title": "Import from CSV",
@@ -523,6 +524,13 @@
     "noAccounts": "You don't have any accounts to deduct from.",
     "contributionDescription": "Contribution to goal: {{name}}",
     "deleteGoal": "Delete goal",
-    "deleteGoalDesc": "This action cannot be undone. The goal and all its progress will be permanently deleted."
+    "deleteGoalDesc": "This action cannot be undone. The goal and all its progress will be permanently deleted.",
+    "timeProgress": "Time elapsed",
+    "daysLeft": "{{days}} days left",
+    "daysOverdue": "{{days}} days overdue",
+    "noDeadline": "No deadline"
+  },
+  "rateLimit": {
+    "tooManyRequests": "Too many requests. Please wait a moment."
   }
 }

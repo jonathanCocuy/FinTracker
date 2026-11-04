@@ -61,6 +61,13 @@ export function cleanAmount(raw: string): { value: number; isNegative: boolean }
     } else {
       numeric = stripped.replace(/,/g, '') // thousands separator
     }
+  } else if (hasDot) {
+    const parts = stripped.split('.')
+    if (parts.length > 2 || (parts.length === 2 && parts[1].length === 3)) {
+      // Multiple dots (1.234.567) or single dot with 3-digit group (50.000) → Latam thousands
+      numeric = stripped.replace(/\./g, '')
+    }
+    // else: treat as decimal (1.5, 50.25)
   }
 
   return { value: Math.abs(parseFloat(numeric) || 0), isNegative }
