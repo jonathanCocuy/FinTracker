@@ -950,7 +950,7 @@ export async function importTransactions(
     description: row.description,
     type: row.type,
     icon: 'Receipt',
-    category: 'Sin categoría',
+    category: 'other',
   }))
 
   // Bulk insert in chunks of 100

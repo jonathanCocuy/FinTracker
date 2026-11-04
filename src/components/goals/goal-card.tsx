@@ -2,6 +2,7 @@
 
 import * as LucideIcons from "lucide-react"
 import { useI18n } from "@/src/lib/i18n"
+import { useProfile } from "@/src/hooks/useProfile"
 import type { SavingsGoal } from "@/src/lib/data"
 import { Calendar, Plus, Edit3, CheckCircle2 } from "lucide-react"
 import { cn } from "@/src/lib/utils"
@@ -24,6 +25,8 @@ export function GoalCard({
   onContribute: () => void
 }) {
   const { t, locale } = useI18n()
+  const { profile } = useProfile()
+  const currency = profile?.base_currency ?? 'COP'
 
   const percentage = Math.min(Math.round((goal.current_amount / goal.target_amount) * 100), 100)
   const isAchieved = percentage >= 100
@@ -32,7 +35,7 @@ export function GoalCard({
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat(locale === "en" ? "en-US" : "es-CO", {
       style: "currency",
-      currency: "COP",
+      currency,
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount)

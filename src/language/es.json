@@ -153,7 +153,8 @@
     "subscriptions": "Suscripciones",
     "income": "Ingreso",
     "other": "Otro",
-    "leisure": "Ocio"
+    "leisure": "Ocio",
+    "transfer": "Transferencia"
   },
   "accounts": {
     "bancolombia": "Bancolombia",

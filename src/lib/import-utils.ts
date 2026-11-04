@@ -146,7 +146,7 @@ export function mapRows(
     }
 
     const date = parseDate(rawDate)
-    const description = rawDescription || 'Sin descripción'
+    const description = rawDescription || '-'
     const type = detectType(rawAmount, rawType)
     const fingerprint = makeFingerprint(date, amount, description)
 

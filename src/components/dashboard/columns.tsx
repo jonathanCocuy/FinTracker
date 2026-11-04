@@ -42,7 +42,7 @@ export function createColumns(t: (key: string) => string, accounts: DashboardAcc
               </span>
               <span className="text-[10px] md:text-sm text-muted-foreground/80 md:hidden uppercase tracking-widest font-bold">
                 {category === 'transfer'
-                  ? 'Transferencia'
+                  ? t("categories.transfer")
                   : categories.find(c => c.name === category)?.label ?? t(`categories.${category}`)}
               </span>
             </div>
@@ -82,7 +82,7 @@ export function createColumns(t: (key: string) => string, accounts: DashboardAcc
               style={{ color: category === 'transfer' ? '#6366f1' : undefined }}
             >
               {category === 'transfer'
-                ? 'Transferencia'
+                ? t("categories.transfer")
                 : categories.find(c => c.name === category)?.label ?? t(`categories.${category}`)}
             </span>
           </div>
