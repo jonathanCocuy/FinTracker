@@ -5,6 +5,7 @@ import { Navbar } from "@/src/components/navbar"
 import { Progress } from "@/src/components/ui/progress"
 import { Button } from "@/src/components/ui/button"
 import { useI18n } from "@/src/lib/i18n"
+import { useProfile } from "@/src/hooks/useProfile"
 import { deleteBudget } from "@/src/lib/actions"
 import { BudgetModal } from "./budget-modal"
 import type { BudgetsPageData, BudgetWithProgress, UserCategory } from "@/src/lib/data"
@@ -20,10 +21,11 @@ function CategoryIconDynamic({ cat, size = 16, overBudget }: { cat?: UserCategor
   return <Tag size={size} style={{ color }} />
 }
 
-function fmtCurrency(amount: number) {
-  return new Intl.NumberFormat("es-CO", {
+function fmtCurrency(amount: number, currency = "COP") {
+  const loc = currency === "USD" ? "en-US" : "es-CO"
+  return new Intl.NumberFormat(loc, {
     style: "currency",
-    currency: "COP",
+    currency,
     maximumFractionDigits: 0,
   }).format(Math.abs(amount))
 }
@@ -39,11 +41,13 @@ function BudgetCard({
   catInfo,
   onEdit,
   t,
+  currency,
 }: {
   budget: BudgetWithProgress
   catInfo?: UserCategory
   onEdit: () => void
   t: (key: string) => string
+  currency: string
 }) {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [isPending, startTransition] = useTransition()
@@ -75,7 +79,7 @@ function BudgetCard({
           <div className="flex flex-col">
             <span className="text-sm font-aeonik-bold">{catInfo?.label ?? t(`categories.${budget.category}`)}</span>
             <span className="text-xs font-aeonik-light text-muted-foreground">
-              {fmtCurrency(budget.spent)} {t("budgets.spentOf")} {fmtCurrency(budget.monthly_limit)}
+              {fmtCurrency(budget.spent, currency)} {t("budgets.spentOf")} {fmtCurrency(budget.monthly_limit, currency)}
             </span>
           </div>
         </div>
@@ -136,8 +140,8 @@ function BudgetCard({
           budget.isOverBudget ? "text-rose-500" : "text-emerald-500"
         )}>
           {budget.isOverBudget
-            ? `${t("budgets.overspent")} ${fmtCurrency(Math.abs(budget.remaining))}`
-            : `${t("budgets.remaining")} ${fmtCurrency(budget.remaining)}`
+            ? `${t("budgets.overspent")} ${fmtCurrency(Math.abs(budget.remaining), currency)}`
+            : `${t("budgets.remaining")} ${fmtCurrency(budget.remaining, currency)}`
           }
         </span>
         <span className={cn(
@@ -157,6 +161,8 @@ function BudgetCard({
 
 export function BudgetsShell({ data }: { data: BudgetsPageData }) {
   const { t } = useI18n()
+  const { profile } = useProfile()
+  const currency = profile?.base_currency ?? 'COP'
   const [createOpen, setCreateOpen] = useState(false)
   const [editingBudget, setEditingBudget] = useState<BudgetWithProgress | null>(null)
 
@@ -214,6 +220,7 @@ export function BudgetsShell({ data }: { data: BudgetsPageData }) {
                 catInfo={categoriesMap[budget.category]}
                 onEdit={() => setEditingBudget(budget)}
                 t={t}
+                currency={currency}
               />
             ))}
           </div>

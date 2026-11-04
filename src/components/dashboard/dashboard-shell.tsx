@@ -287,7 +287,7 @@ export function DashboardShell({ data }: { data: DashboardData }) {
             {/* Investment Widget */}
           {(() => {
             const inv = data.topInvestments
-            if (inv.length === 0) return null
+            if (inv.length === 0 || !data.profile?.show_investments) return null
             const totalCOP = inv.filter(r => r.currency === "COP").reduce((s, r) => s + r.amount, 0)
             const totalUSD = inv.filter(r => r.currency === "USD").reduce((s, r) => s + r.amount, 0)
             const fmtCOP = (v: number) => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(v)

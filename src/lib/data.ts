@@ -90,7 +90,7 @@ export type SavingsGoal = {
 }
 
 export type DashboardData = {
-  profile: { full_name: string; base_currency: string } | null
+  profile: { full_name: string; base_currency: string; show_investments: boolean } | null
   accounts: DashboardAccount[]
   totalBalance: number
   prevTotalBalance: number
@@ -225,7 +225,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   const [profileRes, accountsRes, currentTxRes, prevTxRes, chartTxRes, budgetsRes, goalsRes, categoriesRes, investmentsRes] = await Promise.all([
     supabase
       .from('profiles')
-      .select('full_name, base_currency')
+      .select('full_name, base_currency, show_investments')
       .eq('id', user.id)
       .single(),
     supabase
@@ -316,7 +316,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   // Format transactions for the table
   const transactions: DashboardTransaction[] = currentTx.map(tx => ({
     id: tx.id,
-    date: formatTxDate(tx.date),
+    date: tx.date ?? '',
     rawDate: tx.date ?? '',
     category: tx.category,
     description: tx.description,
@@ -523,26 +523,6 @@ export async function getBudgetsData(): Promise<BudgetsPageData> {
   return { budgets, categories: categoriesRes.data ?? [] }
 }
 
-function formatTxDate(dateStr: string): string {
-  if (!dateStr) return '-'
-
-  // Works with both "YYYY-MM-DD" and full ISO timestamps (timestamptz)
-  const datePart = dateStr.substring(0, 10)
-  const date = new Date(datePart + 'T00:00:00Z')
-
-  if (isNaN(date.getTime())) return '-'
-
-  const now = new Date()
-  const todayPart = now.toISOString().substring(0, 10)
-
-  if (datePart === todayPart) return 'Hoy'
-
-  const yesterday = new Date(now)
-  yesterday.setDate(yesterday.getDate() - 1)
-  if (datePart === yesterday.toISOString().substring(0, 10)) return 'Ayer'
-
-  return date.toLocaleDateString('es-CO', { day: 'numeric', month: 'short', timeZone: 'UTC' })
-}
 
 // ─── Recurring Templates ──────────────────────────────────────────────────────
 
