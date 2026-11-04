@@ -56,8 +56,9 @@ export function InvestmentsShell({ records }: InvestmentsShellProps) {
   const totalUSD = records.filter(r => r.currency === "USD").reduce((s, r) => s + r.amount, 0)
 
   return (
+    <>
+    <Navbar />
     <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">
-      <Navbar />
 
       {/* Header */}
       <div className="flex items-center justify-between w-full px-2 pt-2">
@@ -166,5 +167,6 @@ export function InvestmentsShell({ records }: InvestmentsShellProps) {
         />
       )}
     </div>
+    </>
   )
 }
