@@ -2,8 +2,8 @@ import { Skeleton } from "@/src/components/ui/skeleton"
 
 export function NavbarSkeleton() {
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/60 backdrop-blur-xl">
-      <div className="container flex h-16 items-center justify-between px-4">
+    <header className="sticky top-0 z-50 w-full h-16 border-b border-border/40 bg-background/60 backdrop-blur-xl overflow-hidden">
+      <div className="container flex h-full items-center justify-between px-4">
         <div className="flex items-center gap-2 md:gap-8">
           <div className="flex items-center gap-2">
             <Skeleton className="h-7 w-7 rounded-lg" />

@@ -35,8 +35,8 @@ export function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/60 backdrop-blur-xl">
-      <div className="container flex h-16 items-center justify-between px-4">
+    <header className="sticky top-0 z-50 w-full h-16 border-b border-border/40 bg-background/60 backdrop-blur-xl overflow-hidden">
+      <div className="container flex h-full items-center justify-between px-4">
         
         {/* Lado Izquierdo: Logo y Desktop Links */}
         <div className="flex items-center gap-2 md:gap-8">
