@@ -14,16 +14,23 @@ interface ProfileData {
   created_at: string;
 }
 
+const CACHE_KEY = 'profile_show_investments'
+
+function readInvestmentsCache(): boolean {
+  try { return localStorage.getItem(CACHE_KEY) === 'true' } catch { return false }
+}
+
 export function useProfile() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
+  // Stable initial value from cache — prevents navbar shift on every render
+  const [showInvestments, setShowInvestments] = useState<boolean>(readInvestmentsCache);
 
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
         setLoading(true);
 
-        // 1. Obtenemos la sesión actual del usuario
         const { data: { user }, error: userError } = await supabase.auth.getUser();
 
         if (userError || !user) {
@@ -31,7 +38,6 @@ export function useProfile() {
           return;
         }
 
-        // 2. Traemos los datos adicionales de la tabla pública 'profiles'
         const { data: dbProfile, error: dbError } = await supabase
           .from("profiles")
           .select("full_name, avatar_url, email_notifications, base_currency, show_investments")
@@ -42,14 +48,17 @@ export function useProfile() {
           console.error("Error cargando perfil:", dbError.message);
         }
 
-        // 3. Consolidamos la información
+        const si = dbProfile?.show_investments ?? false
+        try { localStorage.setItem(CACHE_KEY, String(si)) } catch {}
+        setShowInvestments(si)
+
         setProfile({
           full_name: dbProfile?.full_name || "Usuario",
           avatar_url: dbProfile?.avatar_url || "",
           email: user.email || "",
           email_notifications: dbProfile?.email_notifications ?? true,
           base_currency: dbProfile?.base_currency ?? 'COP',
-          show_investments: dbProfile?.show_investments ?? false,
+          show_investments: si,
           created_at: user.created_at ?? "",
         });
 
@@ -63,5 +72,5 @@ export function useProfile() {
     fetchProfileData();
   }, []);
 
-  return { profile, loading };
+  return { profile, loading, showInvestments };
 }

@@ -20,7 +20,7 @@ import { cn } from "@/src/lib/utils"
 export function Navbar() {
   const router = useRouter()
   const pathname = usePathname()
-  const { profile, loading } = useProfile()
+  const { profile, loading, showInvestments } = useProfile()
   const { t } = useI18n()
 
   const handleLogout = async () => {
@@ -42,7 +42,7 @@ export function Navbar() {
         <div className="flex items-center gap-2 md:gap-8">
           {/* Menu Hamburguesa - Solo visible en móvil */}
           <div className="md:hidden">
-            <MobileNav showInvestments={profile?.show_investments ?? false} />
+            <MobileNav showInvestments={showInvestments} />
           </div>
 
           <Link href="/" className="flex items-center gap-2 text-lg md:text-xl tracking-tighter">
@@ -97,7 +97,7 @@ export function Navbar() {
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
-              {profile?.show_investments && (
+              {showInvestments && (
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild data-active={pathname.startsWith("/investments") || undefined}>
                     <Link href="/investments" className={navigationMenuTriggerStyle()}>
