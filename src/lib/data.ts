@@ -66,6 +66,7 @@ export type DashboardTransaction = {
   destination_account_id: string | null
   currency: string
   exchange_rate: number
+  group_id: string | null
 }
 
 export type IncomeExpensePoint = {
@@ -153,7 +154,7 @@ export async function getTransactionsData(): Promise<TransactionsPageData> {
   const [txRes, accountsRes, catRes] = await Promise.all([
     supabase
       .from('transactions')
-      .select('id, description, amount, currency, exchange_rate, category, type, date, account_id, destination_account_id, icon')
+      .select('id, description, amount, currency, exchange_rate, category, type, date, account_id, destination_account_id, icon, group_id')
       .eq('user_id', user.id)
       .order('date', { ascending: false }),
     supabase
@@ -180,6 +181,7 @@ export async function getTransactionsData(): Promise<TransactionsPageData> {
     destination_account_id: tx.destination_account_id ?? null,
     currency: tx.currency ?? 'COP',
     exchange_rate: tx.exchange_rate ?? 1,
+    group_id: tx.group_id ?? null,
   }))
 
   return { transactions, accounts: accountsRes.data ?? [], categories: (catRes.data ?? []) as UserCategory[] }
@@ -235,7 +237,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       .eq('user_id', user.id),
     supabase
       .from('transactions')
-      .select('id, description, amount, currency, exchange_rate, category, type, date, account_id, destination_account_id, icon')
+      .select('id, description, amount, currency, exchange_rate, category, type, date, account_id, destination_account_id, icon, group_id')
       .eq('user_id', user.id)
       .gte('date', startOfCurrentMonth)
       .order('date', { ascending: false }),
@@ -328,6 +330,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     destination_account_id: (tx as { destination_account_id?: string | null }).destination_account_id ?? null,
     currency: (tx as { currency?: string }).currency ?? 'COP',
     exchange_rate: (tx as { exchange_rate?: number }).exchange_rate ?? 1,
+    group_id: (tx as { group_id?: string | null }).group_id ?? null,
   }))
 
   // Bar chart: expenses per weekday for the current week (Mon–Sun)

@@ -1,7 +1,7 @@
 "use client"
 
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, navigationMenuTriggerStyle } from "@/src/components/ui/navigation-menu"
-import { PiggyBank, UserIcon, Menu, LayoutDashboard, History, Wallet, Target, Tags, Repeat, TrendingUp } from "lucide-react"
+import { PiggyBank, UserIcon, Menu, LayoutDashboard, History, Wallet, Target, Tags, Repeat, TrendingUp, Users } from "lucide-react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"
 import { LanguageSwitcher } from "./language-switcher"
@@ -106,6 +106,13 @@ export function Navbar() {
                   </NavigationMenuLink>
                 </NavigationMenuItem>
               )}
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild data-active={pathname.startsWith("/shared") || undefined}>
+                  <Link href="/shared" className={navigationMenuTriggerStyle()}>
+                    {t("navbar.shared")}
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
         </div>
@@ -179,6 +186,7 @@ function MobileNav({ showInvestments }: { showInvestments: boolean }) {
     { href: "/categories", label: t("navbar.categories"), Icon: Tags },
     { href: "/recurring",    label: t("navbar.recurring"),    Icon: Repeat },
     ...(showInvestments ? [{ href: "/investments", label: t("navbar.investments"), Icon: TrendingUp }] : []),
+    { href: "/shared", label: t("navbar.shared"), Icon: Users },
   ]
 
   return (
