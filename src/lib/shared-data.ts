@@ -57,6 +57,14 @@ export type SharedGroupDetail = {
   accounts: DashboardAccount[]
 }
 
+export async function getMyFullName(): Promise<string> {
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return ''
+  const { data } = await supabase.from('profiles').select('full_name').eq('id', user.id).single()
+  return data?.full_name ?? ''
+}
+
 export async function getSharedGroups(): Promise<SharedGroup[]> {
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()

@@ -9,7 +9,7 @@ import { GroupModal } from "./group-modal"
 import { Users, ChevronRight, Plus } from "lucide-react"
 import type { SharedGroup } from "@/src/lib/shared-data"
 
-export function GroupListShell({ groups }: { groups: SharedGroup[] }) {
+export function GroupListShell({ groups, myFullName }: { groups: SharedGroup[]; myFullName: string }) {
   const { t } = useI18n()
   const [modalOpen, setModalOpen] = useState(false)
 
@@ -83,7 +83,7 @@ export function GroupListShell({ groups }: { groups: SharedGroup[] }) {
         )}
       </main>
 
-      <GroupModal open={modalOpen} onOpenChange={setModalOpen} />
+      <GroupModal open={modalOpen} onOpenChange={setModalOpen} myFullName={myFullName} />
     </div>
   )
 }

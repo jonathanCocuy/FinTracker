@@ -34,10 +34,12 @@ export function GroupModal({
   open,
   onOpenChange,
   group,
+  myFullName = '',
 }: {
   open: boolean
   onOpenChange: (v: boolean) => void
   group?: SharedGroup
+  myFullName?: string
 }) {
   const { t } = useI18n()
   const router = useRouter()
@@ -53,7 +55,7 @@ export function GroupModal({
       : {
           name: '',
           members: [
-            { name: '', share_pct: 50, is_me: true, color: COLORS[0] },
+            { name: myFullName, share_pct: 50, is_me: true, color: COLORS[0] },
             { name: '', share_pct: 50, is_me: false, color: COLORS[1] },
           ],
         },
