@@ -14,9 +14,9 @@ export function GroupListShell({ groups, myFullName }: { groups: SharedGroup[]; 
   const [modalOpen, setModalOpen] = useState(false)
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">
       <Navbar />
-      <main className="flex-1 container max-w-5xl mx-auto px-4 py-8">
+      <div className="w-full">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">{t('shared.title')}</h1>
@@ -81,7 +81,7 @@ export function GroupListShell({ groups, myFullName }: { groups: SharedGroup[]; 
             })}
           </div>
         )}
-      </main>
+      </div>
 
       <GroupModal open={modalOpen} onOpenChange={setModalOpen} myFullName={myFullName} />
     </div>

@@ -108,9 +108,8 @@ export function DashboardShell({ data }: { data: DashboardData }) {
   const columns = createColumns(t, data.accounts, locale, data.categories)
 
   return (
-    <>
-    <Navbar />
     <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">
+      <Navbar />
       <div className="flex items-center justify-between w-full px-2 pt-2">
         <div className="flex flex-col gap-1">
           <p className="text-xs font-medium text-muted-foreground/50 tracking-wide">
@@ -487,6 +486,5 @@ export function DashboardShell({ data }: { data: DashboardData }) {
         </>
       )}
     </div>
-    </>
   )
 }

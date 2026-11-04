@@ -134,9 +134,8 @@ export function RecurringShell({ templates, accounts, categories }: RecurringPag
   }
 
   return (
-    <>
-    <Navbar />
     <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto pb-20">
+      <Navbar />
 
       {/* Header */}
       <div className="w-full flex items-start justify-between px-2">
@@ -189,6 +188,5 @@ export function RecurringShell({ templates, accounts, categories }: RecurringPag
         template={editingTemplate}
       />
     </div>
-    </>
   )
 }

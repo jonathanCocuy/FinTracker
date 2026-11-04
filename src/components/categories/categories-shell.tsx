@@ -25,9 +25,8 @@ export function CategoriesShell({ categories }: { categories: UserCategory[] }) 
   }
 
   return (
-    <>
-    <Navbar />
     <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">
+      <Navbar />
 
       <div className="flex flex-col gap-6 w-full">
         <div className="flex items-start justify-between px-2">
@@ -95,6 +94,5 @@ export function CategoriesShell({ categories }: { categories: UserCategory[] }) 
         category={editingCategory}
       />
     </div>
-    </>
   )
 }

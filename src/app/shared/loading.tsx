@@ -3,9 +3,9 @@ import { Navbar } from '@/src/components/navbar'
 
 export default function SharedLoading() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">
       <Navbar />
-      <main className="flex-1 container max-w-5xl mx-auto px-4 py-8 space-y-6">
+      <div className="w-full space-y-6">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <Skeleton className="h-7 w-40" />
@@ -18,7 +18,7 @@ export default function SharedLoading() {
             <Skeleton key={i} className="h-36 rounded-2xl" />
           ))}
         </div>
-      </main>
+      </div>
     </div>
   )
 }

@@ -60,9 +60,9 @@ export function GroupShell({ detail }: { detail: SharedGroupDetail }) {
   const myBalance = memberTotals.find(m => m.member.is_me)
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex flex-col gap-8 justify-center items-center p-4 w-full max-w-7xl mx-auto">
       <Navbar />
-      <main className="flex-1 container max-w-5xl mx-auto px-4 py-8">
+      <div className="w-full">
 
         {/* Header */}
         <div className="flex items-start justify-between mb-8">
@@ -216,7 +216,7 @@ export function GroupShell({ detail }: { detail: SharedGroupDetail }) {
           </div>
         )}
 
-      </main>
+      </div>
 
       <GroupModal open={groupModalOpen} onOpenChange={setGroupModalOpen} group={group} />
 
