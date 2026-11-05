@@ -1,7 +1,6 @@
 "use client"
 
-import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, navigationMenuTriggerStyle } from "@/src/components/ui/navigation-menu"
-import { PiggyBank, UserIcon, Menu, LayoutDashboard, History, Wallet, Target, Tags, Repeat, TrendingUp, Users, BarChart2 } from "lucide-react"
+import { PiggyBank, UserIcon, Menu, LayoutDashboard, History, Wallet, Target, Tags, Repeat, TrendingUp, Users, BarChart2, ChevronDown, Plus, MoreHorizontal } from "lucide-react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"
 import { LanguageSwitcher } from "./language-switcher"
@@ -25,134 +24,144 @@ export function Navbar() {
   const { t } = useI18n()
 
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.log("Error al salir:", error.message);
-    } else {
-      // Limpiamos y mandamos al login
-      router.push("/login");
-      router.refresh();
+    const { error } = await supabase.auth.signOut()
+    if (!error) {
+      router.push("/login")
+      router.refresh()
     }
-  };
+  }
+
+  // Primary links — always visible on desktop
+  const primaryLinks = [
+    { href: "/dashboard",    label: t("navbar.summary") },
+    { href: "/transactions", label: t("navbar.history") },
+    { href: "/budgets",      label: t("navbar.budgets") },
+    { href: "/goals",        label: t("navbar.goals") },
+    { href: "/reports",      label: t("navbar.reports") },
+  ]
+
+  // Secondary links — collapsed into "More" dropdown on desktop
+  const secondaryLinks = [
+    { href: "/categories", label: t("navbar.categories"), Icon: Tags },
+    { href: "/recurring",  label: t("navbar.recurring"),  Icon: Repeat },
+    ...(showInvestments ? [{ href: "/investments", label: t("navbar.investments"), Icon: TrendingUp }] : []),
+    { href: "/shared",     label: t("navbar.shared"),     Icon: Users },
+  ]
+
+  const isSecondaryActive = secondaryLinks.some(l => pathname.startsWith(l.href))
 
   return (
-    <header className="sticky top-0 z-50 w-full h-16 border-b border-border/40 bg-background/60 backdrop-blur-xl overflow-hidden">
-      <div className="container flex h-full items-center justify-between px-4">
-        
-        {/* Lado Izquierdo: Logo y Desktop Links */}
-        <div className="flex items-center gap-2 lg:gap-8">
-          {/* Menu Hamburguesa - Solo visible en móvil/tablet */}
-          <div className="lg:hidden">
+    <header className="sticky top-0 z-50 w-full h-14 border-b border-border/40 bg-background/60 backdrop-blur-xl">
+      <div className="flex h-full items-center justify-between px-4 max-w-screen-2xl mx-auto">
+
+        {/* Left: logo + hamburger (mobile) or primary links (desktop) */}
+        <div className="flex items-center gap-6">
+          {/* Hamburger — mobile only */}
+          <div className="md:hidden">
             <MobileNav showInvestments={showInvestments} />
           </div>
 
-          <Link href="/" className="flex items-center gap-2 text-lg lg:text-xl tracking-tighter">
-            <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center shrink-0">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2 shrink-0">
+            <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center">
               <PiggyBank className="h-4 w-4 text-primary-foreground" fill="currentColor" />
             </div>
-            <span className="hidden lg:block font-aeonik-bold">FlowX</span>
+            <span className="font-aeonik-bold text-lg tracking-tighter hidden sm:block">FlowX</span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <NavigationMenu className="hidden lg:flex">
-            <NavigationMenuList>
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild data-active={pathname.startsWith("/dashboard") || undefined}>
-                  <Link href="/dashboard" className={navigationMenuTriggerStyle()}>
-                    {t("navbar.summary")}
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild data-active={pathname.startsWith("/budgets") || undefined}>
-                  <Link href="/budgets" className={navigationMenuTriggerStyle()}>
-                    {t("navbar.budgets")}
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild data-active={pathname.startsWith("/goals") || undefined}>
-                  <Link href="/goals" className={navigationMenuTriggerStyle()}>
-                    {t("navbar.goals")}
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild data-active={pathname.startsWith("/transactions") || undefined}>
-                  <Link href="/transactions" className={navigationMenuTriggerStyle()}>
-                    {t("navbar.history")}
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild data-active={pathname.startsWith("/categories") || undefined}>
-                  <Link href="/categories" className={navigationMenuTriggerStyle()}>
-                    {t("navbar.categories")}
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild data-active={pathname.startsWith("/recurring") || undefined}>
-                  <Link href="/recurring" className={navigationMenuTriggerStyle()}>
-                    {t("navbar.recurring")}
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              {showInvestments && (
-                <NavigationMenuItem>
-                  <NavigationMenuLink asChild data-active={pathname.startsWith("/investments") || undefined}>
-                    <Link href="/investments" className={navigationMenuTriggerStyle()}>
-                      {t("navbar.investments")}
-                    </Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-              )}
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild data-active={pathname.startsWith("/shared") || undefined}>
-                  <Link href="/shared" className={navigationMenuTriggerStyle()}>
-                    {t("navbar.shared")}
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild data-active={pathname.startsWith("/reports") || undefined}>
-                  <Link href="/reports" className={navigationMenuTriggerStyle()}>
-                    {t("navbar.reports")}
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
+          {/* Desktop primary nav */}
+          <nav className="hidden md:flex items-center gap-0.5">
+            {primaryLinks.map(({ href, label }) => {
+              const isActive = pathname.startsWith(href)
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={cn(
+                    "px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
+                    isActive
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
+                  )}
+                >
+                  {label}
+                </Link>
+              )
+            })}
+
+            {/* "More" dropdown for secondary links */}
+            {secondaryLinks.length > 0 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className={cn(
+                      "flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
+                      isSecondaryActive
+                        ? "bg-primary/10 text-primary"
+                        : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
+                    )}
+                  >
+                    <MoreHorizontal className="h-4 w-4" />
+                    <span className="sr-only">Más</span>
+                    <ChevronDown className="h-3 w-3 opacity-60" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-44 rounded-xl">
+                  {secondaryLinks.map(({ href, label, Icon }) => {
+                    const isActive = pathname.startsWith(href)
+                    return (
+                      <DropdownMenuItem key={href} asChild>
+                        <Link
+                          href={href}
+                          className={cn(
+                            "flex items-center gap-2 cursor-pointer rounded-lg",
+                            isActive && "text-primary bg-primary/10"
+                          )}
+                        >
+                          <Icon className="h-4 w-4" />
+                          {label}
+                        </Link>
+                      </DropdownMenuItem>
+                    )
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </nav>
         </div>
 
-        {/* Lado Derecho: Acciones y Usuario */}
-        <div className="flex items-center gap-2 lg:gap-4">
-          <TransactionModal />
+        {/* Right: actions + user */}
+        <div className="flex items-center gap-1.5">
+          {/* Full label on lg+, icon-only below */}
+          <div className="hidden lg:flex">
+            <TransactionModal />
+          </div>
+          <div className="flex lg:hidden">
+            <TransactionModal iconOnly />
+          </div>
 
           <NotificationBell />
 
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden md:flex items-center gap-0.5">
             <ThemeToggle />
             <LanguageSwitcher />
           </div>
 
+          {/* User menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-            <Avatar className="h-8 w-8 lg:h-10 lg:w-10 cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all shadow-sm">
-          {/* Si profile tiene avatar_url, se muestra aquí */}
-          <AvatarImage src={profile?.avatar_url || ""} alt={profile?.full_name} />
-          
-          {/* Si no hay imagen o está cargando, muestra el icono */}
-          <AvatarFallback className="bg-secondary">
-            {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-            ) : (
-              <UserIcon className="h-4 w-4 text-muted-foreground" />
-            )}
-          </AvatarFallback>
-        </Avatar>
+              <Avatar className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all ml-1">
+                <AvatarImage src={profile?.avatar_url || ""} alt={profile?.full_name} />
+                <AvatarFallback className="bg-secondary">
+                  {loading ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  ) : (
+                    <UserIcon className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </AvatarFallback>
+              </Avatar>
             </DropdownMenuTrigger>
-            
+
             <DropdownMenuContent align="end" className="w-56 mt-2 bg-background/95 backdrop-blur-xl border-border/40 rounded-xl shadow-xl">
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
@@ -160,18 +169,14 @@ export function Navbar() {
                   <p className="text-xs leading-none text-muted-foreground font-aeonik-light">{profile?.email}</p>
                 </div>
               </DropdownMenuLabel>
-              
               <DropdownMenuSeparator className="bg-border/40" />
-              
               <DropdownMenuItem asChild className="cursor-pointer focus:bg-primary/10 focus:text-primary rounded-lg m-1">
                 <Link href="/profile" className="flex w-full items-center">
                   <User className="mr-2 h-4 w-4" />
                   <span>{t("navbar.profile")}</span>
                 </Link>
               </DropdownMenuItem>
-              
               <DropdownMenuSeparator className="bg-border/40" />
-              
               <DropdownMenuItem className="cursor-pointer text-rose-500 focus:bg-rose-500/10 focus:text-rose-500 rounded-lg m-1">
                 <LogOut className="mr-2 h-4 w-4" />
                 <button onClick={handleLogout}>{t("navbar.logout")}</button>
@@ -189,21 +194,21 @@ function MobileNav({ showInvestments }: { showInvestments: boolean }) {
   const pathname = usePathname()
 
   const navItems = [
-    { href: "/dashboard", label: t("navbar.summary"), Icon: LayoutDashboard },
-    { href: "/budgets", label: t("navbar.budgets"), Icon: Wallet },
-    { href: "/goals", label: t("navbar.goals"), Icon: Target },
-    { href: "/transactions", label: t("navbar.history"), Icon: History },
-    { href: "/categories", label: t("navbar.categories"), Icon: Tags },
-    { href: "/recurring",    label: t("navbar.recurring"),    Icon: Repeat },
+    { href: "/dashboard",    label: t("navbar.summary"),     Icon: LayoutDashboard },
+    { href: "/transactions", label: t("navbar.history"),     Icon: History },
+    { href: "/budgets",      label: t("navbar.budgets"),     Icon: Wallet },
+    { href: "/goals",        label: t("navbar.goals"),       Icon: Target },
+    { href: "/reports",      label: t("navbar.reports"),     Icon: BarChart2 },
+    { href: "/categories",   label: t("navbar.categories"),  Icon: Tags },
+    { href: "/recurring",    label: t("navbar.recurring"),   Icon: Repeat },
     ...(showInvestments ? [{ href: "/investments", label: t("navbar.investments"), Icon: TrendingUp }] : []),
-    { href: "/shared", label: t("navbar.shared"), Icon: Users },
-    { href: "/reports", label: t("navbar.reports"), Icon: BarChart2 },
+    { href: "/shared",       label: t("navbar.shared"),      Icon: Users },
   ]
 
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="hover:bg-accent/50 transition-colors">
+        <Button variant="ghost" size="icon" className="hover:bg-accent/50">
           <Menu className="h-5 w-5" />
           <span className="sr-only">{t("navbar.openMenu")}</span>
         </Button>
@@ -211,24 +216,24 @@ function MobileNav({ showInvestments }: { showInvestments: boolean }) {
 
       <SheetContent
         side="left"
-        className="bg-background/95 backdrop-blur-xl border-r border-border/40 w-[280px] p-0 flex flex-col"
+        className="bg-background/95 backdrop-blur-xl border-r border-border/40 w-[260px] p-0 flex flex-col"
       >
-        {/* Drag-handle hint for touch / PWA users */}
+        {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-1">
           <div className="h-1 w-10 rounded-full bg-border/60" />
         </div>
 
-        <div className="p-6 pb-2">
+        <div className="p-5 pb-2">
           <SheetTitle className="text-left flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary border border-primary/20 shadow-sm">
+            <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center">
               <PiggyBank className="h-4 w-4 text-primary-foreground" fill="currentColor" />
             </div>
             <span className="tracking-tighter font-aeonik-bold text-xl">FlowX</span>
           </SheetTitle>
         </div>
 
-        <div className="flex-1 px-4 mt-4">
-          <nav className="flex flex-col gap-1">
+        <div className="flex-1 px-3 mt-3 overflow-y-auto">
+          <nav className="flex flex-col gap-0.5">
             {navItems.map(({ href, label, Icon }) => {
               const isActive = pathname.startsWith(href)
               return (
@@ -236,40 +241,27 @@ function MobileNav({ showInvestments }: { showInvestments: boolean }) {
                   key={href}
                   href={href}
                   className={cn(
-                    "group flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200",
+                    "group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors",
                     isActive
                       ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:bg-primary/10 hover:text-primary"
+                      : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
                   )}
                 >
-                  <div className={cn(
-                    "p-1.5 rounded-md transition-colors",
-                    isActive ? "bg-primary/20" : "bg-muted group-hover:bg-primary/20"
-                  )}>
-                    <Icon size={18} />
-                  </div>
-                  <span className="font-aeonik text-sm font-medium">{label}</span>
+                  <Icon size={16} className="shrink-0" />
+                  <span className="text-sm font-medium">{label}</span>
                 </Link>
               )
             })}
           </nav>
         </div>
 
-        <div className="p-6 mt-auto border-t border-border/40 bg-accent/5 flex flex-col gap-2">
-          <div className="flex items-center justify-between bg-background/50 p-3 rounded-2xl border border-border/50">
-            <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-xs font-aeonik-bold uppercase tracking-wider text-muted-foreground/70">
-                {t("navbar.language")}
-              </span>
-            </div>
-            <LanguageSwitcher />
-          </div>
-          <div className="flex items-center justify-between bg-background/50 p-3 rounded-2xl border border-border/50">
-            <span className="text-xs font-aeonik-bold uppercase tracking-wider text-muted-foreground/70 pl-1">
-              {t("theme.light")} / {t("theme.dark")}
-            </span>
+        <div className="p-4 border-t border-border/40 flex items-center justify-between">
+          <span className="text-xs text-muted-foreground/60 font-aeonik-bold uppercase tracking-wider">
+            {t("theme.light")} / {t("theme.dark")}
+          </span>
+          <div className="flex items-center gap-1">
             <ThemeToggle />
+            <LanguageSwitcher />
           </div>
         </div>
       </SheetContent>

@@ -55,12 +55,13 @@ interface TransactionModalProps {
   transaction?: DashboardTransaction
   open?: boolean
   onOpenChange?: (open: boolean) => void
+  iconOnly?: boolean
 }
 
 type SubmitErrorState = { message: string; owner: "create" | string }
 
 // ─── Modal ────────────────────────────────────────────────────────────────────
-export function TransactionModal({ transaction, open: externalOpen, onOpenChange: externalOnOpenChange }: TransactionModalProps = {}) {
+export function TransactionModal({ transaction, open: externalOpen, onOpenChange: externalOnOpenChange, iconOnly }: TransactionModalProps = {}) {
   const { t } = useI18n()
   const [internalOpen, setInternalOpen] = useState(false)
   const [calendarOpen, setCalendarOpen] = useState(false)
@@ -268,10 +269,17 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       {!isEditMode && (
         <DialogTrigger asChild>
-          <Button className="rounded-xl shadow-md gap-2 font-semibold hover:scale-105 transition-transform">
-            <Plus size={18} />
-            <p className="text-xs">{t("transactionModal.newMovement")}</p>
-          </Button>
+          {iconOnly ? (
+            <Button size="icon" className="rounded-xl shadow-md hover:scale-105 transition-transform">
+              <Plus size={18} />
+              <span className="sr-only">{t("transactionModal.newMovement")}</span>
+            </Button>
+          ) : (
+            <Button className="rounded-xl shadow-md gap-2 font-semibold hover:scale-105 transition-transform">
+              <Plus size={18} />
+              <p className="text-xs">{t("transactionModal.newMovement")}</p>
+            </Button>
+          )}
         </DialogTrigger>
       )}
 
