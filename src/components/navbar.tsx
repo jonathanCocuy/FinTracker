@@ -213,6 +213,11 @@ function MobileNav({ showInvestments }: { showInvestments: boolean }) {
         side="left"
         className="bg-background/95 backdrop-blur-xl border-r border-border/40 w-[280px] p-0 flex flex-col"
       >
+        {/* Drag-handle hint for touch / PWA users */}
+        <div className="flex justify-center pt-3 pb-1">
+          <div className="h-1 w-10 rounded-full bg-border/60" />
+        </div>
+
         <div className="p-6 pb-2">
           <SheetTitle className="text-left flex items-center gap-2">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary border border-primary/20 shadow-sm">
