@@ -613,7 +613,7 @@
     "empty": "No tienes notificaciones",
     "markAllRead": "Marcar todo leído"
   },
-  "onboarding": {
+  "onboardingChecklist": {
     "title": "Primeros pasos",
     "progress": "{{done}} de {{total}} pasos completos",
     "stepAccount": "Crea tu primera cuenta",

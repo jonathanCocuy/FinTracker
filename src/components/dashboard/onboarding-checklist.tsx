@@ -31,28 +31,28 @@ export function OnboardingChecklist({ hasAccounts, hasTransactions, hasBudgets, 
     {
       key: "account",
       done: hasAccounts,
-      label: t("onboarding.stepAccount"),
+      label: t("onboardingChecklist.stepAccount"),
       href: null, // opens modal via dashboard CTA
       Icon: Wallet,
     },
     {
       key: "transaction",
       done: hasTransactions,
-      label: t("onboarding.stepTransaction"),
+      label: t("onboardingChecklist.stepTransaction"),
       href: null, // press N or the + button
       Icon: ArrowRight,
     },
     {
       key: "budget",
       done: hasBudgets,
-      label: t("onboarding.stepBudget"),
+      label: t("onboardingChecklist.stepBudget"),
       href: "/budgets",
       Icon: PiggyBank,
     },
     {
       key: "goal",
       done: hasGoals,
-      label: t("onboarding.stepGoal"),
+      label: t("onboardingChecklist.stepGoal"),
       href: "/goals",
       Icon: Target,
     },
@@ -72,9 +72,9 @@ export function OnboardingChecklist({ hasAccounts, hasTransactions, hasBudgets, 
     <div className="w-full rounded-2xl border border-primary/20 bg-primary/5 p-5 flex flex-col gap-4">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="font-aeonik-bold text-sm">{t("onboarding.title")}</p>
+          <p className="font-aeonik-bold text-sm">{t("onboardingChecklist.title")}</p>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {t("onboarding.progress")
+            {t("onboardingChecklist.progress")
             .replace("{{done}}", String(doneCount))
             .replace("{{total}}", String(steps.length))}
           </p>
@@ -130,7 +130,7 @@ export function OnboardingChecklist({ hasAccounts, hasTransactions, hasBudgets, 
       </div>
 
       <button onClick={dismiss} className="text-xs text-muted-foreground/60 hover:text-muted-foreground self-end transition-colors">
-        {t("onboarding.dismiss")}
+        {t("onboardingChecklist.dismiss")}
       </button>
     </div>
   )
