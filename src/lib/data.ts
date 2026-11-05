@@ -534,6 +534,8 @@ export async function getBudgetsData(): Promise<BudgetsPageData> {
       .select('id, category, monthly_limit, rollover_enabled')
       .eq('user_id', user.id)
       .order('category'),
+    // .eq('type', 'expense') intentionally excludes transfers — transfers must
+    // never count against a budget or affect rollover calculations.
     supabase
       .from('transactions')
       .select('category, amount, exchange_rate')
