@@ -1,5 +1,6 @@
 import { createSupabaseServer } from './supabase-server'
 import type { KpiItem } from '@/src/components/dashboard/kpi-cards'
+import { triggerBudgetAlerts } from './budget-alert-actions'
 
 export type UserCategory = {
   id: string
@@ -483,7 +484,7 @@ export async function getDashboardData(): Promise<DashboardData> {
 
   const monthStats: MonthStats = { topSpendingDay, avgDailyExpense, topGrowthCategory }
 
-  return {
+  const result = {
     profile: profileRes.data,
     accounts,
     totalBalance,
@@ -506,6 +507,12 @@ export async function getDashboardData(): Promise<DashboardData> {
     hasBudgets: (budgetsRes.data?.length ?? 0) > 0,
     hasTransactions: (currentTxRes.data?.length ?? 0) > 0,
   }
+
+  // Fire-and-forget: send budget alert emails for thresholds reached this month.
+  // The budget_alert_logs unique constraint prevents duplicate sends.
+  void triggerBudgetAlerts(result.budgetAlerts)
+
+  return result
 }
 
 export async function getBudgetsData(): Promise<BudgetsPageData> {
