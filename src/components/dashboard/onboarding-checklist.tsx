@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { CheckCircle2, Circle, X, Wallet, ArrowRight, PiggyBank, Target } from "lucide-react"
 import Link from "next/link"
 import { useI18n } from "@/src/lib/i18n"
@@ -17,15 +17,15 @@ const DISMISS_KEY = "flowx-onboarding-dismissed"
 
 export function OnboardingChecklist({ hasAccounts, hasTransactions, hasBudgets, hasGoals }: Props) {
   const { t } = useI18n()
-  const [dismissed, setDismissed] = useState(true) // start hidden to avoid flash
 
-  useEffect(() => {
+  const [dismissed, setDismissed] = useState(() => {
+    if (typeof window === "undefined") return false
     try {
-      setDismissed(localStorage.getItem(DISMISS_KEY) === "true")
+      return localStorage.getItem(DISMISS_KEY) === "true"
     } catch {
-      setDismissed(false)
+      return false
     }
-  }, [])
+  })
 
   const steps = [
     {
