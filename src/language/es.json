@@ -174,6 +174,7 @@
     "recurring": "Recurrentes",
     "investments": "Inversiones",
     "shared": "Compartido",
+    "reports": "Reportes",
     "profile": "Perfil",
     "logout": "Cerrar sesión",
     "openMenu": "Abrir menú",
@@ -611,5 +612,21 @@
     "title": "Notificaciones",
     "empty": "No tienes notificaciones",
     "markAllRead": "Marcar todo leído"
+  },
+  "reports": {
+    "title": "Reportes",
+    "subtitle": "Resumen financiero anual y mensual.",
+    "totalIncome": "Ingresos totales",
+    "totalExpenses": "Gastos totales",
+    "netSavings": "Ahorro neto",
+    "savingsRate": "Tasa de ahorro",
+    "monthlyOverview": "Resumen mensual",
+    "monthlyBreakdown": "Desglose mensual",
+    "topCategories": "Categorías con más gasto",
+    "month": "Mes",
+    "income": "Ingresos",
+    "expenses": "Gastos",
+    "savings": "Ahorro",
+    "noData": "Sin transacciones para este año."
   }
 }

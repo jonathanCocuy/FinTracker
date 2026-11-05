@@ -661,6 +661,143 @@ export async function getInvestmentsData(): Promise<InvestmentRecord[]> {
   return (data ?? []) as InvestmentRecord[]
 }
 
+// ─── Reports ─────────────────────────────────────────────────────────────────
+
+export type MonthlyReportRow = {
+  month: number      // 1–12
+  income: number
+  expenses: number
+  savings: number
+}
+
+export type CategoryReportRow = {
+  category: string
+  total: number
+  color: string
+}
+
+export type ReportsData = {
+  year: number
+  availableYears: number[]
+  totalIncome: number
+  totalExpenses: number
+  totalSavings: number
+  savingsRate: number
+  monthly: MonthlyReportRow[]
+  topCategories: CategoryReportRow[]
+  categories: UserCategory[]
+}
+
+export async function getReportsData(year?: number): Promise<ReportsData> {
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  const empty = (y: number): ReportsData => ({
+    year: y, availableYears: [y],
+    totalIncome: 0, totalExpenses: 0, totalSavings: 0, savingsRate: 0,
+    monthly: [], topCategories: [], categories: [],
+  })
+
+  if (!user) return empty(new Date().getFullYear())
+
+  // Get the range of years from transactions
+  const { data: yearsData } = await supabase
+    .from('transactions')
+    .select('date')
+    .eq('user_id', user.id)
+    .order('date', { ascending: true })
+    .limit(1)
+
+  const { data: yearsDataLast } = await supabase
+    .from('transactions')
+    .select('date')
+    .eq('user_id', user.id)
+    .order('date', { ascending: false })
+    .limit(1)
+
+  const thisYear = new Date().getFullYear()
+  const firstYear = yearsData?.[0]?.date ? new Date(yearsData[0].date).getFullYear() : thisYear
+  const lastYear = yearsDataLast?.[0]?.date ? new Date(yearsDataLast[0].date).getFullYear() : thisYear
+  const availableYears = Array.from(
+    { length: Math.max(lastYear, thisYear) - Math.min(firstYear, thisYear) + 1 },
+    (_, i) => Math.min(firstYear, thisYear) + i
+  ).reverse()
+
+  const selectedYear = year ?? thisYear
+  const start = `${selectedYear}-01-01`
+  const end = `${selectedYear}-12-31`
+
+  const [txRes, categoriesRes] = await Promise.all([
+    supabase
+      .from('transactions')
+      .select('date, amount, type, category, exchange_rate')
+      .eq('user_id', user.id)
+      .gte('date', start)
+      .lte('date', end)
+      .neq('type', 'transfer'),
+    supabase
+      .from('categories')
+      .select('id, name, label, color, icon')
+      .eq('user_id', user.id)
+      .order('created_at'),
+  ])
+
+  const categoryColorMap: Record<string, string> = {}
+  for (const c of categoriesRes.data ?? []) {
+    categoryColorMap[c.name] = c.color
+  }
+
+  const monthlyMap: Record<number, { income: number; expenses: number }> = {}
+  for (let m = 1; m <= 12; m++) monthlyMap[m] = { income: 0, expenses: 0 }
+
+  const categoryTotals: Record<string, number> = {}
+  let totalIncome = 0
+  let totalExpenses = 0
+
+  for (const tx of txRes.data ?? []) {
+    const m = new Date(tx.date).getMonth() + 1
+    const amount = tx.amount * (tx.exchange_rate ?? 1)
+    if (tx.type === 'income') {
+      monthlyMap[m].income += amount
+      totalIncome += amount
+    } else {
+      monthlyMap[m].expenses += amount
+      totalExpenses += amount
+      categoryTotals[tx.category] = (categoryTotals[tx.category] ?? 0) + amount
+    }
+  }
+
+  const monthly: MonthlyReportRow[] = Array.from({ length: 12 }, (_, i) => {
+    const m = i + 1
+    const { income, expenses } = monthlyMap[m]
+    return { month: m, income, expenses, savings: income - expenses }
+  })
+
+  const topCategories: CategoryReportRow[] = Object.entries(categoryTotals)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8)
+    .map(([category, total]) => ({
+      category,
+      total,
+      color: categoryColorMap[category] ?? '#94a3b8',
+    }))
+
+  const totalSavings = totalIncome - totalExpenses
+  const savingsRate = totalIncome > 0 ? (totalSavings / totalIncome) * 100 : 0
+
+  return {
+    year: selectedYear,
+    availableYears,
+    totalIncome,
+    totalExpenses,
+    totalSavings,
+    savingsRate,
+    monthly,
+    topCategories,
+    categories: categoriesRes.data ?? [],
+  }
+}
+
 export async function getGoalsData(): Promise<SavingsGoal[]> {
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()

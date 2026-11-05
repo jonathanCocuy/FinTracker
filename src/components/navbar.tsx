@@ -1,7 +1,7 @@
 "use client"
 
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, navigationMenuTriggerStyle } from "@/src/components/ui/navigation-menu"
-import { PiggyBank, UserIcon, Menu, LayoutDashboard, History, Wallet, Target, Tags, Repeat, TrendingUp, Users } from "lucide-react"
+import { PiggyBank, UserIcon, Menu, LayoutDashboard, History, Wallet, Target, Tags, Repeat, TrendingUp, Users, BarChart2 } from "lucide-react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"
 import { LanguageSwitcher } from "./language-switcher"
@@ -114,6 +114,13 @@ export function Navbar() {
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild data-active={pathname.startsWith("/reports") || undefined}>
+                  <Link href="/reports" className={navigationMenuTriggerStyle()}>
+                    {t("navbar.reports")}
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
         </div>
@@ -124,7 +131,7 @@ export function Navbar() {
 
           <NotificationBell />
 
-          <div className="hidden lg:flex items-center gap-1">
+          <div className="hidden md:flex items-center gap-1">
             <ThemeToggle />
             <LanguageSwitcher />
           </div>
@@ -190,6 +197,7 @@ function MobileNav({ showInvestments }: { showInvestments: boolean }) {
     { href: "/recurring",    label: t("navbar.recurring"),    Icon: Repeat },
     ...(showInvestments ? [{ href: "/investments", label: t("navbar.investments"), Icon: TrendingUp }] : []),
     { href: "/shared", label: t("navbar.shared"), Icon: Users },
+    { href: "/reports", label: t("navbar.reports"), Icon: BarChart2 },
   ]
 
   return (
