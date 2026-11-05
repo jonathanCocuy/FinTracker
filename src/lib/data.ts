@@ -118,6 +118,8 @@ export type DashboardData = {
   categories: UserCategory[]
   topInvestments: InvestmentRecord[]
   netWorthHistory: NetWorthPoint[]
+  hasBudgets: boolean
+  hasTransactions: boolean
 }
 
 export type TransactionsPageData = {
@@ -220,6 +222,8 @@ export async function getDashboardData(): Promise<DashboardData> {
     categories: [],
     topInvestments: [],
     netWorthHistory: [],
+    hasBudgets: false,
+    hasTransactions: false,
   }
 
   if (!user) return empty
@@ -499,6 +503,8 @@ export async function getDashboardData(): Promise<DashboardData> {
     categories,
     topInvestments: (investmentsRes.data ?? []) as InvestmentRecord[],
     netWorthHistory: (netWorthRes.data ?? []) as NetWorthPoint[],
+    hasBudgets: (budgetsRes.data?.length ?? 0) > 0,
+    hasTransactions: (currentTxRes.data?.length ?? 0) > 0,
   }
 }
 

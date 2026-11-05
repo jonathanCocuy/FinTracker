@@ -22,6 +22,7 @@ import { Progress } from "@/src/components/ui/progress"
 import type { DashboardData, DashboardTransaction } from "@/src/lib/data"
 import { cn } from "@/src/lib/utils"
 import { TrmBadge } from "@/src/components/dashboard/trm-badge"
+import { OnboardingChecklist } from "@/src/components/dashboard/onboarding-checklist"
 
 
 export function DashboardShell({ data }: { data: DashboardData }) {
@@ -123,6 +124,13 @@ export function DashboardShell({ data }: { data: DashboardData }) {
         </div>
         <TrmBadge baseCurrency={baseCurrency} />
       </div>
+
+      <OnboardingChecklist
+        hasAccounts={data.accounts.length > 0}
+        hasTransactions={data.hasTransactions}
+        hasBudgets={data.hasBudgets}
+        hasGoals={data.topGoals.length > 0}
+      />
 
       {/* KPI Layout */}
       <div className="w-full flex flex-col gap-3">

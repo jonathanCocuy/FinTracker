@@ -613,6 +613,26 @@
     "empty": "No tienes notificaciones",
     "markAllRead": "Marcar todo leído"
   },
+  "onboarding": {
+    "title": "Primeros pasos",
+    "progress": "{{done}} de {{total}} pasos completos",
+    "stepAccount": "Crea tu primera cuenta",
+    "stepTransaction": "Registra tu primera transacción",
+    "stepBudget": "Configura un presupuesto",
+    "stepGoal": "Crea una meta de ahorro",
+    "dismiss": "Descartar"
+  },
+  "shortcuts": {
+    "title": "Atajos de teclado",
+    "hint": "Los atajos se desactivan mientras escribes en un campo.",
+    "newTransaction": "Nueva transacción",
+    "dashboard": "Ir a Resumen",
+    "transactions": "Ir a Transacciones",
+    "budgets": "Ir a Presupuestos",
+    "goals": "Ir a Metas",
+    "reports": "Ir a Reportes",
+    "showHelp": "Ver atajos"
+  },
   "reports": {
     "title": "Reportes",
     "subtitle": "Resumen financiero anual y mensual.",

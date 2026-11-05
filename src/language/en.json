@@ -613,6 +613,26 @@
     "empty": "No notifications yet",
     "markAllRead": "Mark all read"
   },
+  "onboarding": {
+    "title": "Getting started",
+    "progress": "{{done}} of {{total}} steps complete",
+    "stepAccount": "Create your first account",
+    "stepTransaction": "Record your first transaction",
+    "stepBudget": "Set up a budget",
+    "stepGoal": "Create a savings goal",
+    "dismiss": "Dismiss"
+  },
+  "shortcuts": {
+    "title": "Keyboard shortcuts",
+    "hint": "Shortcuts are disabled while typing in a field.",
+    "newTransaction": "New transaction",
+    "dashboard": "Go to Dashboard",
+    "transactions": "Go to Transactions",
+    "budgets": "Go to Budgets",
+    "goals": "Go to Goals",
+    "reports": "Go to Reports",
+    "showHelp": "Show shortcuts"
+  },
   "reports": {
     "title": "Reports",
     "subtitle": "Annual and monthly financial summary.",

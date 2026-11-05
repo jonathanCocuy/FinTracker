@@ -16,9 +16,13 @@ export async function sendGroupInviteEmail({
     return
   }
 
+  // Set RESEND_FROM_EMAIL to your verified domain address, e.g. noreply@yourdomain.com
+  // Verify your domain at https://resend.com/domains
+  const fromAddress = process.env.RESEND_FROM_EMAIL ?? 'FlowX <onboarding@resend.dev>'
+
   const resend = new Resend(process.env.RESEND_API_KEY)
   await resend.emails.send({
-    from: 'FlowX <onboarding@resend.dev>',
+    from: fromAddress,
     to: toEmail,
     subject: `${inviterName} te invitó al grupo "${groupName}" en FlowX`,
     html: `

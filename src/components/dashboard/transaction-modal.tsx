@@ -103,6 +103,14 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
     setOpen(next)
   }
 
+  // Open via keyboard shortcut (N key)
+  useEffect(() => {
+    if (isControlled) return
+    const handler = () => setInternalOpen(true)
+    document.addEventListener("flowx:open-transaction-modal", handler)
+    return () => document.removeEventListener("flowx:open-transaction-modal", handler)
+  }, [isControlled])
+
   useEffect(() => {
     if (!open) return
     supabase.from('accounts').select('id, name').then(({ data }) => { if (data) setAccounts(data) })
