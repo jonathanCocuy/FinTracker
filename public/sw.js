@@ -3,8 +3,6 @@ const OFFLINE_URL = '/offline'
 
 // Files to precache on install
 const PRECACHE = [
-  '/',
-  '/dashboard',
   '/offline',
 ]
 
