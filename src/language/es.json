@@ -375,7 +375,15 @@
     "widgetEmpty": "Sin presupuestos aún",
     "widgetEmptyDescription": "Crea presupuestos para controlar tus gastos por categoría.",
     "widgetEmptyCta": "Crear presupuesto",
-    "alertToastTitle": "Límite superado en:"
+    "alertToastTitle": "Límite superado en:",
+    "rolloverLabel": "Acumular sobrante",
+    "rolloverDesc": "El monto no gastado del mes anterior se suma al límite de este mes."
+  },
+  "netWorth": {
+    "title": "Patrimonio Neto",
+    "currentNetWorth": "Patrimonio actual",
+    "netWorth": "Patrimonio",
+    "notEnoughData": "Visita el dashboard a diario para ver tu historial de patrimonio."
   },
   "import": {
     "title": "Importar desde CSV",

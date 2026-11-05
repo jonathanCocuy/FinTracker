@@ -11,7 +11,7 @@ import { toast } from "sonner"
 import { BudgetModal } from "./budget-modal"
 import type { BudgetsPageData, BudgetWithProgress, UserCategory } from "@/src/lib/data"
 import * as LucideIcons from "lucide-react"
-import { Plus, Pencil, Trash2, Target, Tag } from "lucide-react"
+import { Plus, Pencil, Trash2, Target, Tag, RefreshCw } from "lucide-react"
 import { cn } from "@/src/lib/utils"
 
 function CategoryIconDynamic({ cat, size = 16, overBudget }: { cat?: UserCategory; size?: number; overBudget?: boolean }) {
@@ -78,9 +78,16 @@ function BudgetCard({
             <CategoryIconDynamic cat={catInfo} size={16} overBudget={budget.isOverBudget} />
           </div>
           <div className="flex flex-col">
-            <span className="text-sm font-aeonik-bold">{catInfo?.label ?? t(`categories.${budget.category}`)}</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm font-aeonik-bold">{catInfo?.label ?? t(`categories.${budget.category}`)}</span>
+              {budget.rollover_enabled && budget.rollover_amount > 0 && (
+                <span className="flex items-center gap-0.5 text-[10px] text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded-full">
+                  <RefreshCw size={9} />+{fmtCurrency(budget.rollover_amount, currency)}
+                </span>
+              )}
+            </div>
             <span className="text-xs font-aeonik-light text-muted-foreground">
-              {fmtCurrency(budget.spent, currency)} {t("budgets.spentOf")} {fmtCurrency(budget.monthly_limit, currency)}
+              {fmtCurrency(budget.spent, currency)} {t("budgets.spentOf")} {fmtCurrency(budget.effective_limit, currency)}
             </span>
           </div>
         </div>

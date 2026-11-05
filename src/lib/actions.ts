@@ -426,6 +426,7 @@ export async function updateTransaction(
 const upsertBudgetSchema = z.object({
   category: z.string().min(1),
   monthly_limit: z.string().min(1),
+  rollover_enabled: z.boolean().default(false),
 })
 
 export type UpsertBudgetInput = z.infer<typeof upsertBudgetSchema>
@@ -442,14 +443,14 @@ export async function upsertBudget(
 
   try { rl(user.id, 'upsertBudget') } catch { return { error: 'rate_limited' } }
 
-  const { category, monthly_limit } = parsed.data
+  const { category, monthly_limit, rollover_enabled } = parsed.data
   const limit = parseFloat(monthly_limit)
   if (isNaN(limit) || limit <= 0) return { error: 'Invalid amount' }
 
   const { error } = await supabase
     .from('budgets')
     .upsert(
-      { user_id: user.id, category, monthly_limit: limit },
+      { user_id: user.id, category, monthly_limit: limit, rollover_enabled },
       { onConflict: 'user_id,category' }
     )
 

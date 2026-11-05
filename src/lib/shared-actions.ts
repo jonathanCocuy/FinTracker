@@ -72,7 +72,47 @@ export async function claimPendingInvitations(): Promise<void> {
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return
+
+  const userEmail = user.email?.toLowerCase()
+  if (!userEmail) { await supabase.rpc('claim_pending_invitations'); return }
+
+  // Capture pending invitations before claiming so we can notify the user
+  const { data: pending } = await supabase
+    .from('shared_members')
+    .select('group_id')
+    .eq('invited_email', userEmail)
+    .is('member_user_id', null)
+
   await supabase.rpc('claim_pending_invitations')
+
+  if (!pending || pending.length === 0) return
+
+  const groupIds = pending.map(p => p.group_id)
+  const { data: groups } = await supabase
+    .from('shared_groups')
+    .select('id, name, user_id')
+    .in('id', groupIds)
+
+  if (!groups || groups.length === 0) return
+
+  const inviterIds = [...new Set(groups.map(g => g.user_id))]
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('id, full_name')
+    .in('id', inviterIds)
+
+  const profileMap = Object.fromEntries((profiles ?? []).map(p => [p.id, p.full_name]))
+
+  for (const group of groups) {
+    const inviterName = profileMap[group.user_id] ?? 'Alguien'
+    await supabase.rpc('create_notification', {
+      p_user_id: user.id,
+      p_type: 'group_invite',
+      p_title: `Te uniste a "${group.name}"`,
+      p_body: `${inviterName} te agregó al grupo compartido "${group.name}".`,
+      p_data: { group_id: group.id, group_name: group.name, inviter_name: inviterName },
+    })
+  }
 }
 
 // ─── Groups ──────────────────────────────────────────────────────────────────

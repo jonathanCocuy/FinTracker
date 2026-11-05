@@ -9,11 +9,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { AmountInput } from "@/src/components/ui/amount-input"
 import { Button } from "@/src/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/select"
+import { Switch } from "@/src/components/ui/switch"
 import { upsertBudget } from "@/src/lib/actions"
 import { useI18n } from "@/src/lib/i18n"
 import type { BudgetWithProgress, UserCategory } from "@/src/lib/data"
 import * as LucideIcons from "lucide-react"
-import { Tag } from "lucide-react"
+import { Tag, RefreshCw } from "lucide-react"
 
 interface BudgetModalProps {
   open: boolean
@@ -32,11 +33,12 @@ export function BudgetModal({ open, onOpenChange, existingBudget, usedCategories
   const schema = z.object({
     category: z.string().min(1, t("validation.selectCategory")),
     monthly_limit: z.string().min(1, t("validation.enterAmount")),
+    rollover_enabled: z.boolean(),
   })
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
-    defaultValues: { category: "", monthly_limit: "" },
+    defaultValues: { category: "", monthly_limit: "", rollover_enabled: false },
   })
 
   useEffect(() => {
@@ -44,6 +46,7 @@ export function BudgetModal({ open, onOpenChange, existingBudget, usedCategories
       form.reset({
         category: existingBudget?.category ?? "",
         monthly_limit: existingBudget ? String(existingBudget.monthly_limit) : "",
+        rollover_enabled: existingBudget?.rollover_enabled ?? false,
       })
       setServerError(null)
     }
@@ -149,6 +152,27 @@ export function BudgetModal({ open, onOpenChange, existingBudget, usedCategories
                     />
                   </FormControl>
                   <FormMessage className="text-xs" />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="rollover_enabled"
+              render={({ field }) => (
+                <FormItem className="flex items-center justify-between rounded-xl border border-border/40 bg-muted/30 px-3 py-2.5">
+                  <div className="flex items-center gap-2">
+                    <RefreshCw size={14} className="text-muted-foreground" />
+                    <div>
+                      <FormLabel className="text-sm font-medium cursor-pointer">
+                        {t("budgets.rolloverLabel")}
+                      </FormLabel>
+                      <p className="text-xs text-muted-foreground">{t("budgets.rolloverDesc")}</p>
+                    </div>
+                  </div>
+                  <FormControl>
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
                 </FormItem>
               )}
             />

@@ -91,6 +91,11 @@ export type SavingsGoal = {
   created_at: string
 }
 
+export type NetWorthPoint = {
+  date: string
+  net_worth: number
+}
+
 export type DashboardData = {
   profile: { full_name: string; base_currency: string; show_investments: boolean } | null
   accounts: DashboardAccount[]
@@ -112,6 +117,7 @@ export type DashboardData = {
   topGoals: SavingsGoal[]
   categories: UserCategory[]
   topInvestments: InvestmentRecord[]
+  netWorthHistory: NetWorthPoint[]
 }
 
 export type TransactionsPageData = {
@@ -124,6 +130,7 @@ export type Budget = {
   id: string
   category: string
   monthly_limit: number
+  rollover_enabled: boolean
 }
 
 export type BudgetWithProgress = Budget & {
@@ -131,6 +138,8 @@ export type BudgetWithProgress = Budget & {
   remaining: number
   percentage: number
   isOverBudget: boolean
+  rollover_amount: number   // underspend carried from previous month
+  effective_limit: number   // monthly_limit + rollover_amount
 }
 
 export type BudgetsPageData = {
@@ -210,6 +219,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     topGoals: [],
     categories: [],
     topInvestments: [],
+    netWorthHistory: [],
   }
 
   if (!user) return empty
@@ -225,7 +235,11 @@ export async function getDashboardData(): Promise<DashboardData> {
   const sixMonthsAgoDate = new Date(now.getFullYear(), now.getMonth() - 5, 1)
   const sixMonthsAgo = `${sixMonthsAgoDate.getFullYear()}-${String(sixMonthsAgoDate.getMonth() + 1).padStart(2, '0')}-01`
 
-  const [profileRes, accountsRes, currentTxRes, prevTxRes, chartTxRes, budgetsRes, goalsRes, categoriesRes, investmentsRes] = await Promise.all([
+  const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1)
+    .toISOString().split('T')[0]
+  const todayStr = now.toISOString().split('T')[0]
+
+  const [profileRes, accountsRes, currentTxRes, prevTxRes, chartTxRes, budgetsRes, goalsRes, categoriesRes, investmentsRes, netWorthRes] = await Promise.all([
     supabase
       .from('profiles')
       .select('full_name, base_currency, show_investments')
@@ -273,6 +287,12 @@ export async function getDashboardData(): Promise<DashboardData> {
       .eq('user_id', user.id)
       .order('date', { ascending: false })
       .limit(4),
+    supabase
+      .from('net_worth_snapshots')
+      .select('date, net_worth')
+      .eq('user_id', user.id)
+      .gte('date', twelveMonthsAgo)
+      .order('date', { ascending: true }),
   ])
 
   let categories: UserCategory[] = categoriesRes.data ?? []
@@ -291,6 +311,11 @@ export async function getDashboardData(): Promise<DashboardData> {
 
   const accounts: DashboardAccount[] = accountsRes.data ?? []
   const totalBalance = accounts.reduce((sum, a) => sum + (a.balance ?? 0), 0)
+
+  // Upsert today's net worth snapshot (fire-and-forget, non-blocking)
+  supabase.from('net_worth_snapshots')
+    .upsert({ user_id: user.id, date: todayStr, net_worth: totalBalance }, { onConflict: 'user_id,date' })
+    .then(() => {})
 
   const currentTx = currentTxRes.data ?? []
   const prevTx = prevTxRes.data ?? []
@@ -473,6 +498,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     topGoals,
     categories,
     topInvestments: (investmentsRes.data ?? []) as InvestmentRecord[],
+    netWorthHistory: (netWorthRes.data ?? []) as NetWorthPoint[],
   }
 }
 
@@ -484,11 +510,15 @@ export async function getBudgetsData(): Promise<BudgetsPageData> {
   const now = new Date()
   const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1)
     .toISOString().split('T')[0]
+  const startOfPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+    .toISOString().split('T')[0]
+  const endOfPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0)
+    .toISOString().split('T')[0]
 
-  const [budgetsRes, txRes, categoriesRes] = await Promise.all([
+  const [budgetsRes, txRes, prevTxRes, categoriesRes] = await Promise.all([
     supabase
       .from('budgets')
-      .select('id, category, monthly_limit')
+      .select('id, category, monthly_limit, rollover_enabled')
       .eq('user_id', user.id)
       .order('category'),
     supabase
@@ -497,6 +527,13 @@ export async function getBudgetsData(): Promise<BudgetsPageData> {
       .eq('user_id', user.id)
       .eq('type', 'expense')
       .gte('date', startOfCurrentMonth),
+    supabase
+      .from('transactions')
+      .select('category, amount, exchange_rate')
+      .eq('user_id', user.id)
+      .eq('type', 'expense')
+      .gte('date', startOfPrevMonth)
+      .lte('date', endOfPrevMonth),
     supabase
       .from('categories')
       .select('id, name, label, color, icon')
@@ -509,18 +546,30 @@ export async function getBudgetsData(): Promise<BudgetsPageData> {
     spentByCategory[tx.category] = (spentByCategory[tx.category] ?? 0) + tx.amount * (tx.exchange_rate ?? 1)
   }
 
+  const prevSpentByCategory: Record<string, number> = {}
+  for (const tx of prevTxRes.data ?? []) {
+    prevSpentByCategory[tx.category] = (prevSpentByCategory[tx.category] ?? 0) + tx.amount * (tx.exchange_rate ?? 1)
+  }
+
   const budgets: BudgetWithProgress[] = (budgetsRes.data ?? []).map(b => {
+    const rollover_amount = b.rollover_enabled
+      ? Math.max(0, b.monthly_limit - (prevSpentByCategory[b.category] ?? 0))
+      : 0
+    const effective_limit = b.monthly_limit + rollover_amount
     const spent = spentByCategory[b.category] ?? 0
-    const remaining = b.monthly_limit - spent
-    const percentage = b.monthly_limit > 0 ? (spent / b.monthly_limit) * 100 : 0
+    const remaining = effective_limit - spent
+    const percentage = effective_limit > 0 ? (spent / effective_limit) * 100 : 0
     return {
       id: b.id,
       category: b.category,
       monthly_limit: b.monthly_limit,
+      rollover_enabled: b.rollover_enabled ?? false,
+      rollover_amount,
+      effective_limit,
       spent,
       remaining,
       percentage,
-      isOverBudget: spent > b.monthly_limit,
+      isOverBudget: spent > effective_limit,
     }
   })
 
@@ -556,6 +605,9 @@ export async function getRecurringData(): Promise<RecurringPageData> {
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { templates: [], accounts: [], categories: [] }
+
+  // Auto-generate any due recurring transactions on page visit
+  await supabase.rpc('process_recurring_transactions', { p_user_id: user.id })
 
   const [templatesRes, accountsRes, categoriesRes] = await Promise.all([
     supabase

@@ -17,6 +17,7 @@ import Link from "next/link"
 import { AccountModal } from "@/src/components/dashboard/account-modal"
 import { ExportMenu } from "@/src/components/dashboard/export-menu"
 import { HistoricalTrends } from "@/src/components/dashboard/historical-trends"
+import { NetWorthChart } from "@/src/components/dashboard/net-worth-chart"
 import { Progress } from "@/src/components/ui/progress"
 import type { DashboardData, DashboardTransaction } from "@/src/lib/data"
 import { cn } from "@/src/lib/utils"
@@ -187,6 +188,19 @@ export function DashboardShell({ data }: { data: DashboardData }) {
               <div className="h-1 w-full bg-linear-to-r from-border/50 via-border to-transparent" />
             </div>
             <HistoricalTrends data={data.incomeVsExpensesMonthly} />
+          </div>
+
+          {/* Net Worth History */}
+          <div className="w-full flex flex-col gap-4">
+            <div className="w-full flex flex-col gap-2 px-2">
+              <p className="text-[14px] font-aeonik-bold uppercase tracking-[0.2em] text-muted-foreground/50">
+                {t("netWorth.title")}
+              </p>
+              <div className="h-1 w-full bg-linear-to-r from-border/50 via-border to-transparent" />
+            </div>
+            <div className="rounded-2xl border border-border/40 bg-card/50 p-5">
+              <NetWorthChart data={data.netWorthHistory} />
+            </div>
           </div>
 
           {/* Donut + Recent Transactions */}

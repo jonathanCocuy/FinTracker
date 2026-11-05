@@ -394,7 +394,15 @@
     "widgetEmpty": "No budgets yet",
     "widgetEmptyDescription": "Create budgets to track your spending by category.",
     "widgetEmptyCta": "Create budget",
-    "alertToastTitle": "Over budget in:"
+    "alertToastTitle": "Over budget in:",
+    "rolloverLabel": "Roll over surplus",
+    "rolloverDesc": "Unspent amount from last month is added to this month's limit."
+  },
+  "netWorth": {
+    "title": "Net Worth",
+    "currentNetWorth": "Current net worth",
+    "netWorth": "Net Worth",
+    "notEnoughData": "Visit the dashboard daily to build your net worth history."
   },
   "import": {
     "title": "Import from CSV",
