@@ -2,6 +2,7 @@
 
 import { useRef } from "react"
 import { AnimatePresence, motion } from "framer-motion"
+import { CURRENCY_INFO, type SupportedCurrency } from "@/src/lib/currency"
 
 function DigitRoller({ char, direction, delay }: { char: string; direction: 1 | -1; delay: number }) {
   return (
@@ -36,19 +37,26 @@ function DigitRoller({ char, direction, delay }: { char: string; direction: 1 | 
 
 export function AnimatedNumber({
   value,
+  currency = 'COP',
   className
 }: {
   value: number;
+  currency?: string;
   className?: string
 }) {
   const prevRef = useRef<number>(value)
   const direction: 1 | -1 = value >= prevRef.current ? 1 : -1
   prevRef.current = value
 
-  const formatted = new Intl.NumberFormat("es-CO", {
+  const info = CURRENCY_INFO[currency as SupportedCurrency]
+  const locale = info?.locale ?? 'es-CO'
+  const decimals = info?.decimals ?? 0
+
+  const formatted = new Intl.NumberFormat(locale, {
     style: "currency",
-    currency: "COP",
+    currency,
     minimumFractionDigits: 0,
+    maximumFractionDigits: decimals,
   }).format(value)
 
   const chars = formatted.split('')
@@ -59,8 +67,6 @@ export function AnimatedNumber({
     if (isDigit) dIdx++; else sIdx++
     return { char, key: isDigit ? `d${pos}` : `s${sIdx - 1}`, isDigit, pos }
   }).reverse()
-
-  const totalDigits = dIdx
 
   return (
     <span className={`inline-flex items-baseline tabular-nums ${className ?? ''}`}>

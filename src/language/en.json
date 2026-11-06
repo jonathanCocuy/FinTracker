@@ -78,6 +78,7 @@
     "nameLabel": "Account name",
     "namePlaceholder": "e.g. Nequi, Bancolombia, Cash...",
     "colorLabel": "Account color",
+    "currencyLabel": "Currency",
     "saveAccount": "Save Account",
     "saveChanges": "Save Changes",
     "deleteAccount": "Delete account",

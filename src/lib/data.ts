@@ -52,6 +52,8 @@ export type DashboardAccount = {
   balance: number
   initial_balance: number
   color: string
+  currency: string
+  exchange_rate: number
 }
 
 export type DashboardTransaction = {
@@ -171,7 +173,7 @@ export async function getTransactionsData(): Promise<TransactionsPageData> {
       .order('date', { ascending: false }),
     supabase
       .from('accounts')
-      .select('id, name, balance, initial_balance, color')
+      .select('id, name, balance, initial_balance, color, currency, exchange_rate')
       .eq('user_id', user.id),
     supabase
       .from('categories')
@@ -252,7 +254,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       .single(),
     supabase
       .from('accounts')
-      .select('id, name, balance, initial_balance, color')
+      .select('id, name, balance, initial_balance, color, currency, exchange_rate')
       .eq('user_id', user.id),
     supabase
       .from('transactions')
@@ -315,7 +317,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   }
 
   const accounts: DashboardAccount[] = accountsRes.data ?? []
-  const totalBalance = accounts.reduce((sum, a) => sum + (a.balance ?? 0), 0)
+  const totalBalance = accounts.reduce((sum, a) => sum + (a.balance ?? 0) * (a.exchange_rate ?? 1), 0)
 
   // Upsert today's net worth snapshot (fire-and-forget, non-blocking)
   supabase.from('net_worth_snapshots')
@@ -632,7 +634,7 @@ export async function getRecurringData(): Promise<RecurringPageData> {
       .order('created_at', { ascending: false }),
     supabase
       .from('accounts')
-      .select('id, name, balance, initial_balance, color')
+      .select('id, name, balance, initial_balance, color, currency, exchange_rate')
       .eq('user_id', user.id),
     supabase
       .from('categories')

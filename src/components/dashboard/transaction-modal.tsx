@@ -13,7 +13,7 @@ import {
   fetchUserCategories,
 } from "@/src/lib/actions"
 import { CategoryModal } from "@/src/components/categories/category-modal"
-import { SUPPORTED_CURRENCIES, CURRENCY_INFO, getExchangeRate, getFlagUrl } from "@/src/lib/currency"
+import { getExchangeRate, getFlagUrl } from "@/src/lib/currency"
 
 import { Calendar } from "@/src/components/ui/calendar"
 import { Button } from "@/src/components/ui/button"
@@ -68,7 +68,7 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [submitError, setSubmitError] = useState<SubmitErrorState | null>(null)
-  const [accounts, setAccounts] = useState<{ id: string; name: string }[]>([])
+  const [accounts, setAccounts] = useState<{ id: string; name: string; currency: string }[]>([])
   const [categories, setCategories] = useState<{ id: string; name: string; label: string; color: string }[]>([])
   const [categorySelectOpen, setCategorySelectOpen] = useState(false)
   const [categoryModalOpen, setCategoryModalOpen] = useState(false)
@@ -114,7 +114,7 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
 
   useEffect(() => {
     if (!open) return
-    supabase.from('accounts').select('id, name').then(({ data }) => { if (data) setAccounts(data) })
+    supabase.from('accounts').select('id, name, currency').then(({ data }) => { if (data) setAccounts(data) })
     fetchUserCategories().then(cats => setCategories(cats))
     supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) return
@@ -187,7 +187,9 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
   const watchCurrency = form.watch("currency")
   const watchAmount = form.watch("amount")
 
-  const handleCurrencyChange = async (currency: string) => {
+  const applyAccountCurrency = async (accountId: string) => {
+    const acc = accounts.find(a => a.id === accountId)
+    const currency = acc?.currency ?? baseCurrency
     form.setValue("currency", currency)
     if (currency === baseCurrency) {
       setExchangeRate(1)
@@ -198,6 +200,12 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
     setExchangeRate(rate)
     setFetchingRate(false)
   }
+
+  useEffect(() => {
+    if (watchAccount && accounts.length > 0 && !form.getValues("currency")) {
+      applyAccountCurrency(watchAccount)
+    }
+  }, [watchAccount, accounts]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Exclude origin account from destination options
   const destinationAccounts = accounts.filter(a => a.id !== watchAccount)
@@ -310,21 +318,10 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
                     />
                   </FormControl>
                   <div className="flex items-center justify-center gap-2 pt-0.5">
-                    <Select value={watchCurrency} onValueChange={handleCurrencyChange}>
-                      <SelectTrigger className="h-7 w-28 text-xs bg-background/40 border-border/60 px-2">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {SUPPORTED_CURRENCIES.map(c => (
-                          <SelectItem key={c} value={c} className="text-xs">
-                            <span className="flex items-center gap-1.5">
-                              <img src={getFlagUrl(c)} alt={c} className="w-4 h-auto rounded-sm shrink-0" />
-                              {c}
-                            </span>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="h-7 px-2 flex items-center gap-1.5 rounded-md border border-border/60 bg-background/40 text-xs text-muted-foreground">
+                      {watchCurrency && <img src={getFlagUrl(watchCurrency)} alt={watchCurrency} className="w-4 h-auto rounded-sm shrink-0" />}
+                      <span>{watchCurrency || baseCurrency}</span>
+                    </div>
                     {fetchingRate && <Loader2 size={12} className="animate-spin text-muted-foreground" />}
                     {watchCurrency !== baseCurrency && exchangeRate !== 1 && watchAmount && (
                       <span className="text-[10px] text-muted-foreground tabular-nums">
@@ -515,7 +512,10 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
                       <FormLabel className="text-[10px] font-bold uppercase opacity-60">
                         {t("transactionModal.accountLabel")}
                       </FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={(val) => { field.onChange(val); applyAccountCurrency(val) }}
+                        value={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger className="h-10 bg-background/40 cursor-pointer">
                             <SelectValue placeholder={t("transactionModal.accountPlaceholder")} />
@@ -523,7 +523,14 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
                         </FormControl>
                         <SelectContent>
                           {accounts.map(acc => (
-                            <SelectItem key={acc.id} value={acc.id}>{acc.name}</SelectItem>
+                            <SelectItem key={acc.id} value={acc.id}>
+                              <span className="flex items-center gap-2">
+                                {acc.name}
+                                {acc.currency !== baseCurrency && (
+                                  <span className="text-[10px] text-muted-foreground font-medium">{acc.currency}</span>
+                                )}
+                              </span>
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>

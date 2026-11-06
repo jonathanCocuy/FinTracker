@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts"
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import { TrendingUp, TrendingDown, Wallet, PiggyBank } from "lucide-react"
 import { useI18n } from "@/src/lib/i18n"
 import { useProfile } from "@/src/hooks/useProfile"
@@ -19,6 +19,32 @@ function fmt(val: number, currency: string) {
 }
 
 const MONTH_KEYS = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'] as const
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function ChartTooltip({ active, payload, label, currency, tIncome, tExpenses }: any) {
+  if (!active || !payload?.length) return null
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const income = payload.find((p: any) => p.dataKey === 'income')?.value ?? 0
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const expenses = payload.find((p: any) => p.dataKey === 'expenses')?.value ?? 0
+  return (
+    <div className="rounded-xl border border-border bg-background/95 backdrop-blur-sm shadow-xl px-3 py-2.5 text-xs min-w-[140px]">
+      <p className="font-semibold text-foreground mb-2">{label}</p>
+      <div className="flex flex-col gap-1.5">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-sm bg-emerald-500 shrink-0" />
+          <span className="text-muted-foreground flex-1">{tIncome}</span>
+          <span className="font-medium text-emerald-500 tabular-nums">{fmt(income, currency)}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-sm bg-rose-500 shrink-0" />
+          <span className="text-muted-foreground flex-1">{tExpenses}</span>
+          <span className="font-medium text-rose-500 tabular-nums">{fmt(expenses, currency)}</span>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 interface Props {
   data: ReportsData
@@ -128,14 +154,15 @@ export function ReportsShell({ data }: Props) {
             <XAxis dataKey="name" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
             <YAxis hide />
             <Tooltip
-              contentStyle={{
-                background: 'hsl(var(--background))',
-                border: '1px solid hsl(var(--border))',
-                borderRadius: '0.75rem',
-                fontSize: '0.75rem',
-                padding: '6px 10px',
-              }}
-              formatter={(value: unknown) => [fmt(Number(value), currency), '']}
+              content={(props) => (
+                <ChartTooltip
+                  {...props}
+                  currency={currency}
+                  tIncome={t('reports.income')}
+                  tExpenses={t('reports.expenses')}
+                />
+              )}
+              cursor={{ fill: 'hsl(var(--muted))', opacity: 0.4, radius: 6 }}
             />
             <Bar dataKey="income" fill="#10b981" radius={[4, 4, 0, 0]} />
             <Bar dataKey="expenses" fill="#ef4444" radius={[4, 4, 0, 0]} />

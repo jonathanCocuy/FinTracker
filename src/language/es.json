@@ -78,6 +78,7 @@
     "nameLabel": "Nombre de la cuenta",
     "namePlaceholder": "Ej. Nequi, Bancolombia, Efectivo...",
     "colorLabel": "Color de la cuenta",
+    "currencyLabel": "Moneda",
     "saveAccount": "Guardar Cuenta",
     "saveChanges": "Guardar Cambios",
     "deleteAccount": "Eliminar cuenta",

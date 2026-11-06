@@ -1,12 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useI18n } from "@/src/lib/i18n"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { Plus, Check, Trash2 } from "lucide-react"
 import { cn } from "@/src/lib/utils"
+import { SUPPORTED_CURRENCIES, getFlagUrl, getExchangeRate } from "@/src/lib/currency"
 import { Button } from "@/src/components/ui/button"
 import {
   Dialog,
@@ -23,6 +24,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/src/components/ui/form"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/src/components/ui/select"
 import { Input } from "@/src/components/ui/input"
 import { AmountInput } from "@/src/components/ui/amount-input"
 import { createAccount, updateAccount, deleteAccount } from "@/src/lib/actions"
@@ -48,6 +56,7 @@ interface AccountData {
   balance: number
   initial_balance: number
   color: string
+  currency: string
 }
 
 interface AccountModalProps {
@@ -75,6 +84,9 @@ export function AccountModal({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [submitError, setSubmitError] = useState<SubmitErrorState | null>(null)
+
+  const [exchangeRate, setExchangeRate] = useState(1)
+  const baseCurrencyRef = useRef('COP')
 
   const isEditMode = !!account
   const isControlled = externalOpen !== undefined
@@ -109,6 +121,7 @@ export function AccountModal({
     name: z.string().min(2, t("validation.accountNameRequired")),
     balance: z.string().min(1, t("validation.enterAmount")),
     color: z.string().min(1, t("validation.selectColor")),
+    currency: z.string().length(3),
   })
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -117,8 +130,28 @@ export function AccountModal({
       name: account?.name ?? "",
       balance: account ? String(account.initial_balance) : "",
       color: account?.color ?? "",
+      currency: account?.currency ?? "COP",
     },
   })
+
+  // Fetch base currency once on mount
+  useEffect(() => {
+    import('@/src/lib/supabase').then(({ supabase }) => {
+      supabase.auth.getUser().then(async ({ data: { user } }) => {
+        if (!user) return
+        const { data } = await supabase.from('profiles').select('base_currency').eq('id', user.id).single()
+        baseCurrencyRef.current = data?.base_currency ?? 'COP'
+      })
+    })
+  }, [])
+
+  const handleCurrencyChange = async (currency: string) => {
+    form.setValue("currency", currency)
+    const base = baseCurrencyRef.current
+    if (currency === base) { setExchangeRate(1); return }
+    const rate = await getExchangeRate(currency, base)
+    setExchangeRate(rate)
+  }
 
   // Reset form when the account prop changes (different card clicked)
   useEffect(() => {
@@ -127,7 +160,16 @@ export function AccountModal({
         name: account?.name ?? "",
         balance: account ? String(account.initial_balance) : "",
         color: account?.color ?? "",
+        currency: account?.currency ?? "COP",
       })
+      // Restore exchange rate for existing account currency
+      const currency = account?.currency ?? "COP"
+      const base = baseCurrencyRef.current
+      if (currency !== base) {
+        getExchangeRate(currency, base).then(setExchangeRate)
+      } else {
+        setExchangeRate(1)
+      }
     }
   }, [open, account?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -136,8 +178,8 @@ export function AccountModal({
     clearSubmitError()
 
     const result = isEditMode && account
-      ? await updateAccount(account.id, { name: values.name, initial_balance: values.balance, color: values.color })
-      : await createAccount(values)
+      ? await updateAccount(account.id, { name: values.name, initial_balance: values.balance, color: values.color, currency: values.currency, exchange_rate: String(exchangeRate) })
+      : await createAccount({ ...values, exchange_rate: String(exchangeRate) })
 
     setIsSubmitting(false)
 
@@ -275,6 +317,37 @@ export function AccountModal({
                       ))}
                     </div>
                   </FormControl>
+                  <FormMessage className="text-[10px]" />
+                </FormItem>
+              )}
+            />
+
+            {/* Currency */}
+            <FormField
+              control={form.control}
+              name="currency"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-[10px] font-bold uppercase opacity-60">
+                    {t("accountModal.currencyLabel")}
+                  </FormLabel>
+                  <Select onValueChange={handleCurrencyChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="h-10 bg-background/40 border-border/60 cursor-pointer">
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {SUPPORTED_CURRENCIES.map(c => (
+                        <SelectItem key={c} value={c} className="text-xs">
+                          <span className="flex items-center gap-2">
+                            <img src={getFlagUrl(c)} alt={c} className="w-4 h-auto rounded-sm shrink-0" />
+                            {c}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage className="text-[10px]" />
                 </FormItem>
               )}

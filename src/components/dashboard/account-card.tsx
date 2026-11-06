@@ -14,6 +14,7 @@ interface Account {
   balance: number
   initial_balance: number
   color: string
+  currency: string
 }
 
 interface AccountGridProps {
@@ -59,7 +60,7 @@ export function AccountGrid({ accounts, onHoverAccount, hoveredAccountId, showAd
                   {account.name}
                 </span>
                 <div className="text-sm md:text-md font-bold tracking-tight text-foreground">
-                  <AnimatedNumber value={account.balance} />
+                  <AnimatedNumber value={account.balance} currency={account.currency} />
                 </div>
               </div>
             </div>

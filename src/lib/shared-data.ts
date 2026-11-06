@@ -104,7 +104,7 @@ export async function getSharedGroupDetail(id: string): Promise<SharedGroupDetai
     supabase.from('shared_expenses').select('id, group_id, description, amount, category, date, paid_by_member_id, account_id, transaction_id, is_recurring, notes').eq('group_id', id).order('date', { ascending: false }),
     supabase.from('shared_budgets').select('id, group_id, name, total_amount, month').eq('group_id', id).order('month', { ascending: false }),
     supabase.from('shared_budget_entries').select('id, budget_id, store_name, amount_spent, date').order('created_at'),
-    supabase.from('accounts').select('id, name, balance, initial_balance, color').eq('user_id', user.id),
+    supabase.from('accounts').select('id, name, balance, initial_balance, color, currency, exchange_rate').eq('user_id', user.id),
   ])
 
   if (!groupRes.data) return null

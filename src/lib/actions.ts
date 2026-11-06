@@ -194,6 +194,8 @@ const createAccountSchema = z.object({
   name: z.string().min(2),
   balance: z.string().min(1),
   color: z.string().min(1),
+  currency: z.string().length(3).default('COP'),
+  exchange_rate: z.string().default('1'),
 })
 
 export type CreateAccountInput = z.infer<typeof createAccountSchema>
@@ -214,7 +216,7 @@ export async function createAccount(
     .eq('user_id', user.id)
   if ((count ?? 0) >= 10) return { error: 'account_limit_reached' }
 
-  const { name, balance, color } = parsed.data
+  const { name, balance, color, currency, exchange_rate } = parsed.data
   const balanceNum = parseFloat(balance)
 
   const { error } = await supabase.from('accounts').insert({
@@ -223,6 +225,8 @@ export async function createAccount(
     balance: balanceNum,
     initial_balance: balanceNum,
     color,
+    currency: currency ?? 'COP',
+    exchange_rate: parseFloat(exchange_rate ?? '1'),
   })
 
   if (error) return { error: error.message }
@@ -237,6 +241,8 @@ const updateAccountSchema = z.object({
   name: z.string().min(2),
   initial_balance: z.string().min(1),
   color: z.string().min(1),
+  currency: z.string().length(3).optional(),
+  exchange_rate: z.string().optional(),
 })
 
 export async function updateAccount(
@@ -262,14 +268,18 @@ export async function updateAccount(
 
   const newBalance = parseFloat(parsed.data.initial_balance)
 
+  const updateData: Record<string, unknown> = {
+    name: parsed.data.name,
+    color: parsed.data.color,
+    initial_balance: newBalance,
+    balance: newBalance,
+  }
+  if (parsed.data.currency) updateData.currency = parsed.data.currency
+  if (parsed.data.exchange_rate) updateData.exchange_rate = parseFloat(parsed.data.exchange_rate)
+
   const { error } = await supabase
     .from('accounts')
-    .update({
-      name: parsed.data.name,
-      color: parsed.data.color,
-      initial_balance: newBalance,
-      balance: newBalance,
-    })
+    .update(updateData)
     .eq('id', id)
     .eq('user_id', user.id)
 
