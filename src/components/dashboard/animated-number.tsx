@@ -18,13 +18,13 @@ function DigitRoller({ char, direction, delay }: { char: string; direction: 1 | 
           animate={{
             y: 0,
             opacity: 1,
-            transition: { type: 'spring', stiffness: 380, damping: 30, delay },
+            transition: { type: 'spring', stiffness: 280, damping: 26, delay },
           }}
           exit={{
             y: `${direction * -50}%`,
             opacity: 0,
             filter: 'blur(2px)',
-            transition: { duration: 0.1, ease: 'easeIn' },
+            transition: { duration: 0.12, ease: 'easeIn' },
           }}
         >
           {char}
@@ -66,7 +66,7 @@ export function AnimatedNumber({
     <span className={`inline-flex items-baseline tabular-nums ${className ?? ''}`}>
       {enriched.map((item) =>
         item.isDigit
-          ? <DigitRoller key={item.key} char={item.char} direction={direction} delay={(totalDigits - 1 - item.pos) * 0.035} />
+          ? <DigitRoller key={item.key} char={item.char} direction={direction} delay={(totalDigits - 1 - item.pos) * 0.055} />
           : <span key={item.key}>{item.char}</span>
       )}
     </span>

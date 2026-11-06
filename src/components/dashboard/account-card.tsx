@@ -1,43 +1,10 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
-import { useInView, useMotionValue, useSpring } from "framer-motion"
+import { useState } from "react"
 import { Wallet } from "lucide-react"
 import { cn } from "@/src/lib/utils"
 import { AccountModal } from "./account-modal"
-
-// ─── Componente Interno de Animación ─────────────────────────────────────────
-
-function AnimatedBalance({ value }: { value: number }) {
-  const ref = useRef<HTMLSpanElement>(null)
-  const motionValue = useMotionValue(0)
-  const springValue = useSpring(motionValue, {
-    damping: 10,
-    stiffness: 100,
-  })
-
-  const isInView = useInView(ref, { once: true })
-
-  useEffect(() => {
-    if (isInView) {
-      motionValue.set(value)
-    }
-  }, [isInView, value, motionValue])
-
-  useEffect(() => {
-    return springValue.on("change", (latest) => {
-      if (ref.current) {
-        ref.current.textContent = new Intl.NumberFormat("es-CO", {
-          style: "currency",
-          currency: "COP",
-          maximumFractionDigits: 0,
-        }).format(Number(latest.toFixed(0)))
-      }
-    })
-  }, [springValue])
-
-  return <span ref={ref} className="tabular-nums" />
-}
+import { AnimatedNumber } from "./animated-number"
 
 // ─── Componente Principal ─────────────────────────────────────────────────────
 
@@ -92,7 +59,7 @@ export function AccountGrid({ accounts, onHoverAccount, hoveredAccountId, showAd
                   {account.name}
                 </span>
                 <div className="text-sm md:text-md font-bold tracking-tight text-foreground">
-                  <AnimatedBalance value={account.balance} />
+                  <AnimatedNumber value={account.balance} />
                 </div>
               </div>
             </div>
