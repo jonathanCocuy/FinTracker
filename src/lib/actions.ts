@@ -208,6 +208,12 @@ export async function createAccount(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
 
+  const { count } = await supabase
+    .from('accounts')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+  if ((count ?? 0) >= 10) return { error: 'account_limit_reached' }
+
   const { name, balance, color } = parsed.data
   const balanceNum = parseFloat(balance)
 

@@ -80,7 +80,8 @@
     "colorLabel": "Account color",
     "saveAccount": "Save Account",
     "saveChanges": "Save Changes",
-    "deleteAccount": "Delete account"
+    "deleteAccount": "Delete account",
+    "limitReached": "10 accounts max"
   },
   "dashboard": {
     "kpisTitle": "KPIs",

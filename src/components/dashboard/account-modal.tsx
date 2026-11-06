@@ -53,6 +53,7 @@ interface AccountData {
 interface AccountModalProps {
   // Create mode: render the trigger button
   hoveredAccountId?: string | null
+  accountCount?: number
   // Edit mode: externally controlled
   account?: AccountData
   open?: boolean
@@ -64,6 +65,7 @@ type SubmitErrorState = { message: string; owner: "create" | string }
 // ─── Modal ────────────────────────────────────────────────────────────────────
 export function AccountModal({
   hoveredAccountId,
+  accountCount = 0,
   account,
   open: externalOpen,
   onOpenChange: externalOnOpenChange,
@@ -84,7 +86,8 @@ export function AccountModal({
 
   const clearSubmitError = () => setSubmitError(null)
 
-  const commitSubmitError = (message: string) => {
+  const commitSubmitError = (raw: string) => {
+    const message = raw === 'account_limit_reached' ? t('accountModal.limitReached') : raw
     setSubmitError({
       message,
       owner: isEditMode && account ? account.id : "create",
@@ -164,18 +167,28 @@ export function AccountModal({
   return (
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       {!isEditMode && !isControlled && (
-        <DialogTrigger asChild>
-          <button
-            type="button"
-            className={cn(
-              "border-2 border-dashed border-border/30 rounded-xl p-4 flex items-center justify-center gap-2 text-muted-foreground hover:border-primary/50 hover:text-primary transition-all group",
-              hoveredAccountId != null ? "opacity-40" : "opacity-100"
-            )}
-          >
-            <Plus size={15} className="group-hover:scale-110 transition-transform" />
-            <span className="text-xs font-medium">{t("accountsCard.addAccount")}</span>
-          </button>
-        </DialogTrigger>
+        accountCount >= 10 ? (
+          <div className={cn(
+            "border-2 border-dashed border-border/20 rounded-xl p-4 flex flex-col items-center justify-center gap-1 text-muted-foreground/40 cursor-not-allowed",
+            hoveredAccountId != null ? "opacity-40" : "opacity-100"
+          )}>
+            <Plus size={15} />
+            <span className="text-[10px] font-medium text-center leading-tight">{t("accountModal.limitReached")}</span>
+          </div>
+        ) : (
+          <DialogTrigger asChild>
+            <button
+              type="button"
+              className={cn(
+                "border-2 border-dashed border-border/30 rounded-xl p-4 flex items-center justify-center gap-2 text-muted-foreground hover:border-primary/50 hover:text-primary transition-all group",
+                hoveredAccountId != null ? "opacity-40" : "opacity-100"
+              )}
+            >
+              <Plus size={15} className="group-hover:scale-110 transition-transform" />
+              <span className="text-xs font-medium">{t("accountsCard.addAccount")}</span>
+            </button>
+          </DialogTrigger>
+        )
       )}
 
       <DialogContent className="w-[95%] mx-auto sm:max-w-[425px] bg-card/95 backdrop-blur-md border-border shadow-2xl">

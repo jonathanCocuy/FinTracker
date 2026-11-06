@@ -67,7 +67,7 @@ export function AccountGrid({ accounts, onHoverAccount, hoveredAccountId, showAd
         })}
 
         {/* Modal para añadir cuenta */}
-        {showAddButton && <AccountModal hoveredAccountId={hoveredAccountId} />}
+        {showAddButton && <AccountModal hoveredAccountId={hoveredAccountId} accountCount={accounts.length} />}
       </div>
 
       {/* Modal para editar cuenta */}

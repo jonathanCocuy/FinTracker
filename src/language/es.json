@@ -80,7 +80,8 @@
     "colorLabel": "Color de la cuenta",
     "saveAccount": "Guardar Cuenta",
     "saveChanges": "Guardar Cambios",
-    "deleteAccount": "Eliminar cuenta"
+    "deleteAccount": "Eliminar cuenta",
+    "limitReached": "Máximo 10 cuentas"
   },
   "dashboard": {
     "kpisTitle": "KPIs",
