@@ -12,8 +12,8 @@ import { Button } from "@/src/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/src/components/ui/dropdown-menu"
 import { LogOut, User, Loader2 } from "lucide-react"
 import { usePathname } from "next/navigation"
-import { supabase } from "@/src/lib/supabase"
 import { useProfile } from "@/src/hooks/useProfile"
+import { logout } from "@/src/lib/actions"
 import { useI18n } from "@/src/lib/i18n"
 import { cn } from "@/src/lib/utils"
 
@@ -23,8 +23,7 @@ export function Navbar() {
   const { t } = useI18n()
 
   const handleLogout = async () => {
-    await supabase.auth.signOut()
-    window.location.href = "/login"
+    await logout()
   }
 
   // Primary links — always visible on desktop

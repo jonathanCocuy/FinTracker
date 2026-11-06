@@ -20,7 +20,7 @@ import {
 import { useProfile } from "@/src/hooks/useProfile"
 import { useI18n } from "@/src/lib/i18n"
 import { usePathname } from "next/navigation"
-import { supabase } from "@/src/lib/supabase"
+import { logout } from "@/src/lib/actions"
 import { cn } from "@/src/lib/utils"
 
 export function Topbar() {
@@ -28,8 +28,7 @@ export function Topbar() {
   const { t } = useI18n()
 
   const handleLogout = async () => {
-    await supabase.auth.signOut()
-    window.location.href = "/login"
+    await logout()
   }
 
   return (

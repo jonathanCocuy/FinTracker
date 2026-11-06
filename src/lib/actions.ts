@@ -2,8 +2,15 @@
 
 import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 import { createSupabaseServer } from './supabase-server'
 import { rateLimit } from './rate-limit'
+
+export async function logout() {
+  const supabase = await createSupabaseServer()
+  await supabase.auth.signOut()
+  redirect('/login')
+}
 
 function rl(userId: string, action: string) {
   const result = rateLimit(userId, action, { limit: 15, windowMs: 60_000 })
