@@ -41,7 +41,9 @@ export async function middleware(request: NextRequest) {
   if (!user) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = '/login';
-    return NextResponse.redirect(loginUrl);
+    const res = NextResponse.redirect(loginUrl);
+    res.headers.set('Cache-Control', 'no-store');
+    return res;
   }
 
   // Redirect root to dashboard for authenticated users

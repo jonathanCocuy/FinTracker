@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { Sidebar } from '@/src/components/sidebar'
 import { Topbar } from '@/src/components/topbar'
 import { PwaRegister } from '@/src/components/pwa-register'

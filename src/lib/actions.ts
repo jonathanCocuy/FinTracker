@@ -9,6 +9,7 @@ import { rateLimit } from './rate-limit'
 export async function logout() {
   const supabase = await createSupabaseServer()
   await supabase.auth.signOut()
+  revalidatePath('/', 'layout')
   redirect('/login')
 }
 
