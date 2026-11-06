@@ -61,32 +61,31 @@ interface RecurringModalProps {
   onOpenChange: (open: boolean) => void
 }
 
-// ─── Form schema ──────────────────────────────────────────────────────────────
-const formSchema = z.object({
-  icon: z.string(),
-  description: z.string().min(2),
-  amount: z.string().min(1),
-  currency: z.string().min(3).max(3),
-  category: z.string().min(1),
-  type: z.enum(["income", "expense"]),
-  account_id: z.string().min(1),
-  interval: z.enum(["monthly", "weekly"]),
-  day_of_month: z.number().int().min(1).max(31),
-  day_of_week: z.number().int().min(0).max(6),
-}).superRefine((data, ctx) => {
-  if (data.interval === "monthly" && !data.day_of_month) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Selecciona el día", path: ["day_of_month"] })
-  }
-  if (data.interval === "weekly" && data.day_of_week === undefined) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Selecciona el día", path: ["day_of_week"] })
-  }
-})
-
-type FormValues = z.infer<typeof formSchema>
-
 // ─── Modal component ──────────────────────────────────────────────────────────
 export function RecurringModal({ template, open, onOpenChange }: RecurringModalProps) {
   const { t, tCategory } = useI18n()
+
+  const formSchema = z.object({
+    icon: z.string(),
+    description: z.string().min(2, t("validation.descriptionRequired")),
+    amount: z.string().min(1, t("validation.enterAmount")),
+    currency: z.string().min(3).max(3),
+    category: z.string().min(1, t("validation.selectCategory")),
+    type: z.enum(["income", "expense"]),
+    account_id: z.string().min(1, t("validation.selectAccount")),
+    interval: z.enum(["monthly", "weekly"]),
+    day_of_month: z.number().int().min(1).max(31),
+    day_of_week: z.number().int().min(0).max(6),
+  }).superRefine((data, ctx) => {
+    if (data.interval === "monthly" && !data.day_of_month) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: t("validation.selectDay"), path: ["day_of_month"] })
+    }
+    if (data.interval === "weekly" && data.day_of_week === undefined) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: t("validation.selectDay"), path: ["day_of_week"] })
+    }
+  })
+
+  type FormValues = z.infer<typeof formSchema>
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -99,17 +98,17 @@ export function RecurringModal({ template, open, onOpenChange }: RecurringModalP
 
   const isEditMode = !!template
 
-  const buildDefaults = (t?: RecurringTemplate): FormValues => ({
-    icon:         t?.icon       ?? "",
-    description:  t?.description ?? "",
-    amount:       t             ? String(t.amount) : "",
-    currency:     t?.currency   ?? "COP",
-    category:     t?.category   ?? "",
-    type:         (t?.type      ?? "expense") as "income" | "expense",
-    account_id:   t?.account_id ?? "",
-    interval:     (t?.interval  ?? "monthly") as "monthly" | "weekly",
-    day_of_month: t?.day_of_month ?? 1,
-    day_of_week:  t?.day_of_week  ?? 1,
+  const buildDefaults = (tmpl?: RecurringTemplate): FormValues => ({
+    icon:         tmpl?.icon       ?? "",
+    description:  tmpl?.description ?? "",
+    amount:       tmpl             ? String(tmpl.amount) : "",
+    currency:     tmpl?.currency   ?? "COP",
+    category:     tmpl?.category   ?? "",
+    type:         (tmpl?.type      ?? "expense") as "income" | "expense",
+    account_id:   tmpl?.account_id ?? "",
+    interval:     (tmpl?.interval  ?? "monthly") as "monthly" | "weekly",
+    day_of_month: tmpl?.day_of_month ?? 1,
+    day_of_week:  tmpl?.day_of_week  ?? 1,
   })
 
   const form = useForm<FormValues>({

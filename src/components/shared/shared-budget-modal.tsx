@@ -32,10 +32,17 @@ export function SharedBudgetCreateModal({
   const [month, setMonth] = useState(new Date().toISOString().substring(0, 7))
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [nameError, setNameError] = useState<string | null>(null)
+  const [amountError, setAmountError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!name || !amount) return
+    setNameError(null)
+    setAmountError(null)
+    let valid = true
+    if (!name.trim()) { setNameError(t("validation.nameRequired")); valid = false }
+    if (!amount) { setAmountError(t("validation.enterAmount")); valid = false }
+    if (!valid) return
     setLoading(true)
     setError(null)
     const res = await createSharedBudget({ group_id: groupId, name, total_amount: amount, month })
@@ -58,15 +65,17 @@ export function SharedBudgetCreateModal({
         <form onSubmit={handleSubmit} className="px-6 pb-6 flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <Label>{t('shared.budgetName')}</Label>
-            <Input value={name} onChange={e => setName(e.target.value)} placeholder={t('shared.budgetNamePlaceholder')} className="rounded-xl bg-muted/50" />
+            <Input value={name} onChange={e => { setName(e.target.value); if (nameError) setNameError(null) }} placeholder={t('shared.budgetNamePlaceholder')} className="rounded-xl bg-muted/50" aria-invalid={!!nameError} />
+            {nameError && <span className="text-xs text-rose-500">{nameError}</span>}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-2">
               <Label>{t('shared.budgetTotal')}</Label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
-                <AmountInput value={amount} onChange={setAmount} placeholder="0" className="pl-7 rounded-xl bg-muted/50" />
+                <AmountInput value={amount} onChange={(v) => { setAmount(v); if (amountError) setAmountError(null) }} placeholder="0" className="pl-7 rounded-xl bg-muted/50" />
               </div>
+              {amountError && <span className="text-xs text-rose-500">{amountError}</span>}
             </div>
             <div className="flex flex-col gap-2">
               <Label>{t('shared.filterMonth')}</Label>
@@ -76,7 +85,7 @@ export function SharedBudgetCreateModal({
           {error && <p className="text-xs text-rose-500">{error}</p>}
           <DialogFooter className="pt-3 border-t border-border/40 flex gap-2 justify-end">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="rounded-xl">{t('common.cancel')}</Button>
-            <Button type="submit" disabled={loading || !name || !amount} className="rounded-xl min-w-[100px]">
+            <Button type="submit" disabled={loading} className="rounded-xl min-w-[100px]">
               {loading ? <Loader2 size={16} className="animate-spin" /> : t('shared.addBudget')}
             </Button>
           </DialogFooter>

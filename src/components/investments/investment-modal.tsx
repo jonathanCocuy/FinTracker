@@ -56,11 +56,11 @@ export function InvestmentModal({ record, open, onOpenChange }: InvestmentModalP
   const today = new Date().toISOString().split("T")[0]
 
   const formSchema = z.object({
-    name:     z.string().min(1),
+    name:     z.string().min(1, t("validation.nameRequired")),
     type:     z.enum(["etf", "stock", "crypto", "fund", "other"]),
-    amount:   z.string().min(1),
+    amount:   z.string().min(1, t("validation.enterAmount")),
     currency: z.enum(["COP", "USD"]),
-    date:     z.string().min(1),
+    date:     z.string().min(1, t("validation.selectDate")),
     notes:    z.string().optional(),
   })
 

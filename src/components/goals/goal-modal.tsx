@@ -24,15 +24,6 @@ function ModalIcon({ icon }: { icon: string }) {
   return <Target size={18} />
 }
 
-const goalSchema = z.object({
-  name: z.string().min(2),
-  target_amount: z.string().min(1),
-  deadline: z.string().optional().nullable(),
-  icon: z.string().optional().nullable(),
-})
-
-type FormData = z.infer<typeof goalSchema>
-
 export function GoalModal({
   open,
   onOpenChange,
@@ -43,6 +34,15 @@ export function GoalModal({
   goal?: SavingsGoal
 }) {
   const { t } = useI18n()
+
+  const goalSchema = z.object({
+    name: z.string().min(2, t("validation.fullNameMinLength")),
+    target_amount: z.string().min(1, t("validation.enterAmount")),
+    deadline: z.string().optional().nullable(),
+    icon: z.string().optional().nullable(),
+  })
+
+  type FormData = z.infer<typeof goalSchema>
   const [loading, setLoading] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)

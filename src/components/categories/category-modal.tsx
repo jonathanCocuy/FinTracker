@@ -36,9 +36,9 @@ export function CategoryModal({ open, onOpenChange, category }: CategoryModalPro
   const isEditing = !!category
 
   const schema = z.object({
-    label: z.string().min(1),
-    color: z.string().min(1),
-    icon: z.string().min(1),
+    label: z.string().min(1, t("validation.nameRequired")),
+    color: z.string().min(1, t("validation.selectColor")),
+    icon: z.string().min(1, t("validation.selectIcon")),
   })
 
   const form = useForm<z.infer<typeof schema>>({

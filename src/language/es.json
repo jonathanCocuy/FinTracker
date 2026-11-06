@@ -68,7 +68,10 @@
     "selectAccount": "Selecciona una cuenta",
     "selectDestinationAccount": "Selecciona la cuenta destino",
     "accountNameRequired": "El nombre debe tener al menos 2 caracteres",
-    "selectColor": "Selecciona un color"
+    "selectColor": "Selecciona un color",
+    "nameRequired": "El nombre es requerido",
+    "selectDate": "Selecciona una fecha",
+    "selectDay": "Selecciona el día"
   },
   "accountModal": {
     "title": "Nueva Cuenta",
