@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import { useRef } from "react"
 import { cn } from "@/src/lib/utils"
 import { CURRENCY_INFO, type SupportedCurrency } from "@/src/lib/currency"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/src/components/ui/tooltip"
@@ -22,6 +23,53 @@ export type KpiItem = {
   currencyCode?: string
 }
 
+// ─── Slot-machine digit roller ────────────────────────────────────────────────
+
+function DigitRoller({ char, direction }: { char: string; direction: 1 | -1 }) {
+  return (
+    <span
+      className="inline-block overflow-hidden"
+      style={{ height: '1em', lineHeight: 1, verticalAlign: 'baseline' }}
+    >
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.span
+          key={char}
+          className="inline-block"
+          style={{ lineHeight: 1 }}
+          initial={{ y: `${direction * 110}%` }}
+          animate={{ y: 0 }}
+          exit={{ y: `${direction * -110}%` }}
+          transition={{ duration: 0.18, ease: [0.25, 0.46, 0.45, 0.94] }}
+        >
+          {char}
+        </motion.span>
+      </AnimatePresence>
+    </span>
+  )
+}
+
+function NumberRoller({ text, direction }: { text: string; direction: 1 | -1 }) {
+  const chars = text.split('')
+
+  // Key each character from the right so digit positions are stable
+  // when the number gains/loses digits (e.g. 999 → 1,000)
+  let dIdx = 0, sIdx = 0
+  const enriched = [...chars].reverse().map((char) => {
+    const isDigit = /[0-9]/.test(char)
+    return { char, key: isDigit ? `d${dIdx++}` : `s${sIdx++}`, isDigit }
+  }).reverse()
+
+  return (
+    <span className="inline-flex items-baseline tabular-nums">
+      {enriched.map((item) =>
+        item.isDigit
+          ? <DigitRoller key={item.key} char={item.char} direction={direction} />
+          : <span key={item.key}>{item.char}</span>
+      )}
+    </span>
+  )
+}
+
 // ─── Componente de Animación Interno ─────────────────────────────────────────
 
 function AnimatedValue({
@@ -37,6 +85,9 @@ function AnimatedValue({
 }) {
   const { locale } = useI18n()
   const numLocale = locale === "en" ? "en-US" : "es-CO"
+  const prevRef = useRef<number>(value)
+  const direction: 1 | -1 = value >= prevRef.current ? 1 : -1
+  React.useEffect(() => { prevRef.current = value })
 
   const fixedSign = color === "income" ? "+" : color === "expense" ? "-" : ""
   const useAbs = color === "income" || color === "expense"
@@ -59,20 +110,7 @@ function AnimatedValue({
     formatted = `${fixedSign}${prefix}${f}`
   }
 
-  return (
-    <AnimatePresence mode="wait" initial={false}>
-      <motion.span
-        key={formatted}
-        className="tabular-nums inline-block"
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -6 }}
-        transition={{ duration: 0.25, ease: "easeOut" }}
-      >
-        {formatted}
-      </motion.span>
-    </AnimatePresence>
-  )
+  return <NumberRoller text={formatted} direction={direction} />
 }
 
 // ─── Helpers Originales ──────────────────────────────────────────────────────
