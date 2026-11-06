@@ -60,11 +60,13 @@ export function AnimatedNumber({
     return { char, key: isDigit ? `d${pos}` : `s${sIdx - 1}`, isDigit, pos }
   }).reverse()
 
+  const totalDigits = dIdx
+
   return (
     <span className={`inline-flex items-baseline tabular-nums ${className ?? ''}`}>
       {enriched.map((item) =>
         item.isDigit
-          ? <DigitRoller key={item.key} char={item.char} direction={direction} delay={item.pos * 0.035} />
+          ? <DigitRoller key={item.key} char={item.char} direction={direction} delay={(totalDigits - 1 - item.pos) * 0.035} />
           : <span key={item.key}>{item.char}</span>
       )}
     </span>

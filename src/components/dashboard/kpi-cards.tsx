@@ -76,11 +76,12 @@ function NumberRoller({ text, direction }: { text: string; direction: 1 | -1 }) 
   let dIdx = 0, sIdx = 0
   const enriched = [...chars].reverse().map((char) => {
     const isDigit = /[0-9]/.test(char)
-    // posFromRight drives the right-to-left stagger delay
     const pos = isDigit ? dIdx : -1
     if (isDigit) dIdx++; else sIdx++
     return { char, key: isDigit ? `d${pos}` : `s${sIdx - 1}`, isDigit, pos }
   }).reverse()
+
+  const totalDigits = dIdx
 
   return (
     <span className="inline-flex items-baseline tabular-nums">
@@ -91,7 +92,7 @@ function NumberRoller({ text, direction }: { text: string; direction: 1 | -1 }) 
               key={item.key}
               char={item.char}
               direction={direction}
-              delay={item.pos * 0.035}
+              delay={(totalDigits - 1 - item.pos) * 0.035}
             />
           )
           : <span key={item.key}>{item.char}</span>
