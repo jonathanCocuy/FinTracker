@@ -92,7 +92,7 @@ function NumberRoller({ text, direction }: { text: string; direction: 1 | -1 }) 
               key={item.key}
               char={item.char}
               direction={direction}
-              delay={(totalDigits - 1 - item.pos) * 0.055}
+              delay={item.pos * 0.055}
             />
           )
           : <span key={item.key}>{item.char}</span>
