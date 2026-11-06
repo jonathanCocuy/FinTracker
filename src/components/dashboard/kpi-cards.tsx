@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { useRef } from "react"
+import { useState, useEffect } from "react"
 import { cn } from "@/src/lib/utils"
 import { CURRENCY_INFO, type SupportedCurrency } from "@/src/lib/currency"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/src/components/ui/tooltip"
@@ -116,9 +116,9 @@ function AnimatedValue({
 }) {
   const { locale } = useI18n()
   const numLocale = locale === "en" ? "en-US" : "es-CO"
-  const prevRef = useRef<number>(value)
-  const direction: 1 | -1 = value >= prevRef.current ? 1 : -1
-  React.useEffect(() => { prevRef.current = value })
+  const [prevValue, setPrevValue] = useState(value)
+  const direction: 1 | -1 = value >= prevValue ? 1 : -1
+  useEffect(() => { setPrevValue(value) }, [value])
 
   const fixedSign = color === "income" ? "+" : color === "expense" ? "-" : ""
   const useAbs = color === "income" || color === "expense"

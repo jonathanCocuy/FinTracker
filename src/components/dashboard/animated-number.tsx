@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef } from "react"
+import { useState, useEffect } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { CURRENCY_INFO, type SupportedCurrency } from "@/src/lib/currency"
 
@@ -44,9 +44,9 @@ export function AnimatedNumber({
   currency?: string;
   className?: string
 }) {
-  const prevRef = useRef<number>(value)
-  const direction: 1 | -1 = value >= prevRef.current ? 1 : -1
-  prevRef.current = value
+  const [prevValue, setPrevValue] = useState(value)
+  const direction: 1 | -1 = value >= prevValue ? 1 : -1
+  useEffect(() => { setPrevValue(value) }, [value])
 
   const info = CURRENCY_INFO[currency as SupportedCurrency]
   const locale = info?.locale ?? 'es-CO'

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import { TrendingUp, TrendingDown, Wallet, PiggyBank } from "lucide-react"
 import { useI18n } from "@/src/lib/i18n"
@@ -23,10 +23,8 @@ const MONTH_KEYS = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct',
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ChartTooltip({ active, payload, label, currency, tIncome, tExpenses }: any) {
   if (!active || !payload?.length) return null
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const income = payload.find((p: any) => p.dataKey === 'income')?.value ?? 0
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const expenses = payload.find((p: any) => p.dataKey === 'expenses')?.value ?? 0
+  const income = (payload as { dataKey: string; value: number }[]).find(p => p.dataKey === 'income')?.value ?? 0
+  const expenses = (payload as { dataKey: string; value: number }[]).find(p => p.dataKey === 'expenses')?.value ?? 0
   return (
     <div className="rounded-xl border border-border bg-background/95 backdrop-blur-sm shadow-xl px-3 py-2.5 text-xs min-w-[140px]">
       <p className="font-semibold text-foreground mb-2">{label}</p>
