@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/src/components/ui/select"
+import * as XLSX from 'xlsx'
 import { useI18n } from "@/src/lib/i18n"
 import type { DashboardAccount } from "@/src/lib/data"
 import { importTransactions } from "@/src/lib/actions"
@@ -127,30 +128,29 @@ export function ImportModal({ open, onOpenChange, accounts }: ImportModalProps) 
   }
 
   function downloadTemplate() {
-    const header = locale === "en"
-      ? "date,amount,description,type"
-      : "fecha,monto,descripcion,tipo"
-    const rows = locale === "en"
+    const isEn = locale === "en"
+    const headers = isEn
+      ? ["date", "amount", "description", "type"]
+      : ["fecha", "monto", "descripcion", "tipo"]
+    const rows = isEn
       ? [
-          "2025-01-15,1500.00,Salary,income",
-          "2025-01-16,-45.50,Supermarket,expense",
-          "2025-01-17,200.00,Freelance project,income",
-          "2025-01-18,-12.99,Streaming service,expense",
+          ["2025-01-15", 1500.00, "Salary", "income"],
+          ["2025-01-16", -45.50, "Supermarket", "expense"],
+          ["2025-01-17", 200.00, "Freelance project", "income"],
+          ["2025-01-18", -12.99, "Streaming service", "expense"],
         ]
       : [
-          "2025-01-15,1500000,Salario,ingreso",
-          "2025-01-16,-45500,Supermercado,gasto",
-          "2025-01-17,200000,Proyecto freelance,ingreso",
-          "2025-01-18,-12990,Servicio streaming,gasto",
+          ["2025-01-15", 1500000, "Salario", "ingreso"],
+          ["2025-01-16", -45500, "Supermercado", "gasto"],
+          ["2025-01-17", 200000, "Proyecto freelance", "ingreso"],
+          ["2025-01-18", -12990, "Servicio streaming", "gasto"],
         ]
-    const csv = [header, ...rows].join("\n")
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = locale === "en" ? "import-template.csv" : "plantilla-importacion.csv"
-    a.click()
-    URL.revokeObjectURL(url)
+
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...rows])
+    ws["!cols"] = [{ wch: 14 }, { wch: 12 }, { wch: 24 }, { wch: 10 }]
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, isEn ? "Template" : "Plantilla")
+    XLSX.writeFile(wb, isEn ? "import-template.xlsx" : "plantilla-importacion.xlsx")
   }
 
   function handleClose(open: boolean) {

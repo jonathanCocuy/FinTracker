@@ -412,7 +412,7 @@
     "close": "Cerrar",
     "more": "más",
     "downloadTemplate": "Descargar plantilla",
-    "templateHint": "¿No sabes el formato? Descarga un archivo de ejemplo.",
+    "templateHint": "¿No sabes el formato? Descarga un archivo Excel de ejemplo.",
     "validating": "Validando archivo...",
     "errorEmpty": "El archivo no tiene filas de datos.",
     "errorNoHeaders": "El archivo no tiene encabezados. Asegúrate de que la primera fila tenga nombres de columna.",

@@ -431,7 +431,7 @@
     "close": "Close",
     "more": "more",
     "downloadTemplate": "Download template",
-    "templateHint": "Not sure about the format? Download a sample file.",
+    "templateHint": "Not sure about the format? Download a sample Excel file.",
     "validating": "Validating file...",
     "errorEmpty": "The file has no data rows.",
     "errorNoHeaders": "The file has no headers. Make sure the first row contains column names.",
