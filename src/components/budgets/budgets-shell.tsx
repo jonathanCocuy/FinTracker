@@ -42,12 +42,14 @@ function BudgetCard({
   catInfo,
   onEdit,
   t,
+  tCategory,
   currency,
 }: {
   budget: BudgetWithProgress
   catInfo?: UserCategory
   onEdit: () => void
   t: (key: string) => string
+  tCategory: (name: string, fallback: string) => string
   currency: string
 }) {
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -240,6 +242,7 @@ export function BudgetsShell({ data }: { data: BudgetsPageData }) {
                 catInfo={categoriesMap[budget.category]}
                 onEdit={() => setEditingBudget(budget)}
                 t={t}
+                tCategory={tCategory}
                 currency={currency}
               />
             ))}
