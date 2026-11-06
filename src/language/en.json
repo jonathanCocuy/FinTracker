@@ -429,7 +429,16 @@
     "imported": "transactions imported",
     "skipped": "skipped as duplicates",
     "close": "Close",
-    "more": "more"
+    "more": "more",
+    "downloadTemplate": "Download template",
+    "templateHint": "Not sure about the format? Download a sample file.",
+    "validating": "Validating file...",
+    "errorEmpty": "The file has no data rows.",
+    "errorNoHeaders": "The file has no headers. Make sure the first row contains column names.",
+    "errorParse": "Could not read the file. Make sure it is a valid CSV.",
+    "errorTooLarge": "File exceeds the 5 MB limit.",
+    "validRows": "rows ready to map",
+    "fileValid": "File looks good"
   },
   "export": {
     "button": "Export",

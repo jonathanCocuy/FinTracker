@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react"
 import { useDropzone } from "react-dropzone"
 import { useRouter } from "next/navigation"
-import { Upload, FileText, X, ChevronRight, AlertCircle, CheckCircle2 } from "lucide-react"
+import { Upload, FileText, X, ChevronRight, AlertCircle, CheckCircle2, Download } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -63,11 +63,46 @@ export function ImportModal({ open, onOpenChange, accounts }: ImportModalProps) 
   const [importing, setImporting] = useState(false)
   const [importError, setImportError] = useState<string | null>(null)
   const [result, setResult] = useState<{ imported: number; skipped: number } | null>(null)
+  const [fileError, setFileError] = useState<string | null>(null)
+  const [fileRowCount, setFileRowCount] = useState<number | null>(null)
+
+  async function validateFile(f: File): Promise<boolean> {
+    setFileError(null)
+    setFileRowCount(null)
+
+    if (f.size > 5 * 1024 * 1024) {
+      setFileError(t("import.errorTooLarge"))
+      return false
+    }
+
+    try {
+      const { headers: h, rawRows: r } = await parseCSVFile(f)
+      if (!h.length) {
+        setFileError(t("import.errorNoHeaders"))
+        return false
+      }
+      if (!r.length) {
+        setFileError(t("import.errorEmpty"))
+        return false
+      }
+      setFileRowCount(r.length)
+      return true
+    } catch {
+      setFileError(t("import.errorParse"))
+      return false
+    }
+  }
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop: useCallback((files: File[]) => {
-      if (files[0]) setFile(files[0])
-    }, []),
+    onDrop: useCallback(async (files: File[]) => {
+      if (files[0]) {
+        setFile(files[0])
+        setFileError(null)
+        setFileRowCount(null)
+        await validateFile(files[0])
+      }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [locale]),
     accept: {
       "text/csv": [".csv"],
       "application/vnd.ms-excel": [".csv"],
@@ -87,6 +122,35 @@ export function ImportModal({ open, onOpenChange, accounts }: ImportModalProps) 
     setImporting(false)
     setImportError(null)
     setResult(null)
+    setFileError(null)
+    setFileRowCount(null)
+  }
+
+  function downloadTemplate() {
+    const header = locale === "en"
+      ? "date,amount,description,type"
+      : "fecha,monto,descripcion,tipo"
+    const rows = locale === "en"
+      ? [
+          "2025-01-15,1500.00,Salary,income",
+          "2025-01-16,-45.50,Supermarket,expense",
+          "2025-01-17,200.00,Freelance project,income",
+          "2025-01-18,-12.99,Streaming service,expense",
+        ]
+      : [
+          "2025-01-15,1500000,Salario,ingreso",
+          "2025-01-16,-45500,Supermercado,gasto",
+          "2025-01-17,200000,Proyecto freelance,ingreso",
+          "2025-01-18,-12990,Servicio streaming,gasto",
+        ]
+    const csv = [header, ...rows].join("\n")
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = locale === "en" ? "import-template.csv" : "plantilla-importacion.csv"
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   function handleClose(open: boolean) {
@@ -202,21 +266,40 @@ export function ImportModal({ open, onOpenChange, accounts }: ImportModalProps) 
               className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-colors ${
                 isDragActive
                   ? "border-primary bg-primary/5"
+                  : fileError
+                  ? "border-destructive/50 bg-destructive/5"
+                  : file && fileRowCount !== null
+                  ? "border-green-500/40 bg-green-500/5"
                   : "border-border/40 hover:border-border/80 bg-muted/20"
               }`}
             >
               <input {...getInputProps()} />
               {file ? (
-                <div className="flex items-center justify-center gap-2 text-sm">
-                  <FileText size={16} className="text-muted-foreground shrink-0" />
-                  <span className="font-medium truncate max-w-[300px]">{file.name}</span>
-                  <button
-                    type="button"
-                    onClick={e => { e.stopPropagation(); setFile(null) }}
-                    className="text-muted-foreground hover:text-foreground shrink-0"
-                  >
-                    <X size={14} />
-                  </button>
+                <div className="flex flex-col items-center gap-2">
+                  <div className="flex items-center gap-2 text-sm">
+                    <FileText size={16} className="text-muted-foreground shrink-0" />
+                    <span className="font-medium truncate max-w-[260px]">{file.name}</span>
+                    <button
+                      type="button"
+                      onClick={e => { e.stopPropagation(); setFile(null); setFileError(null); setFileRowCount(null) }}
+                      className="text-muted-foreground hover:text-foreground shrink-0"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                  {fileError ? (
+                    <p className="flex items-center gap-1.5 text-xs text-destructive">
+                      <AlertCircle size={12} />
+                      {fileError}
+                    </p>
+                  ) : fileRowCount !== null ? (
+                    <p className="flex items-center gap-1.5 text-xs text-green-600">
+                      <CheckCircle2 size={12} />
+                      {fileRowCount} {t("import.validRows")}
+                    </p>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">{t("import.validating")}</p>
+                  )}
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-2 text-muted-foreground">
@@ -229,10 +312,23 @@ export function ImportModal({ open, onOpenChange, accounts }: ImportModalProps) 
               )}
             </div>
 
+            {/* Template download hint */}
+            <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+              {t("import.templateHint")}{" "}
+              <button
+                type="button"
+                onClick={downloadTemplate}
+                className="inline-flex items-center gap-0.5 text-primary underline-offset-2 hover:underline"
+              >
+                <Download size={11} />
+                {t("import.downloadTemplate")}
+              </button>
+            </p>
+
             <DialogFooter>
               <Button
                 onClick={handleToMap}
-                disabled={!file || !accountId}
+                disabled={!file || !accountId || !!fileError || fileRowCount === null}
                 className="gap-1.5 rounded-xl"
               >
                 {t("import.continue")}
