@@ -24,7 +24,7 @@ export default function TermsPage() {
 
         <Section title="1. Aceptación de los términos">
           <p>
-            Al crear una cuenta y usar FlowX ("la Aplicación"), aceptas estos Términos y Condiciones en su totalidad.
+            Al crear una cuenta y usar FlowX (&ldquo;la Aplicación&rdquo;), aceptas estos Términos y Condiciones en su totalidad.
             Si no estás de acuerdo con alguna parte, no debes usar la Aplicación.
           </p>
         </Section>
@@ -95,7 +95,7 @@ export default function TermsPage() {
 
         <Section title="8. Limitación de responsabilidad">
           <p>
-            FlowX se proporciona "tal cual" sin garantías de ningún tipo. En ningún caso seremos responsables
+            FlowX se proporciona &ldquo;tal cual&rdquo; sin garantías de ningún tipo. En ningún caso seremos responsables
             de daños directos, indirectos, incidentales o consecuentes derivados del uso o imposibilidad de
             uso de la Aplicación, incluyendo pérdidas de datos o decisiones financieras tomadas con base en
             la información mostrada.
