@@ -112,7 +112,7 @@ export function AccountModal({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: account?.name ?? "",
-      balance: account ? String(account.balance) : "",
+      balance: account ? String(account.initial_balance) : "",
       color: account?.color ?? "",
     },
   })
@@ -122,7 +122,7 @@ export function AccountModal({
     if (open) {
       form.reset({
         name: account?.name ?? "",
-        balance: account ? String(account.balance) : "",
+        balance: account ? String(account.initial_balance) : "",
         color: account?.color ?? "",
       })
     }
