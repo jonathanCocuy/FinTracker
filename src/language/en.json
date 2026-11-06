@@ -418,7 +418,8 @@
       "date": "Date",
       "amount": "Amount",
       "description": "Description",
-      "type": "Type (optional)"
+      "type": "Type (optional)",
+      "category": "Category (optional)"
     },
     "found": "transactions found",
     "invalidRows": "invalid rows skipped",
@@ -438,7 +439,10 @@
     "errorParse": "Could not read the file. Make sure it is a valid CSV.",
     "errorTooLarge": "File exceeds the 5 MB limit.",
     "validRows": "rows ready to map",
-    "fileValid": "File looks good"
+    "fileValid": "File looks good",
+    "noCategoryWarning": "Your file has no category column. All transactions will be assigned the same category. You can change it here or edit each one after importing.",
+    "assignCategory": "Category for all:",
+    "categoryOther": "Other (uncategorized)"
   },
   "export": {
     "button": "Export",

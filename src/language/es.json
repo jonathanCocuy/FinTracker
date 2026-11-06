@@ -399,7 +399,8 @@
       "date": "Fecha",
       "amount": "Monto",
       "description": "Descripción",
-      "type": "Tipo (opcional)"
+      "type": "Tipo (opcional)",
+      "category": "Categoría (opcional)"
     },
     "found": "transacciones encontradas",
     "invalidRows": "filas inválidas omitidas",
@@ -419,7 +420,10 @@
     "errorParse": "No se pudo leer el archivo. Verifica que sea un CSV válido.",
     "errorTooLarge": "El archivo supera el límite de 5 MB.",
     "validRows": "filas listas para mapear",
-    "fileValid": "Archivo correcto"
+    "fileValid": "Archivo correcto",
+    "noCategoryWarning": "Tu archivo no tiene columna de categoría. Todas las transacciones recibirán la misma categoría. Puedes cambiarla aquí o editarlas individualmente después de importar.",
+    "assignCategory": "Categoría para todas:",
+    "categoryOther": "Otra (sin categoría)"
   },
   "export": {
     "button": "Exportar",

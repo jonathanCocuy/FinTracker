@@ -921,12 +921,14 @@ export type ImportRow = {
   amount: number
   description: string
   type: 'income' | 'expense'
+  category?: string
   fingerprint: string
 }
 
 export async function importTransactions(
   rows: ImportRow[],
   account_id: string,
+  fallbackCategory = 'other',
 ): Promise<{ imported: number; skipped: number; error?: string }> {
   if (!rows.length || !account_id) return { imported: 0, skipped: 0, error: 'Invalid input' }
 
@@ -972,7 +974,7 @@ export async function importTransactions(
     description: row.description,
     type: row.type,
     icon: 'Receipt',
-    category: 'other',
+    category: row.category || fallbackCategory,
   }))
 
   // Bulk insert in chunks of 100

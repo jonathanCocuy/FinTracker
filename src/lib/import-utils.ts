@@ -5,6 +5,7 @@ export interface ColumnMapping {
   amount: string
   description: string
   type?: string
+  category?: string
 }
 
 export interface ParsedRow {
@@ -12,6 +13,7 @@ export interface ParsedRow {
   amount: number
   description: string
   type: 'income' | 'expense'
+  category?: string
   fingerprint: string
   preview: Record<string, string>
 }
@@ -125,6 +127,7 @@ export function autoDetectMapping(headers: string[]): Partial<ColumnMapping> {
     amount: find(['valor', 'amount', 'monto', 'importe', 'value', 'total', 'débito', 'debito']),
     description: find(['descripción', 'description', 'concepto', 'detalle', 'detail', 'narración', 'narracion', 'referencia']),
     type: find(['tipo', 'type', 'clase', 'class']),
+    category: find(['categoría', 'categoria', 'category', 'cat']),
   }
 }
 
@@ -156,8 +159,10 @@ export function mapRows(
     const description = rawDescription || '-'
     const type = detectType(rawAmount, rawType)
     const fingerprint = makeFingerprint(date, amount, description)
+    const rawCategory = mapping.category ? row[mapping.category]?.trim() : undefined
+    const category = rawCategory || undefined
 
-    valid.push({ date, amount, description, type, fingerprint, preview: row })
+    valid.push({ date, amount, description, type, category, fingerprint, preview: row })
   }
 
   return { valid, invalid }

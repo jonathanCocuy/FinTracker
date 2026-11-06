@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import { useDropzone } from "react-dropzone"
 import { useRouter } from "next/navigation"
 import { Upload, FileText, X, ChevronRight, AlertCircle, CheckCircle2, Download } from "lucide-react"
@@ -21,8 +21,8 @@ import {
 } from "@/src/components/ui/select"
 import * as XLSX from 'xlsx'
 import { useI18n } from "@/src/lib/i18n"
-import type { DashboardAccount } from "@/src/lib/data"
-import { importTransactions } from "@/src/lib/actions"
+import type { DashboardAccount, UserCategory } from "@/src/lib/data"
+import { importTransactions, fetchUserCategories } from "@/src/lib/actions"
 import {
   parseCSVFile,
   mapRows,
@@ -38,6 +38,7 @@ interface MappingState {
   amount: string
   description: string
   type: string
+  category: string
 }
 
 interface ImportModalProps {
@@ -58,7 +59,7 @@ export function ImportModal({ open, onOpenChange, accounts }: ImportModalProps) 
   const [file, setFile] = useState<File | null>(null)
   const [headers, setHeaders] = useState<string[]>([])
   const [rawRows, setRawRows] = useState<Record<string, string>[]>([])
-  const [mapping, setMapping] = useState<MappingState>({ date: "", amount: "", description: "", type: "" })
+  const [mapping, setMapping] = useState<MappingState>({ date: "", amount: "", description: "", type: "", category: "" })
   const [parsedRows, setParsedRows] = useState<ParsedRow[]>([])
   const [invalidCount, setInvalidCount] = useState(0)
   const [importing, setImporting] = useState(false)
@@ -66,6 +67,12 @@ export function ImportModal({ open, onOpenChange, accounts }: ImportModalProps) 
   const [result, setResult] = useState<{ imported: number; skipped: number } | null>(null)
   const [fileError, setFileError] = useState<string | null>(null)
   const [fileRowCount, setFileRowCount] = useState<number | null>(null)
+  const [categories, setCategories] = useState<UserCategory[]>([])
+  const [fallbackCategory, setFallbackCategory] = useState("other")
+
+  useEffect(() => {
+    fetchUserCategories().then(setCategories)
+  }, [])
 
   async function validateFile(f: File): Promise<boolean> {
     setFileError(null)
@@ -117,7 +124,7 @@ export function ImportModal({ open, onOpenChange, accounts }: ImportModalProps) 
     setFile(null)
     setHeaders([])
     setRawRows([])
-    setMapping({ date: "", amount: "", description: "", type: "" })
+    setMapping({ date: "", amount: "", description: "", type: "", category: "" })
     setParsedRows([])
     setInvalidCount(0)
     setImporting(false)
@@ -125,29 +132,30 @@ export function ImportModal({ open, onOpenChange, accounts }: ImportModalProps) 
     setResult(null)
     setFileError(null)
     setFileRowCount(null)
+    setFallbackCategory("other")
   }
 
   function downloadTemplate() {
     const isEn = locale === "en"
     const headers = isEn
-      ? ["date", "amount", "description", "type"]
-      : ["fecha", "monto", "descripcion", "tipo"]
+      ? ["date", "amount", "description", "type", "category"]
+      : ["fecha", "monto", "descripcion", "tipo", "categoria"]
     const rows = isEn
       ? [
-          ["2025-01-15", 1500.00, "Salary", "income"],
-          ["2025-01-16", -45.50, "Supermarket", "expense"],
-          ["2025-01-17", 200.00, "Freelance project", "income"],
-          ["2025-01-18", -12.99, "Streaming service", "expense"],
+          ["2025-01-15", 1500.00, "Salary", "income", "income"],
+          ["2025-01-16", -45.50, "Supermarket", "expense", "food"],
+          ["2025-01-17", 200.00, "Freelance project", "income", "income"],
+          ["2025-01-18", -12.99, "Streaming service", "expense", "leisure"],
         ]
       : [
-          ["2025-01-15", 1500000, "Salario", "ingreso"],
-          ["2025-01-16", -45500, "Supermercado", "gasto"],
-          ["2025-01-17", 200000, "Proyecto freelance", "ingreso"],
-          ["2025-01-18", -12990, "Servicio streaming", "gasto"],
+          ["2025-01-15", 1500000, "Salario", "ingreso", "income"],
+          ["2025-01-16", -45500, "Supermercado", "gasto", "food"],
+          ["2025-01-17", 200000, "Proyecto freelance", "ingreso", "income"],
+          ["2025-01-18", -12990, "Servicio streaming", "gasto", "leisure"],
         ]
 
     const ws = XLSX.utils.aoa_to_sheet([headers, ...rows])
-    ws["!cols"] = [{ wch: 14 }, { wch: 12 }, { wch: 24 }, { wch: 10 }]
+    ws["!cols"] = [{ wch: 14 }, { wch: 12 }, { wch: 24 }, { wch: 10 }, { wch: 14 }]
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, isEn ? "Template" : "Plantilla")
     XLSX.writeFile(wb, isEn ? "import-template.xlsx" : "plantilla-importacion.xlsx")
@@ -169,6 +177,7 @@ export function ImportModal({ open, onOpenChange, accounts }: ImportModalProps) 
       amount: detected.amount ?? "",
       description: detected.description ?? "",
       type: detected.type ?? "",
+      category: detected.category ?? "",
     })
     setStep("map")
   }
@@ -180,6 +189,7 @@ export function ImportModal({ open, onOpenChange, accounts }: ImportModalProps) 
       amount: mapping.amount,
       description: mapping.description,
       type: mapping.type || undefined,
+      category: mapping.category || undefined,
     }
     const { valid, invalid } = mapRows(rawRows, m)
     setParsedRows(valid)
@@ -192,14 +202,15 @@ export function ImportModal({ open, onOpenChange, accounts }: ImportModalProps) 
     setImporting(true)
     setImportError(null)
     try {
-      const rows = parsedRows.map(({ date, amount, description, type, fingerprint }) => ({
+      const rows = parsedRows.map(({ date, amount, description, type, category, fingerprint }) => ({
         date,
         amount,
         description,
         type,
+        category,
         fingerprint,
       }))
-      const res = await importTransactions(rows, accountId)
+      const res = await importTransactions(rows, accountId, fallbackCategory)
       if (res.error) {
         setImportError(res.error)
         return
@@ -362,25 +373,27 @@ export function ImportModal({ open, onOpenChange, accounts }: ImportModalProps) 
                 </div>
               ))}
 
-              <div className="flex items-center gap-3">
-                <label className="text-sm font-medium w-32 shrink-0 text-muted-foreground">
-                  {t("import.field.type")}
-                </label>
-                <Select
-                  value={mapping.type || "__none__"}
-                  onValueChange={v => setMapping(prev => ({ ...prev, type: v === "__none__" ? "" : v }))}
-                >
-                  <SelectTrigger className="flex-1 rounded-xl bg-muted/30 border-border/40 text-sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="__none__">{t("import.noColumn")}</SelectItem>
-                    {headers.map(h => (
-                      <SelectItem key={h} value={h}>{h}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {(["type", "category"] as const).map(field => (
+                <div key={field} className="flex items-center gap-3">
+                  <label className="text-sm font-medium w-32 shrink-0 text-muted-foreground">
+                    {t(`import.field.${field}`)}
+                  </label>
+                  <Select
+                    value={mapping[field] || "__none__"}
+                    onValueChange={v => setMapping(prev => ({ ...prev, [field]: v === "__none__" ? "" : v }))}
+                  >
+                    <SelectTrigger className="flex-1 rounded-xl bg-muted/30 border-border/40 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">{t("import.noColumn")}</SelectItem>
+                      {headers.map(h => (
+                        <SelectItem key={h} value={h}>{h}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ))}
             </div>
 
             {/* CSV preview */}
@@ -440,6 +453,34 @@ export function ImportModal({ open, onOpenChange, accounts }: ImportModalProps) 
               )}
               <p className="text-xs text-muted-foreground">{t("import.duplicatesNote")}</p>
             </div>
+
+            {/* Category notice — shown only when no category column was mapped */}
+            {!mapping.category && (
+              <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 space-y-2">
+                <p className="text-xs text-amber-700 dark:text-amber-400 flex items-start gap-1.5">
+                  <AlertCircle size={13} className="mt-0.5 shrink-0" />
+                  {t("import.noCategoryWarning")}
+                </p>
+                <div className="flex items-center gap-2">
+                  <label className="text-xs font-medium shrink-0 text-muted-foreground">
+                    {t("import.assignCategory")}
+                  </label>
+                  <Select value={fallbackCategory} onValueChange={setFallbackCategory}>
+                    <SelectTrigger className="h-7 text-xs flex-1 rounded-lg bg-background border-border/40">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="other">{t("import.categoryOther")}</SelectItem>
+                      {categories.map(cat => (
+                        <SelectItem key={cat.name} value={cat.name}>
+                          {cat.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
 
             {parsedRows.length > 0 && (
               <div className="rounded-lg border border-border/40 overflow-auto max-h-52">
