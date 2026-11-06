@@ -64,19 +64,25 @@ export default function RegisterPage() {
       }
 
       setLoadingStep("creating");
-      const { error: signUpError } = await supabase.auth.signUp({
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
           data: {
             full_name: data.full_name,
-            avatar_url: avatarUrl, // La función SQL que arreglamos ya sabe leer esto
+            avatar_url: avatarUrl,
           },
           emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
       });
 
       if (signUpError) throw signUpError;
+
+      // If Supabase returns a session, email confirmation is disabled — go straight in
+      if (signUpData.session) {
+        router.push('/onboarding');
+        return;
+      }
 
       setIsRegistered(true);
     } catch (error: unknown) {
