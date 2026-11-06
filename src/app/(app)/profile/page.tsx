@@ -9,7 +9,8 @@ import { Label } from "@/src/components/ui/label"
 import { Switch } from "@/src/components/ui/switch"
 import { Separator } from "@/src/components/ui/separator"
 import { ChangePasswordModal } from "@/src/components/auth/change-password"
-import { User, ShieldCheck, Crown, Loader2, Camera, Bell, Pencil, Check, TrendingUp } from "lucide-react"
+import { User, ShieldCheck, Crown, Loader2, Camera, Bell, Pencil, Check, TrendingUp, Scale } from "lucide-react"
+import Link from "next/link"
 import { useI18n } from "@/src/lib/i18n"
 import { ForgotPasswordModal } from "@/src/components/auth/forgot-password"
 import { supabase } from "@/src/lib/supabase"
@@ -414,6 +415,37 @@ export default function ProfilePage() {
               </CardContent>
             </Card>
           </div> */}
+
+          {/* Legal */}
+          <div className="space-y-6">
+            <Card className="rounded-[28px]">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg font-black">
+                  <Scale size={18} className="text-primary" />
+                  Legal
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Link
+                  href="/terms"
+                  target="_blank"
+                  className="flex items-center justify-between py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <span>Términos y Condiciones</span>
+                  <span className="text-xs">↗</span>
+                </Link>
+                <Separator className="bg-border/50" />
+                <Link
+                  href="/privacy"
+                  target="_blank"
+                  className="flex items-center justify-between py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <span>Política de Privacidad y Tratamiento de Datos</span>
+                  <span className="text-xs">↗</span>
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </main>
     </div>

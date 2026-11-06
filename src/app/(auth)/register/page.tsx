@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PiggyBank, Loader2, Eye, EyeOff, Camera, CheckCircle2 } from "lucide-react";
+import Link from "next/link";
 import { LanguageSwitcher } from "@/src/components/language-switcher";
 
 import { useI18n } from "@/src/lib/i18n";
@@ -30,6 +31,7 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const form = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
@@ -218,13 +220,34 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            {/* Terms acceptance */}
+            <label className="flex items-start gap-2.5 cursor-pointer mt-1">
+              <input
+                type="checkbox"
+                checked={termsAccepted}
+                onChange={e => setTermsAccepted(e.target.checked)}
+                className="mt-0.5 h-4 w-4 shrink-0 accent-primary cursor-pointer"
+              />
+              <span className="text-xs text-muted-foreground leading-relaxed">
+                He leído y acepto los{" "}
+                <Link href="/terms" target="_blank" className="text-primary underline underline-offset-2 hover:text-primary/80">
+                  Términos y Condiciones
+                </Link>{" "}
+                y la{" "}
+                <Link href="/privacy" target="_blank" className="text-primary underline underline-offset-2 hover:text-primary/80">
+                  Política de Privacidad
+                </Link>
+                , incluyendo el tratamiento de mis datos personales conforme a la Ley 1581 de 2012.
+              </span>
+            </label>
+
             {errorMessage && (
               <p className="text-sm text-red-500 text-center font-bold bg-red-500/10 p-2 rounded-lg border border-red-500/20">
                 {errorMessage}
               </p>
             )}
 
-            <Button type="submit" variant="default" size="lg" className="cursor-pointer" disabled={isLoading}>
+            <Button type="submit" variant="default" size="lg" className="cursor-pointer" disabled={isLoading || !termsAccepted}>
               {isLoading ? (
                 <span className="flex items-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin" />
