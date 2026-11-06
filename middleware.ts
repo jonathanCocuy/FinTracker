@@ -53,6 +53,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(dashboardUrl);
   }
 
+  // Prevent browser BFCache from restoring stale authenticated pages
+  response.headers.set('Cache-Control', 'no-store');
   return response;
 }
 
