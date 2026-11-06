@@ -79,7 +79,7 @@ function BudgetCard({
           </div>
           <div className="flex flex-col">
             <div className="flex items-center gap-1.5">
-              <span className="text-sm font-aeonik-bold">{catInfo?.label ?? t(`categories.${budget.category}`)}</span>
+              <span className="text-sm font-aeonik-bold">{tCategory(budget.category, catInfo?.label ?? budget.category)}</span>
               {budget.rollover_enabled && budget.rollover_amount > 0 && (
                 <span className="flex items-center gap-0.5 text-[10px] text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded-full">
                   <RefreshCw size={9} />+{fmtCurrency(budget.rollover_amount, currency)}
@@ -168,7 +168,7 @@ function BudgetCard({
 }
 
 export function BudgetsShell({ data }: { data: BudgetsPageData }) {
-  const { t } = useI18n()
+  const { t, tCategory } = useI18n()
   const { profile } = useProfile()
   const currency = profile?.base_currency ?? 'COP'
   const [createOpen, setCreateOpen] = useState(false)
@@ -183,7 +183,7 @@ export function BudgetsShell({ data }: { data: BudgetsPageData }) {
   useEffect(() => {
     if (overBudget.length === 0) return
     const names = overBudget
-      .map(b => categoriesMap[b.category]?.label ?? t(`categories.${b.category}`))
+      .map(b => tCategory(b.category, categoriesMap[b.category]?.label ?? b.category))
       .join(", ")
     toast.warning(t("budgets.alertToastTitle"), {
       description: names,

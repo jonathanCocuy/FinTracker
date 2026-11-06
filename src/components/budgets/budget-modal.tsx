@@ -25,7 +25,7 @@ interface BudgetModalProps {
 }
 
 export function BudgetModal({ open, onOpenChange, existingBudget, usedCategories = [], categories = [] }: BudgetModalProps) {
-  const { t } = useI18n()
+  const { t, tCategory } = useI18n()
   const [saving, setSaving] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
   const isEditing = !!existingBudget
@@ -100,7 +100,7 @@ export function BudgetModal({ open, onOpenChange, existingBudget, usedCategories
                               ? <Icon size={16} style={{ color: cat?.color }} />
                               : <Tag size={16} />
                             }
-                            <span>{cat?.label ?? field.value}</span>
+                            <span>{cat ? tCategory(cat.name, cat.label) : field.value}</span>
                           </div>
                         )
                       })()
@@ -121,7 +121,7 @@ export function BudgetModal({ open, onOpenChange, existingBudget, usedCategories
                                     ? <Icon size={16} style={{ color: cat.color }} />
                                     : <Tag size={16} style={{ color: cat.color }} />
                                   }
-                                  {cat.label}
+                                  {tCategory(cat.name, cat.label)}
                                 </span>
                               </SelectItem>
                             )

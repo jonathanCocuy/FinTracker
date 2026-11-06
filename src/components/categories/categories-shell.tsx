@@ -9,7 +9,7 @@ import { Plus, Pencil, Tag } from "lucide-react"
 import { Button } from "@/src/components/ui/button"
 
 export function CategoriesShell({ categories }: { categories: UserCategory[] }) {
-  const { t } = useI18n()
+  const { t, tCategory } = useI18n()
   const [modalOpen, setModalOpen] = useState(false)
   const [editingCategory, setEditingCategory] = useState<UserCategory | null>(null)
 
@@ -70,7 +70,7 @@ export function CategoriesShell({ categories }: { categories: UserCategory[] }) 
                       : <Tag size={20} style={{ color: cat.color } as React.CSSProperties} />
                     }
                   </div>
-                  <span className="text-xs font-semibold text-center truncate w-full">{cat.label}</span>
+                  <span className="text-xs font-semibold text-center truncate w-full">{tCategory(cat.name, cat.label)}</span>
                   <button
                     onClick={() => openEdit(cat)}
                     className="absolute top-2 right-2 p-1 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-muted transition-all"

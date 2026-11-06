@@ -25,7 +25,7 @@ interface Props {
 }
 
 export function ReportsShell({ data }: Props) {
-  const { t, locale } = useI18n()
+  const { t, locale, tCategory } = useI18n()
   const { profile } = useProfile()
   const currency = profile?.base_currency ?? 'COP'
   const router = useRouter()
@@ -195,7 +195,8 @@ export function ReportsShell({ data }: Props) {
             <div className="flex flex-col gap-3">
               {data.topCategories.map(cat => {
                 const pct = (cat.total / maxExpense) * 100
-                const catLabel = data.categories.find(c => c.name === cat.category)?.label ?? cat.category
+                const catInfo = data.categories.find(c => c.name === cat.category)
+                const catLabel = tCategory(cat.category, catInfo?.label ?? cat.category)
                 return (
                   <div key={cat.category} className="flex flex-col gap-1">
                     <div className="flex justify-between text-sm">

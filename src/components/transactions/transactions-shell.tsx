@@ -14,7 +14,7 @@ import { ImportModal } from "@/src/components/dashboard/import-modal"
 import { Button } from "@/src/components/ui/button"
 
 export function TransactionsShell({ data }: { data: TransactionsPageData }) {
-  const { t, locale } = useI18n()
+  const { t, locale, tCategory } = useI18n()
   const dateLocale = locale === "en" ? "en-US" : "es-CO"
 
   const [searchQuery, setSearchQuery] = useState("")
@@ -51,7 +51,7 @@ export function TransactionsShell({ data }: { data: TransactionsPageData }) {
     })
   }, [data.transactions, searchQuery, typeFilter, monthFilter, accountFilter])
 
-  const columns = useMemo(() => createColumns(t, data.accounts, locale, data.categories), [t, data.accounts, locale, data.categories])
+  const columns = useMemo(() => createColumns(t, data.accounts, locale, data.categories, tCategory), [t, data.accounts, locale, data.categories, tCategory])
 
   const typeButtons: { key: "all" | "income" | "expense"; label: string }[] = [
     { key: "all", label: t("history.filterAll") },

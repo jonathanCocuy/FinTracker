@@ -50,7 +50,7 @@ interface ImportModalProps {
 const REQUIRED_FIELDS = ["date", "amount", "description"] as const
 
 export function ImportModal({ open, onOpenChange, accounts }: ImportModalProps) {
-  const { t, locale } = useI18n()
+  const { t, locale, tCategory } = useI18n()
   const router = useRouter()
   const dateLocale = locale === "en" ? "en-US" : "es-CO"
 
@@ -473,7 +473,7 @@ export function ImportModal({ open, onOpenChange, accounts }: ImportModalProps) 
                       <SelectItem value="other">{t("import.categoryOther")}</SelectItem>
                       {categories.map(cat => (
                         <SelectItem key={cat.name} value={cat.name}>
-                          {cat.label}
+                          {tCategory(cat.name, cat.label)}
                         </SelectItem>
                       ))}
                     </SelectContent>

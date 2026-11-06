@@ -26,7 +26,7 @@ import { OnboardingChecklist } from "@/src/components/dashboard/onboarding-check
 
 
 export function DashboardShell({ data }: { data: DashboardData }) {
-  const { t, locale } = useI18n()
+  const { t, locale, tCategory } = useI18n()
   const [hoveredAccountId, setHoveredAccountId] = useState<string | null>(null)
   const [editingTransaction, setEditingTransaction] = useState<DashboardTransaction | null>(null)
   const [createAccountOpen, setCreateAccountOpen] = useState(false)
@@ -100,13 +100,13 @@ export function DashboardShell({ data }: { data: DashboardData }) {
   const donutData = data.donutData.map(({ category, value }) => {
     const cat = data.categories.find(c => c.name === category)
     return {
-      name: cat?.label ?? t(`categories.${category}`),
+      name: tCategory(category, cat?.label ?? category),
       value,
       color: categoryColorMap[category] ?? "#6b7280",
     }
   })
 
-  const columns = createColumns(t, data.accounts, locale, data.categories)
+  const columns = createColumns(t, data.accounts, locale, data.categories, tCategory)
 
   return (
     <div className="flex flex-col gap-6 w-full">

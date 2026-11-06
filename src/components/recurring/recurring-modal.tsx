@@ -86,7 +86,7 @@ type FormValues = z.infer<typeof formSchema>
 
 // ─── Modal component ──────────────────────────────────────────────────────────
 export function RecurringModal({ template, open, onOpenChange }: RecurringModalProps) {
-  const { t } = useI18n()
+  const { t, tCategory } = useI18n()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -321,7 +321,7 @@ export function RecurringModal({ template, open, onOpenChange }: RecurringModalP
                             <SelectItem key={cat.name} value={cat.name}>
                               <span className="flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: cat.color }} />
-                                {cat.label}
+                                {tCategory(cat.name, cat.label)}
                               </span>
                             </SelectItem>
                           ))}

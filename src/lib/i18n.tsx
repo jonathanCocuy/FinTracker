@@ -28,6 +28,8 @@ interface I18nContextValue {
   locale: Locale
   setLocale: (locale: Locale) => void
   t: (key: string) => string
+  /** Returns the translated label for a category name, falling back to the stored label for user-custom ones. */
+  tCategory: (name: string, fallback: string) => string
 }
 
 const I18nContext = createContext<I18nContextValue | null>(null)
@@ -60,8 +62,17 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     [locale]
   )
 
+  const tCategory = useCallback(
+    (name: string, fallback: string) => {
+      const key = `categories.${name}`
+      const text = getNested(translations[locale] as Record<string, unknown>, key)
+      return text ?? fallback
+    },
+    [locale]
+  )
+
   return (
-    <I18nContext.Provider value={{ locale, setLocale, t }}>
+    <I18nContext.Provider value={{ locale, setLocale, t, tCategory }}>
       {children}
     </I18nContext.Provider>
   )

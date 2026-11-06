@@ -20,7 +20,7 @@ const CategoryIcon = ({ category, categories }: { category: string; categories: 
   return <Wallet size={14} />
 }
 
-export function createColumns(t: (key: string) => string, accounts: DashboardAccount[] = [], locale = "es", categories: UserCategory[] = []): ColumnDef<Transaction>[] {
+export function createColumns(t: (key: string) => string, accounts: DashboardAccount[] = [], locale = "es", categories: UserCategory[] = [], tCategory: (name: string, fallback: string) => string = (_n, fb) => fb): ColumnDef<Transaction>[] {
   const dateLocale = locale === "en" ? "en-US" : "es-CO"
   const todayStr = new Date().toISOString().substring(0, 10)
   const d = new Date(); d.setDate(d.getDate() - 1)
@@ -43,7 +43,7 @@ export function createColumns(t: (key: string) => string, accounts: DashboardAcc
               <span className="text-[10px] md:text-sm text-muted-foreground/80 md:hidden uppercase tracking-widest font-bold">
                 {category === 'transfer'
                   ? t("categories.transfer")
-                  : categories.find(c => c.name === category)?.label ?? t(`categories.${category}`)}
+                  : tCategory(category, categories.find(c => c.name === category)?.label ?? category)}
               </span>
             </div>
           </div>
@@ -83,7 +83,7 @@ export function createColumns(t: (key: string) => string, accounts: DashboardAcc
             >
               {category === 'transfer'
                 ? t("categories.transfer")
-                : categories.find(c => c.name === category)?.label ?? t(`categories.${category}`)}
+                : tCategory(category, categories.find(c => c.name === category)?.label ?? category)}
             </span>
           </div>
         )

@@ -62,7 +62,7 @@ type SubmitErrorState = { message: string; owner: "create" | string }
 
 // ─── Modal ────────────────────────────────────────────────────────────────────
 export function TransactionModal({ transaction, open: externalOpen, onOpenChange: externalOnOpenChange, iconOnly }: TransactionModalProps = {}) {
-  const { t } = useI18n()
+  const { t, tCategory } = useI18n()
   const [internalOpen, setInternalOpen] = useState(false)
   const [calendarOpen, setCalendarOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -448,7 +448,7 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
                                     className="w-2 h-2 rounded-full shrink-0"
                                     style={{ backgroundColor: cat.color }}
                                   />
-                                  {cat.label}
+                                  {tCategory(cat.name, cat.label)}
                                 </span>
                               </SelectItem>
                             ))}
