@@ -84,7 +84,8 @@
     @apply font-sans;
   }
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-aeonik-bold);
+    font-family: var(--font-jakarta), ui-sans-serif, sans-serif;
+    font-weight: 700;
   }
 }
 
@@ -178,9 +179,9 @@
 
 @theme inline {
   --font-sans: var(--font-sans);
-  --font-aeonik-light: 'Aeonik-Light', ui-sans-serif, sans-serif;
-  --font-aeonik: 'Aeonik-Regular', ui-sans-serif, sans-serif;
-  --font-aeonik-bold: 'Aeonik-Bold', ui-sans-serif, sans-serif;
+  --font-aeonik-light: var(--font-jakarta), ui-sans-serif, sans-serif;
+  --font-aeonik: var(--font-jakarta), ui-sans-serif, sans-serif;
+  --font-aeonik-bold: var(--font-jakarta), ui-sans-serif, sans-serif;
   --font-display: var(--font-aeonik-bold);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -220,4 +221,19 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+@utility font-aeonik {
+  font-family: var(--font-jakarta), ui-sans-serif, sans-serif;
+  font-weight: 400;
+}
+
+@utility font-aeonik-light {
+  font-family: var(--font-jakarta), ui-sans-serif, sans-serif;
+  font-weight: 300;
+}
+
+@utility font-aeonik-bold {
+  font-family: var(--font-jakarta), ui-sans-serif, sans-serif;
+  font-weight: 700;
 }

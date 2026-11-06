@@ -1,13 +1,14 @@
 import "./globals.css";
 import { Metadata } from 'next';
 import ThemeProvider from '@/src/components/theme-provider';
-import { Inter } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import { cn } from "@/src/lib/utils";
 import { I18nProvider } from "@/src/lib/i18n";
 import { AuthListener } from "@/src/components/auth/auth-listener"
 import { Toaster } from "@/src/components/ui/sonner";
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
+const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], weight: ['300', '400', '600', '700'], variable: '--font-jakarta' });
 
 export const metadata: Metadata = {
   title: 'FlowX',
@@ -24,7 +25,7 @@ export const metadata: Metadata = {
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode }>) {
 
   return (
-    <html lang="en" suppressHydrationWarning className={cn("font-sans", inter.variable)}>
+    <html lang="en" suppressHydrationWarning className={cn("font-sans", inter.variable, jakarta.variable)}>
       <head>
         <meta name="theme-color" content="#09090b" />
       </head>

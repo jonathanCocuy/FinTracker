@@ -1,8 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useEffect, useRef } from "react"
-import { useInView, useMotionValue, useSpring } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/src/lib/utils"
 import { CURRENCY_INFO, type SupportedCurrency } from "@/src/lib/currency"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/src/components/ui/tooltip"
@@ -38,57 +37,42 @@ function AnimatedValue({
 }) {
   const { locale } = useI18n()
   const numLocale = locale === "en" ? "en-US" : "es-CO"
-  const ref = useRef<HTMLSpanElement>(null)
-  const motionValue = useMotionValue(0)
-  const springValue = useSpring(motionValue, {
-    damping: 30,
-    stiffness: 100,
-  })
 
-  const isInView = useInView(ref, { once: true })
+  const fixedSign = color === "income" ? "+" : color === "expense" ? "-" : ""
+  const useAbs = color === "income" || color === "expense"
+  const numVal = useAbs ? Math.abs(value) : value
 
-  const formatDisplay = (val: number) => {
-    const fixedSign = color === "income" ? "+" : color === "expense" ? "-" : ""
-    // income/expense are always stored positive — force abs and prepend fixed sign.
-    // savings/default can be negative — let Intl handle the sign naturally.
-    const useAbs = color === "income" || color === "expense"
-    const numVal = useAbs ? Math.abs(val) : val
-    if (currencyCode) {
-      const info = CURRENCY_INFO[currencyCode as SupportedCurrency]
-      const formatted = new Intl.NumberFormat(info?.locale ?? 'en-US', {
-        style: 'currency',
-        currency: currencyCode,
-        maximumFractionDigits: info?.decimals ?? 2,
-        minimumFractionDigits: 0,
-      }).format(Number(numVal.toFixed(info?.decimals ?? 2)))
-      return `${fixedSign}${formatted}`
-    }
-    const formatted = new Intl.NumberFormat(numLocale, {
+  let formatted: string
+  if (currencyCode) {
+    const info = CURRENCY_INFO[currencyCode as SupportedCurrency]
+    const f = new Intl.NumberFormat(info?.locale ?? 'en-US', {
+      style: 'currency',
+      currency: currencyCode,
+      maximumFractionDigits: info?.decimals ?? 2,
+      minimumFractionDigits: 0,
+    }).format(Number(numVal.toFixed(info?.decimals ?? 2)))
+    formatted = `${fixedSign}${f}`
+  } else {
+    const f = new Intl.NumberFormat(numLocale, {
       maximumFractionDigits: 0,
     }).format(Number(numVal.toFixed(0)))
-    return `${fixedSign}${prefix}${formatted}`
+    formatted = `${fixedSign}${prefix}${f}`
   }
 
-  useEffect(() => {
-    if (isInView) {
-      if (value === 0 && ref.current) {
-        ref.current.textContent = formatDisplay(0)
-      }
-      motionValue.set(value)
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isInView, value, motionValue])
-
-  useEffect(() => {
-    return springValue.on("change", (latest) => {
-      if (ref.current) {
-        ref.current.textContent = formatDisplay(latest)
-      }
-    })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [springValue, prefix, color])
-
-  return <span ref={ref} className="tabular-nums" />
+  return (
+    <AnimatePresence mode="wait" initial={false}>
+      <motion.span
+        key={formatted}
+        className="tabular-nums inline-block"
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -6 }}
+        transition={{ duration: 0.25, ease: "easeOut" }}
+      >
+        {formatted}
+      </motion.span>
+    </AnimatePresence>
+  )
 }
 
 // ─── Helpers Originales ──────────────────────────────────────────────────────
