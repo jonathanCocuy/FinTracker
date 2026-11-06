@@ -50,8 +50,8 @@ function DigitRoller({
             opacity: 1,
             transition: {
               type: 'spring',
-              stiffness: 160,
-              damping: 22,
+              stiffness: 70,
+              damping: 16,
               delay,
             },
           }}

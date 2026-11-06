@@ -18,7 +18,7 @@ function DigitRoller({ char, direction, delay }: { char: string; direction: 1 | 
           animate={{
             y: 0,
             opacity: 1,
-            transition: { type: 'spring', stiffness: 160, damping: 22, delay },
+            transition: { type: 'spring', stiffness: 70, damping: 16, delay },
           }}
           exit={{
             y: `${direction * 50}%`,
