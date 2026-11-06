@@ -11,24 +11,20 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/src/components/
 import { Button } from "@/src/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/src/components/ui/dropdown-menu"
 import { LogOut, User, Loader2 } from "lucide-react"
-import { useRouter, usePathname } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { supabase } from "@/src/lib/supabase"
 import { useProfile } from "@/src/hooks/useProfile"
 import { useI18n } from "@/src/lib/i18n"
 import { cn } from "@/src/lib/utils"
 
 export function Navbar() {
-  const router = useRouter()
   const pathname = usePathname()
   const { profile, loading, showInvestments } = useProfile()
   const { t } = useI18n()
 
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut()
-    if (!error) {
-      router.push("/login")
-      router.refresh()
-    }
+    await supabase.auth.signOut()
+    window.location.href = "/login"
   }
 
   // Primary links — always visible on desktop

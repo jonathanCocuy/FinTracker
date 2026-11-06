@@ -19,21 +19,17 @@ import {
 } from "lucide-react"
 import { useProfile } from "@/src/hooks/useProfile"
 import { useI18n } from "@/src/lib/i18n"
-import { useRouter, usePathname } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { supabase } from "@/src/lib/supabase"
 import { cn } from "@/src/lib/utils"
 
 export function Topbar() {
   const { profile, loading, showInvestments } = useProfile()
   const { t } = useI18n()
-  const router = useRouter()
 
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut()
-    if (!error) {
-      router.push("/login")
-      router.refresh()
-    }
+    await supabase.auth.signOut()
+    window.location.href = "/login"
   }
 
   return (
