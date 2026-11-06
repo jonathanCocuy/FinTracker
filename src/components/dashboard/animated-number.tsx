@@ -14,14 +14,14 @@ function DigitRoller({ char, direction, delay }: { char: string; direction: 1 | 
           key={char}
           className="inline-block"
           style={{ lineHeight: 1 }}
-          initial={{ y: `${direction * 100}%`, opacity: 0 }}
+          initial={{ y: `${direction * -100}%`, opacity: 0 }}
           animate={{
             y: 0,
             opacity: 1,
             transition: { type: 'spring', stiffness: 160, damping: 22, delay },
           }}
           exit={{
-            y: `${direction * -50}%`,
+            y: `${direction * 50}%`,
             opacity: 0,
             filter: 'blur(2px)',
             transition: { duration: 0.12, ease: 'easeIn' },
