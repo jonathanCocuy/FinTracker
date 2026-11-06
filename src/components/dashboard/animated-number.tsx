@@ -3,21 +3,29 @@
 import { useRef } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 
-function DigitRoller({ char, direction }: { char: string; direction: 1 | -1 }) {
+function DigitRoller({ char, direction, delay }: { char: string; direction: 1 | -1; delay: number }) {
   return (
     <span
       className="inline-block overflow-hidden"
       style={{ height: '1em', lineHeight: 1, verticalAlign: 'baseline' }}
     >
-      <AnimatePresence mode="wait" initial={false}>
+      <AnimatePresence mode="sync" initial={false}>
         <motion.span
           key={char}
           className="inline-block"
           style={{ lineHeight: 1 }}
-          initial={{ y: `${direction * 110}%` }}
-          animate={{ y: 0 }}
-          exit={{ y: `${direction * -110}%` }}
-          transition={{ duration: 0.18, ease: [0.25, 0.46, 0.45, 0.94] }}
+          initial={{ y: `${direction * 100}%`, opacity: 0 }}
+          animate={{
+            y: 0,
+            opacity: 1,
+            transition: { type: 'spring', stiffness: 380, damping: 30, delay },
+          }}
+          exit={{
+            y: `${direction * -50}%`,
+            opacity: 0,
+            filter: 'blur(2px)',
+            transition: { duration: 0.1, ease: 'easeIn' },
+          }}
         >
           {char}
         </motion.span>
@@ -47,14 +55,16 @@ export function AnimatedNumber({
   let dIdx = 0, sIdx = 0
   const enriched = [...chars].reverse().map((char) => {
     const isDigit = /[0-9]/.test(char)
-    return { char, key: isDigit ? `d${dIdx++}` : `s${sIdx++}`, isDigit }
+    const pos = isDigit ? dIdx : -1
+    if (isDigit) dIdx++; else sIdx++
+    return { char, key: isDigit ? `d${pos}` : `s${sIdx - 1}`, isDigit, pos }
   }).reverse()
 
   return (
     <span className={`inline-flex items-baseline tabular-nums ${className ?? ''}`}>
       {enriched.map((item) =>
         item.isDigit
-          ? <DigitRoller key={item.key} char={item.char} direction={direction} />
+          ? <DigitRoller key={item.key} char={item.char} direction={direction} delay={item.pos * 0.035} />
           : <span key={item.key}>{item.char}</span>
       )}
     </span>
