@@ -117,7 +117,7 @@ export function CategoryModal({ open, onOpenChange, category }: CategoryModalPro
                       className="rounded-xl border-border/40 bg-muted/30 text-sm h-9"
                     />
                   </FormControl>
-                  <FormMessage className="text-xs" />
+                  <FormMessage className="text-xs text-destructive" />
                 </FormItem>
               )}
             />
@@ -125,13 +125,16 @@ export function CategoryModal({ open, onOpenChange, category }: CategoryModalPro
             <FormField
               control={form.control}
               name="color"
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <FormItem>
                   <FormLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     {t("categoriesPage.colorLabel")}
                   </FormLabel>
                   <FormControl>
-                    <div className="flex flex-wrap gap-2">
+                    <div className={cn(
+                      "flex flex-wrap gap-2 p-2 rounded-lg transition-colors",
+                      fieldState.error && "ring-2 ring-destructive/50 bg-destructive/5"
+                    )}>
                       {PRESET_COLORS.map(color => (
                         <button
                           key={color}
@@ -148,6 +151,7 @@ export function CategoryModal({ open, onOpenChange, category }: CategoryModalPro
                       ))}
                     </div>
                   </FormControl>
+                  <FormMessage className="text-xs text-destructive" />
                 </FormItem>
               )}
             />
@@ -155,14 +159,20 @@ export function CategoryModal({ open, onOpenChange, category }: CategoryModalPro
             <FormField
               control={form.control}
               name="icon"
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <FormItem>
                   <FormLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     {t("categoriesPage.iconLabel")}
                   </FormLabel>
                   <FormControl>
-                    <IconPicker value={field.value} onChange={field.onChange} />
+                    <div className={cn(
+                      "rounded-lg transition-colors",
+                      fieldState.error && "ring-2 ring-destructive/50"
+                    )}>
+                      <IconPicker value={field.value} onChange={field.onChange} />
+                    </div>
                   </FormControl>
+                  <FormMessage className="text-xs text-destructive" />
                 </FormItem>
               )}
             />

@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { CalendarIcon, Plus, Loader2 } from "lucide-react"
+import { cn } from "@/src/lib/utils"
 import { supabase } from "@/src/lib/supabase"
 import {
   createTransaction, updateTransaction, deleteTransaction,
@@ -304,7 +305,7 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
             <FormField
               control={form.control}
               name="amount"
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <FormItem className="space-y-1 text-center">
                   <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-50">
                     {t("transactionModal.amountLabel")}
@@ -314,7 +315,12 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
                       value={field.value}
                       onChange={field.onChange}
                       placeholder="0"
-                      className="h-14 text-3xl font-bold text-center bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                      className={cn(
+                        "h-14 text-3xl font-bold text-center bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0",
+                        fieldState.error
+                          ? "border border-destructive ring-2 ring-destructive/30 rounded-lg"
+                          : "border-none"
+                      )}
                     />
                   </FormControl>
                   <div className="flex items-center justify-center gap-2 pt-0.5">
@@ -329,7 +335,7 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
                       </span>
                     )}
                   </div>
-                  <FormMessage className="text-[10px]" />
+                  <FormMessage className="text-xs text-destructive" />
                 </FormItem>
               )}
             />
@@ -409,7 +415,7 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage className="text-[10px]" />
+                    <FormMessage className="text-xs text-destructive" />
                   </FormItem>
                 )}
               />
@@ -465,7 +471,7 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
                             </div>
                           </SelectContent>
                         </Select>
-                        <FormMessage className="text-[10px]" />
+                        <FormMessage className="text-xs text-destructive" />
                       </FormItem>
                     )}
                   />
@@ -534,7 +540,7 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormMessage className="text-[10px]" />
+                      <FormMessage className="text-xs text-destructive" />
                     </FormItem>
                   )}
                 />
@@ -562,7 +568,7 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
                             ))}
                           </SelectContent>
                         </Select>
-                        <FormMessage className="text-[10px]" />
+                        <FormMessage className="text-xs text-destructive" />
                       </FormItem>
                     )}
                   />
@@ -587,7 +593,7 @@ export function TransactionModal({ transaction, open: externalOpen, onOpenChange
                             ))}
                           </SelectContent>
                         </Select>
-                        <FormMessage className="text-[10px]" />
+                        <FormMessage className="text-xs text-destructive" />
                       </FormItem>
                     )}
                   />

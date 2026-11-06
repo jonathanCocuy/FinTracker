@@ -39,6 +39,7 @@ import {
 } from "@/src/components/ui/select"
 import { IconPicker } from "@/src/components/ui/icon-picker"
 import { Trash2, Plus, Loader2 } from "lucide-react"
+import { cn } from "@/src/lib/utils"
 import type { RecurringTemplate } from "@/src/lib/data"
 import { SUPPORTED_CURRENCIES, getExchangeRate, getFlagUrl } from "@/src/lib/currency"
 import { AmountInput } from "@/src/components/ui/amount-input"
@@ -192,7 +193,7 @@ export function RecurringModal({ template, open, onOpenChange }: RecurringModalP
               <FormField
                 control={form.control}
                 name="amount"
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <FormItem className="space-y-1 text-center">
                     <FormLabel className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-50">
                       {t("transactionModal.amountLabel")}
@@ -202,10 +203,15 @@ export function RecurringModal({ template, open, onOpenChange }: RecurringModalP
                         value={field.value}
                         onChange={field.onChange}
                         placeholder="0"
-                        className="h-14 text-3xl font-bold text-center bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                        className={cn(
+                          "h-14 text-3xl font-bold text-center bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0",
+                          fieldState.error
+                            ? "border border-destructive ring-2 ring-destructive/30 rounded-lg"
+                            : "border-none"
+                        )}
                       />
                     </FormControl>
-                    <FormMessage className="text-[10px]" />
+                    <FormMessage className="text-xs text-destructive" />
                   </FormItem>
                 )}
               />
@@ -288,7 +294,7 @@ export function RecurringModal({ template, open, onOpenChange }: RecurringModalP
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage className="text-[10px]" />
+                      <FormMessage className="text-xs text-destructive" />
                     </FormItem>
                   )}
                 />
@@ -340,7 +346,7 @@ export function RecurringModal({ template, open, onOpenChange }: RecurringModalP
                           </div>
                         </SelectContent>
                       </Select>
-                      <FormMessage className="text-[10px]" />
+                      <FormMessage className="text-xs text-destructive" />
                     </FormItem>
                   )}
                 />
@@ -365,7 +371,7 @@ export function RecurringModal({ template, open, onOpenChange }: RecurringModalP
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormMessage className="text-[10px]" />
+                      <FormMessage className="text-xs text-destructive" />
                     </FormItem>
                   )}
                 />
@@ -429,7 +435,7 @@ export function RecurringModal({ template, open, onOpenChange }: RecurringModalP
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormMessage className="text-[10px]" />
+                      <FormMessage className="text-xs text-destructive" />
                     </FormItem>
                   )}
                 />
@@ -460,7 +466,7 @@ export function RecurringModal({ template, open, onOpenChange }: RecurringModalP
                           ))}
                         </div>
                       </FormControl>
-                      <FormMessage className="text-[10px]" />
+                      <FormMessage className="text-xs text-destructive" />
                     </FormItem>
                   )}
                 />

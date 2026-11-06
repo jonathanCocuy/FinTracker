@@ -87,50 +87,50 @@ export function BudgetModal({ open, onOpenChange, existingBudget, usedCategories
                   <FormLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     {t("budgets.categoryLabel")}
                   </FormLabel>
-                  <FormControl>
-                    {isEditing ? (
-                      (() => {
-                        const cat = categories.find(c => c.name === field.value)
-                        const Icon = cat?.icon
-                          ? (LucideIcons as unknown as Record<string, React.ComponentType<{ size?: number; style?: React.CSSProperties }>>)[cat.icon]
-                          : null
-                        return (
-                          <div className="flex items-center gap-2 h-9 px-3 rounded-xl border border-border/40 bg-muted/30 text-sm text-muted-foreground">
-                            {Icon
-                              ? <Icon size={16} style={{ color: cat?.color }} />
-                              : <Tag size={16} />
-                            }
-                            <span>{cat ? tCategory(cat.name, cat.label) : field.value}</span>
-                          </div>
-                        )
-                      })()
-                    ) : (
-                      <Select onValueChange={field.onChange} value={field.value}>
+                  {isEditing ? (
+                    (() => {
+                      const cat = categories.find(c => c.name === field.value)
+                      const Icon = cat?.icon
+                        ? (LucideIcons as unknown as Record<string, React.ComponentType<{ size?: number; style?: React.CSSProperties }>>)[cat.icon]
+                        : null
+                      return (
+                        <div className="flex items-center gap-2 h-9 px-3 rounded-xl border border-border/40 bg-muted/30 text-sm text-muted-foreground">
+                          {Icon
+                            ? <Icon size={16} style={{ color: cat?.color }} />
+                            : <Tag size={16} />
+                          }
+                          <span>{cat ? tCategory(cat.name, cat.label) : field.value}</span>
+                        </div>
+                      )
+                    })()
+                  ) : (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
                         <SelectTrigger className="rounded-xl border-border/40 bg-muted/30 text-sm h-9">
                           <SelectValue placeholder={t("budgets.categoryLabel")} />
                         </SelectTrigger>
-                        <SelectContent>
-                          {availableCategories.map(cat => {
-                            const Icon = cat.icon
-                              ? (LucideIcons as unknown as Record<string, React.ComponentType<{ size?: number; style?: React.CSSProperties }>>)[cat.icon]
-                              : null
-                            return (
-                              <SelectItem key={cat.name} value={cat.name}>
-                                <span className="flex items-center gap-2">
-                                  {Icon
-                                    ? <Icon size={16} style={{ color: cat.color }} />
-                                    : <Tag size={16} style={{ color: cat.color }} />
-                                  }
-                                  {tCategory(cat.name, cat.label)}
-                                </span>
-                              </SelectItem>
-                            )
-                          })}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  </FormControl>
-                  <FormMessage className="text-xs" />
+                      </FormControl>
+                      <SelectContent>
+                        {availableCategories.map(cat => {
+                          const Icon = cat.icon
+                            ? (LucideIcons as unknown as Record<string, React.ComponentType<{ size?: number; style?: React.CSSProperties }>>)[cat.icon]
+                            : null
+                          return (
+                            <SelectItem key={cat.name} value={cat.name}>
+                              <span className="flex items-center gap-2">
+                                {Icon
+                                  ? <Icon size={16} style={{ color: cat.color }} />
+                                  : <Tag size={16} style={{ color: cat.color }} />
+                                }
+                                {tCategory(cat.name, cat.label)}
+                              </span>
+                            </SelectItem>
+                          )
+                        })}
+                      </SelectContent>
+                    </Select>
+                  )}
+                  <FormMessage className="text-xs text-destructive" />
                 </FormItem>
               )}
             />
@@ -151,7 +151,7 @@ export function BudgetModal({ open, onOpenChange, existingBudget, usedCategories
                       className="rounded-xl border-border/40 bg-muted/30 text-sm h-9"
                     />
                   </FormControl>
-                  <FormMessage className="text-xs" />
+                  <FormMessage className="text-xs text-destructive" />
                 </FormItem>
               )}
             />

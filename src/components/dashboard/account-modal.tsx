@@ -353,7 +353,7 @@ export function AccountModal({
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormMessage className="text-[10px]" />
+                  <FormMessage className="text-xs text-destructive" />
                 </FormItem>
               )}
             />

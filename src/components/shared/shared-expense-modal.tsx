@@ -139,8 +139,8 @@ export function SharedExpenseModal({
           <form onSubmit={handleSubmit(onSubmit)} className="px-6 pb-6 flex flex-col gap-4">
             <div className="flex flex-col gap-2">
               <Label>{t('common.description')}</Label>
-              <Input {...register('description')} placeholder={t('shared.expensePlaceholder')} className="rounded-xl bg-muted/50" />
-              {errors.description && <span className="text-xs text-rose-500">{t('validation.descriptionRequired')}</span>}
+              <Input {...register('description')} aria-invalid={!!errors.description} placeholder={t('shared.expensePlaceholder')} className="rounded-xl bg-muted/50" />
+              {errors.description && <span className="text-xs text-destructive">{t('validation.descriptionRequired')}</span>}
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -149,10 +149,10 @@ export function SharedExpenseModal({
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
                   <Controller name="amount" control={control} render={({ field }) => (
-                    <AmountInput id="amount" value={field.value} onChange={field.onChange} placeholder="0" className="pl-7 rounded-xl bg-muted/50" />
+                    <AmountInput id="amount" value={field.value} onChange={field.onChange} placeholder="0" aria-invalid={!!errors.amount} className="pl-7 rounded-xl bg-muted/50" />
                   )} />
                 </div>
-                {errors.amount && <span className="text-xs text-rose-500">{t('validation.enterAmount')}</span>}
+                {errors.amount && <span className="text-xs text-destructive">{t('validation.enterAmount')}</span>}
               </div>
 
               <div className="flex flex-col gap-2">

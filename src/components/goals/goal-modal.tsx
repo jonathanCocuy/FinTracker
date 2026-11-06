@@ -143,9 +143,10 @@ export function GoalModal({
                   id="name"
                   placeholder={t("goals.namePlaceholder")}
                   {...register("name")}
+                  aria-invalid={!!errors.name}
                   className="rounded-xl bg-muted/50"
                 />
-                {errors.name && <span className="text-xs text-rose-500">{errors.name.message}</span>}
+                {errors.name && <span className="text-xs text-destructive">{errors.name.message}</span>}
               </div>
             </div>
 
@@ -162,12 +163,13 @@ export function GoalModal({
                       value={field.value}
                       onChange={field.onChange}
                       placeholder="0"
+                      aria-invalid={!!errors.target_amount}
                       className="pl-7 rounded-xl bg-muted/50 font-medium"
                     />
                   )}
                 />
               </div>
-              {errors.target_amount && <span className="text-xs text-rose-500">{errors.target_amount.message}</span>}
+              {errors.target_amount && <span className="text-xs text-destructive">{errors.target_amount.message}</span>}
             </div>
 
             <div className="flex flex-col gap-2">

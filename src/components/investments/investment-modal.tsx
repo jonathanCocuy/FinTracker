@@ -128,7 +128,7 @@ export function InvestmentModal({ record, open, onOpenChange }: InvestmentModalP
                 <FormControl>
                   <Input placeholder={t("investments.namePlaceholder")} className="h-10 bg-background/40 border-border/60" {...field} />
                 </FormControl>
-                <FormMessage className="text-[10px]" />
+                <FormMessage className="text-xs text-destructive" />
               </FormItem>
             )} />
 
@@ -148,7 +148,7 @@ export function InvestmentModal({ record, open, onOpenChange }: InvestmentModalP
                     ))}
                   </SelectContent>
                 </Select>
-                <FormMessage className="text-[10px]" />
+                <FormMessage className="text-xs text-destructive" />
               </FormItem>
             )} />
 
@@ -160,7 +160,7 @@ export function InvestmentModal({ record, open, onOpenChange }: InvestmentModalP
                   <FormControl>
                     <AmountInput value={field.value} onChange={field.onChange} placeholder="0" className="h-10 bg-background/40 border-border/60" />
                   </FormControl>
-                  <FormMessage className="text-[10px]" />
+                  <FormMessage className="text-xs text-destructive" />
                 </FormItem>
               )} />
               <FormField control={form.control} name="currency" render={({ field }) => (
@@ -177,7 +177,7 @@ export function InvestmentModal({ record, open, onOpenChange }: InvestmentModalP
                       <SelectItem value="USD">USD</SelectItem>
                     </SelectContent>
                   </Select>
-                  <FormMessage className="text-[10px]" />
+                  <FormMessage className="text-xs text-destructive" />
                 </FormItem>
               )} />
             </div>
@@ -189,7 +189,7 @@ export function InvestmentModal({ record, open, onOpenChange }: InvestmentModalP
                 <FormControl>
                   <Input type="date" className="h-10 bg-background/40 border-border/60" {...field} />
                 </FormControl>
-                <FormMessage className="text-[10px]" />
+                <FormMessage className="text-xs text-destructive" />
               </FormItem>
             )} />
 
